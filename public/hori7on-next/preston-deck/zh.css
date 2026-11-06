@@ -1,0 +1,17 @@
+/* Chinese (Simplified) layer for the Saint Village Preston decks. Loaded after jessica.css; touches type only, never layout or colour. */
+html[lang^="zh"] body, html[lang^="zh"] #stage *, html[lang^="zh"] .ov *, html[lang^="zh"] #notes *, html[lang^="zh"] #toast, html[lang^="zh"] #chrome *{
+  font-family:Inter,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Source Han Sans SC","Microsoft YaHei","Heiti SC",system-ui,sans-serif}
+/* Chinese has no italic: the gold second half of a headline keeps its colour and drops the slant */
+html[lang^="zh"] i, html[lang^="zh"] em, html[lang^="zh"] .it{font-style:normal}
+/* CJK needs air: no negative tracking, a taller line */
+html[lang^="zh"] #stage .mast, html[lang^="zh"] #stage .mast *{letter-spacing:0!important;line-height:1.16}
+html[lang^="zh"] .sv-t h3, html[lang^="zh"] .sv-p h3, html[lang^="zh"] .brk h3{letter-spacing:0!important;line-height:1.2}
+html[lang^="zh"] #stage .lead{line-height:1.5}
+html[lang^="zh"] #stage .body, html[lang^="zh"] #stage .d, html[lang^="zh"] #stage li, html[lang^="zh"] #stage p{line-height:1.5}
+html[lang^="zh"] #stage td, html[lang^="zh"] #stage th{line-height:1.32}
+html[lang^="zh"] #stage .fn{line-height:1.5}
+html[lang^="zh"] #stage .lbl, html[lang^="zh"] #stage .eb, html[lang^="zh"] #stage .rail{letter-spacing:.04em!important}
+/* long Chinese strings break anywhere; keep figures and Latin names whole */
+html[lang^="zh"] #stage{word-break:normal;line-break:strict;overflow-wrap:anywhere}
+/* figure cells never break: ($27.4m) stays whole while the label beside it wraps */
+html[lang^="zh"] #stage td.n{white-space:nowrap}

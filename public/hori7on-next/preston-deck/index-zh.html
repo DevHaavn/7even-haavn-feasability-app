@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saint Village Preston · 投资备忘录（中文）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@400;500&family=Jost:wght@400&family=Monoton&display=swap" rel="stylesheet">
+<style>
+/* ══ HORI7ON issue language (from the 7EVEN Marketing IM) on the HAAVN presentation engine ══ */
+:root{
+  --bg:#0A0A0B;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);
+  --ink:#FFFFFF;--ink2:#E3E1DA;--ink3:#A6A39B;--dim:#6A6862;
+  --gold:#d6b36a;--gold2:#e8d296;--goldd:#b8933f;
+  --f-d:'Cormorant Garamond',Georgia,serif;--f-b:'Inter',system-ui,sans-serif;--f-m:'JetBrains Mono',ui-monospace,monospace;--f-n:'Monoton','Cormorant Garamond',serif;--f-btn:'Jost','Inter',sans-serif;
+  --out:cubic-bezier(.16,1,.3,1);--s:1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#040405;overflow:hidden}
+body{font-family:var(--f-b);color:var(--ink);-webkit-font-smoothing:antialiased;cursor:default}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:#0a0a0b}
+
+/* ── stage: 1920 × 1080, scaled to fit ── */
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--s));transform-origin:center;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(0,0,0,.35) 100%),url('a/field.jpg') center/cover no-repeat #060607}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .7s ease}
+.pad{position:absolute;left:112px;right:112px;top:128px;bottom:124px;display:flex;flex-direction:column}
+
+/* rails (injected per slide) */
+.rail{position:absolute;left:112px;right:112px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-m);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#AFB3B6;z-index:5}
+.rail.top{top:52px}
+.rail.bot{bottom:48px;color:#9a9e9a}
+.rail .wm{height:17px;width:auto;opacity:.95}
+.rail .l{display:flex;align-items:center;gap:22px}
+.rail .l i{width:1px;height:14px;background:rgba(255,255,255,.3)}
+.rail .no{margin-right:318px}
+.rail b{color:var(--gold);font-weight:500}
+
+/* type */
+.eb{font-family:var(--f-m);font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.mast{font-family:var(--f-d);font-weight:500;line-height:.94;letter-spacing:-.015em;color:var(--ink);font-size:104px}
+.mast i{font-style:italic;font-weight:300;color:var(--gold)}
+.mast .it{display:block;font-style:italic;font-weight:300;color:var(--gold)}
+.mast.m{font-size:84px}.mast.s{font-size:68px}.mast.xl{font-size:148px}
+.lead{font-family:var(--f-d);font-size:32px;line-height:1.42;color:#F2F0EA;font-weight:400}
+.lead i{color:var(--gold)}
+.body{font-size:19px;line-height:1.72;color:var(--ink2);font-weight:300}
+.body b{color:var(--ink);font-weight:500}
+.lbl{font-family:var(--f-m);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#BCB9B1}
+.fn{font-size:13px;line-height:1.6;color:#8f8c85}
+.num{font-family:var(--f-n);font-weight:400;line-height:1.08;letter-spacing:.03em;color:var(--gold);font-size:72px;white-space:nowrap}
+.num.xl{font-size:150px}.num.l{font-size:100px}.num.s{font-size:54px}
+.num.w{color:#fff}
+.gold{color:var(--gold)}
+.row{display:flex}.col{display:flex;flex-direction:column}
+.g{display:grid}
+.stat{border-top:1px solid var(--line2);padding-top:20px}
+.stat .lbl{margin-top:10px;line-height:1.6}
+.stat p.body{font-size:17px;margin-top:8px;color:var(--ink3)}
+
+/* plates: edges dissolve into the field */
+.plate{position:relative;overflow:hidden}
+.plate img{width:100%;height:100%;object-fit:cover;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%),linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%),linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.cap b{color:var(--ink2);font-weight:500}
+.cap{display:flex;justify-content:space-between;gap:18px;margin-top:12px;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9CA09A}
+
+/* full-bleed plate for cover and chapter slides */
+.bleed{position:absolute;inset:0;z-index:0;overflow:hidden}
+.bleed img{width:100%;height:100%;object-fit:cover}
+.bleed::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,7,.96) 0%,rgba(6,6,7,.82) 34%,rgba(6,6,7,.25) 72%,rgba(6,6,7,.35) 100%),linear-gradient(0deg,rgba(6,6,7,.9) 0%,transparent 34%)}
+.bleed.side::after{background:linear-gradient(90deg,rgba(6,6,7,1) 0%,rgba(6,6,7,.55) 22%,rgba(6,6,7,0) 55%),linear-gradient(0deg,rgba(6,6,7,.75) 0%,transparent 30%)}
+.bleed.lite::after{background:linear-gradient(90deg,rgba(6,6,7,.9) 0%,rgba(6,6,7,.55) 30%,rgba(6,6,7,0) 55%),linear-gradient(0deg,rgba(6,6,7,.7) 0%,transparent 35%)}
+.bleed.dk::after{background:linear-gradient(0deg,rgba(6,6,7,.97) 0%,rgba(6,6,7,.8) 45%,rgba(6,6,7,.55) 100%)}
+.slide>.pad,.slide>.rail{z-index:3}
+
+/* vertical serif caption (sits in the left margin, clear of the copy) */
+.vert{position:absolute;left:40px;bottom:150px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--f-d);font-weight:500;font-size:40px;line-height:1;color:var(--ink);z-index:4}
+.vert i{font-style:italic;font-weight:300;color:var(--gold)}
+
+/* meta blocks, chips, pull quote, cards */
+.meta{display:flex;gap:48px}
+.meta div{border-left:1px solid rgba(255,255,255,.4);padding-left:16px;font-size:16px;color:#DBD9D2;line-height:1.5}
+.meta b{display:block;font-family:var(--f-m);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#fff;font-weight:500;margin-bottom:6px}
+.pq{border-left:2px solid var(--gold);padding-left:26px;font-family:var(--f-d);font-style:italic;font-size:38px;line-height:1.35;color:#F2F0EA;font-weight:300}
+.card{border:1px solid var(--line2);padding:30px 30px 32px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));backdrop-filter:blur(8px)}
+.card.gl{border-color:rgba(214,179,106,.6);background:linear-gradient(180deg,rgba(214,179,106,.10),rgba(214,179,106,.02))}
+.card h3{font-family:var(--f-d);font-weight:500;font-size:34px;line-height:1.05;margin:14px 0 12px}
+.card h3 i{font-style:italic;font-weight:300;color:var(--gold)}
+.card .body{font-size:17px}
+
+/* ledger tables */
+table{width:100%;border-collapse:collapse}
+.lt th{font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#BCB9B1;text-align:right;padding:10px 6px;border-bottom:1px solid var(--line2)}
+.lt td{padding:13px 6px;border-bottom:1px solid var(--line);font-size:18px;color:var(--ink2);text-align:right;font-weight:300}
+.lt td:first-child,.lt th:first-child{text-align:left}
+.lt td.n{font-family:var(--f-m);font-size:17px;color:#fff}
+.lt tr.tot td{border-top:2px solid var(--gold);border-bottom:3px double var(--gold);color:var(--gold);font-weight:500}
+.lt tr.tot td.n{color:var(--gold)}
+
+/* bars */
+.bar{display:grid;grid-template-columns:300px 1fr 170px;gap:22px;align-items:center;margin:14px 0}
+.bar span{font-size:17px;color:var(--ink2)}
+.bar .t{height:10px;background:rgba(255,255,255,.07);position:relative}
+.bar .t i{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:linear-gradient(90deg,#77756f,#d6d3cb)}
+.bar .t i.gd{background:linear-gradient(90deg,var(--goldd),var(--gold2))}
+.bar .v{font-family:var(--f-m);font-size:17px;text-align:right;color:#fff}
+
+/* people */
+.person .plate{aspect-ratio:4/5}
+.person .plate img{filter:grayscale(1) contrast(1.06)}
+.person h4{font-family:var(--f-d);font-weight:500;font-size:34px;margin-top:18px;line-height:1}
+.person .lbl{color:var(--gold);margin-top:10px}
+.person p{font-size:16px;line-height:1.6;color:var(--ink3);margin-top:12px}
+
+/* brand button (7even.au) */
+.btn{display:inline-flex;align-items:center;gap:18px;height:58px;padding:0 28px;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-family:var(--f-btn);font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink);transition:.3s;cursor:pointer;background:rgba(6,6,7,.35)}
+.btn .ar{transition:transform .3s var(--out);color:#d6d9dd}
+.btn:hover{background:rgba(214,179,106,.07);border-color:rgba(214,179,106,.85);color:var(--gold);box-shadow:0 0 12px rgba(214,179,106,.25)}
+.btn:hover .ar{color:var(--gold);transform:translateX(5px)}
+
+/* ── build-in animation: every .a waits for its slide ── */
+.a{opacity:0;transform:translateY(26px);transition:opacity 1s ease,transform 1.1s var(--out);transition-delay:var(--d,0s)}
+.a.r{transform:translateX(34px)}
+.a.f{transform:none}
+.a.w{transform:none;clip-path:inset(0 100% 0 0);transition:opacity .2s ease,clip-path 1.5s var(--out);transition-delay:var(--d,0s)}
+.slide.on .a{opacity:1;transform:none;clip-path:inset(0 0 0 0)}
+.slide:not(.on) .a{transition:none}
+.kb img{transform:scale(1.08);transition:transform 12s ease-out}
+.slide.on .kb img{transform:scale(1)}
+.slide:not(.on) .kb img{transition:none}
+.bar .t i{transform:scaleX(0);transform-origin:left;transition:transform 1.6s var(--out);transition-delay:var(--d,.4s)}
+.slide.on .bar .t i{transform:none}
+.slide:not(.on) .bar .t i{transition:none}
+.grow{transform:scaleX(0);transform-origin:left;transition:transform 1.6s var(--out);transition-delay:var(--d,.4s)}
+.slide.on .grow{transform:none}
+.slide:not(.on) .grow{transition:none}
+
+/* ── the planning pathway ── */
+.path{position:relative;height:340px;margin-top:84px}
+.path .base{position:absolute;left:14px;right:14px;top:59px;height:2px;background:rgba(255,255,255,.14)}
+.path .next{position:absolute;right:14px;top:59px;height:2px;width:calc((100% - 28px) * .17);background:repeating-linear-gradient(90deg,rgba(214,179,106,.55) 0 8px,transparent 8px 16px)}
+.path .fill{position:absolute;left:14px;top:58px;height:4px;width:calc((100% - 28px) * .829);background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 14px rgba(214,179,106,.7),0 0 34px rgba(214,179,106,.35);transform:scaleX(0);transform-origin:left;transition:transform 3.6s cubic-bezier(.45,0,.2,1) .6s}
+.slide.on .path .fill{transform:none}
+.slide:not(.on) .path .fill{transition:none}
+.stages{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);gap:30px}
+.stg{position:relative;display:flex;flex-direction:column;align-items:flex-start}
+.stg .dot{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;margin-top:45px;position:relative;transition:all .6s ease;transition-delay:var(--d)}
+.slide.on .stg.done .dot{border-color:var(--gold);background:var(--gold);box-shadow:0 0 16px rgba(214,179,106,.8)}
+.slide:not(.on) .stg .dot,.slide:not(.on) .stg .dot::after,.slide:not(.on) .stg .dot::before,.slide:not(.on) .stg .tag{transition:none}
+.stg.done .dot::after{content:"";position:absolute;left:9px;top:4px;width:7px;height:13px;border:solid #0b0b0c;border-width:0 2px 2px 0;transform:rotate(45deg);opacity:0;transition:opacity .3s;transition-delay:var(--d)}
+.slide.on .stg.done .dot::after{opacity:1}
+.stg.now .dot{border-color:var(--gold)}
+.slide.on .stg.now .dot{animation:now 2.2s ease-out 4.4s infinite}
+.stg.now .dot::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--gold);opacity:0;transition:opacity .4s;transition-delay:4.2s}
+.slide.on .stg.now .dot::before{opacity:1}
+@keyframes now{0%{box-shadow:0 0 0 0 rgba(214,179,106,.75)}100%{box-shadow:0 0 0 32px rgba(214,179,106,0)}}
+.stg .tag{position:absolute;top:0;left:0;font-family:var(--f-m);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#0b0b0c;background:var(--gold);padding:6px 10px;opacity:0;transition:opacity .5s;transition-delay:4.6s}
+.slide.on .stg.now .tag{opacity:1}
+.stg .k{font-family:var(--f-m);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-top:30px}
+.stg h4{font-family:var(--f-d);font-weight:500;font-size:36px;line-height:1.02;margin-top:10px}
+.stg h4 i{font-style:italic;font-weight:300;color:var(--gold)}
+.stg p{font-size:16px;line-height:1.55;color:var(--ink3);margin-top:12px}
+.stg .st{margin-top:16px;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:7px 10px;border:1px solid var(--line2);color:var(--ink3)}
+.stg.done .st{border-color:rgba(214,179,106,.5);color:var(--gold)}
+.stg.now .st{background:rgba(214,179,106,.12);border-color:var(--gold);color:var(--gold2)}
+.path .end{position:absolute;right:14px;top:0;display:flex;flex-direction:column;align-items:flex-end}
+.path .end span{font-family:var(--f-m);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);padding:6px 0}
+.path .end::after{content:"";width:16px;height:16px;border:2px solid var(--gold);transform:rotate(45deg);background:#0b0b0c;margin:17px 0 0}
+/* time comparison */
+.clock{display:grid;grid-template-columns:250px 1fr;row-gap:20px;column-gap:28px;align-items:center}
+.clock .tk{height:36px;position:relative;display:flex;align-items:center}
+.clock .tk i{position:absolute;left:0;top:0;bottom:0;width:var(--w);transform:scaleX(0);transform-origin:left;transition:transform 1.8s var(--out);transition-delay:var(--d)}
+.clock .tk.d i{background:linear-gradient(90deg,rgba(214,179,106,.2),rgba(214,179,106,.5));border:1px solid rgba(214,179,106,.6)}
+.clock .tk.n i{background:repeating-linear-gradient(135deg,rgba(214,179,106,.95) 0 10px,rgba(214,179,106,.55) 10px 20px)}
+.slide.on .clock .tk i{transform:none}
+.slide:not(.on) .clock .tk i{transition:none}
+.clock .tk em{position:relative;z-index:1;font-style:normal;font-family:var(--f-m);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#fff;padding-left:16px;white-space:nowrap}
+.clock .tk.n em{margin-left:var(--w);color:var(--gold2)}
+
+
+/* seven principles */
+.prin{display:grid;grid-template-columns:1.25fr 1.25fr repeat(5,1fr);gap:26px;align-items:stretch}
+.pc:not(.big) p{font-size:17px}
+.pc{border-top:1px solid var(--line2);padding-top:22px}
+.pc.big{border-top:2px solid var(--gold)}
+.pc .k{font-family:var(--f-n);color:var(--gold);font-size:40px;line-height:1.1}
+.pc h4{font-family:var(--f-d);font-weight:500;font-size:32px;line-height:1.05;margin-top:14px}
+.pc.big h4{font-size:40px}
+.pc h4 i{display:block;font-style:italic;font-weight:300;color:var(--gold)}
+.pc p{font-size:16px;line-height:1.6;color:var(--ink3);margin-top:14px}
+/* engines */
+.eng{display:flex;flex-direction:column}
+.er{display:grid;grid-template-columns:70px 380px 440px 1fr;align-items:center;gap:30px;padding:17px 18px;border-top:1px solid var(--line2)}
+.er:last-child{border-bottom:1px solid var(--line2)}
+.er .k{font-family:var(--f-n);color:var(--gold);font-size:34px}
+.er img{height:28px;width:auto;max-width:360px;object-fit:contain;object-position:left}
+.er b{font-family:var(--f-d);font-weight:500;font-size:34px;line-height:1}
+.er b i{font-style:italic;font-weight:300;color:var(--gold)}
+.er p{font-size:16px;color:var(--ink3);line-height:1.55}
+.er.hz{background:linear-gradient(90deg,rgba(214,179,106,.12),rgba(214,179,106,0) 70%);border-top-color:rgba(214,179,106,.6)}
+/* lifecycle */
+.life{position:relative}
+.life ol{list-style:none;display:grid;grid-template-columns:repeat(8,1fr);gap:20px;position:relative}
+.life .lbase{position:absolute;left:0;right:0;top:14px;height:2px;background:rgba(255,255,255,.14)}
+.life .lfill{position:absolute;left:0;right:calc(100%/8 - 20px);top:13px;height:4px;background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 14px rgba(214,179,106,.7);transform:scaleX(0);transform-origin:left;transition:transform 2.8s linear .55s}
+.slide.on .life .lfill{transform:none}
+.life li i{display:block;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;position:relative;transition:all .5s;transition-delay:var(--d)}
+.slide.on .life li i{border-color:var(--gold);background:var(--gold);box-shadow:0 0 16px rgba(214,179,106,.8)}
+.life li b{display:block;font-family:var(--f-n);font-weight:400;color:var(--gold);font-size:38px;margin-top:22px}
+.life li span{display:block;font-family:var(--f-d);font-size:27px;line-height:1.08;margin-top:10px;min-height:58px}
+.life li em{display:block;font-style:normal;font-size:15px;line-height:1.5;color:var(--ink3);margin-top:10px}
+.life li b,.life li span,.life li em{opacity:0;transform:translateY(14px);transition:opacity .8s ease,transform .9s var(--out);transition-delay:var(--d)}
+.slide.on .life li b,.slide.on .life li span,.slide.on .life li em{opacity:1;transform:none}
+.slide:not(.on) .life *{transition:none!important}
+html.print .life .lfill,html.print .life li *{opacity:1!important;transform:none!important;transition:none!important}
+html.print .life li i{border-color:var(--gold);background:var(--gold)}
+
+
+/* 7X device and the ATRIUM lockup (geometry from the live app) */
+.x7{height:96px;width:auto;display:block}
+.atrlock{display:flex;align-items:center;gap:26px;border-left:1px solid var(--line2);padding-left:40px}
+.aring{width:92px;height:92px;flex:none}
+.atr{display:inline-flex;align-items:baseline;gap:.1em;white-space:nowrap;font-family:'Inter',sans-serif;font-weight:100;font-size:44px;letter-spacing:.34em;color:#F3F2EE;line-height:1}
+.atr svg{height:.727em;width:auto;align-self:baseline;display:inline-block;vertical-align:baseline;overflow:visible}
+.atri{display:inline-flex;align-items:baseline;gap:.08em;font-family:'Inter',sans-serif;font-weight:200;letter-spacing:.3em;margin:0 .02em 0 .06em;white-space:nowrap;color:#F3F2EE}
+.atri>span{margin-right:-.3em}
+.atr>span{margin-right:-.34em}
+.atri svg{height:.727em;width:auto;display:inline-block;vertical-align:baseline;overflow:visible}
+.atrlock .by{display:flex;align-items:center;gap:10px;margin-top:10px}
+.atrlock .by i{font-family:var(--f-d);font-style:italic;font-size:22px;color:var(--gold)}
+.atrlock .by .x7{height:20px}
+.atrlock .tg{white-space:nowrap;font-family:var(--f-m);font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#9CA09A;margin-top:10px}
+/* the 7EVEN wordmark, set inline wherever the name appears */
+.x7i{display:inline-block;height:.78em;width:auto;vertical-align:-.04em;margin:0 .08em}
+.bm{display:inline-block;height:var(--h,.7em);aspect-ratio:var(--ar);background:currentColor;vertical-align:baseline;margin:0 .07em;
+  -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.bmp{display:inline-block;height:var(--h,.7em);width:auto;vertical-align:baseline;margin:0 .07em}
+.w7p{display:inline-block;height:.7em;width:auto;vertical-align:baseline;margin:0 .06em}
+.w7{display:inline-block;height:.7em;aspect-ratio:1400/223;background:currentColor;vertical-align:baseline;margin:0 .06em;
+  -webkit-mask:url('a/7even-wm.png') center/contain no-repeat;mask:url('a/7even-wm.png') center/contain no-repeat}
+
+
+/* the journey: done, now, next */
+.journey{display:grid;grid-template-columns:1fr 1fr;gap:70px}
+.jc{list-style:none;display:flex;flex-direction:column}
+.js{display:grid;grid-template-columns:34px 1fr auto;gap:20px;align-items:start;position:relative;padding:12px 0 14px}
+.js:not(:last-child)::before{content:"";position:absolute;left:14px;top:42px;bottom:-8px;width:2px;background:rgba(255,255,255,.14)}
+.js.done:not(:last-child)::after{content:"";position:absolute;left:14px;top:42px;bottom:-8px;width:2px;background:var(--gold);transform:scaleY(0);transform-origin:top;transition:transform .5s ease;transition-delay:calc(var(--d) + .25s)}
+.slide.on .js.done::after{transform:none}
+.jd{display:block;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;position:relative;transition:all .5s;transition-delay:var(--d)}
+.slide.on .js.done .jd{border-color:var(--gold);background:var(--gold);box-shadow:0 0 14px rgba(214,179,106,.7)}
+.js.done .jd::after{content:"";position:absolute;left:9px;top:4px;width:7px;height:13px;border:solid #0b0b0c;border-width:0 2px 2px 0;transform:rotate(45deg);opacity:0;transition:opacity .3s;transition-delay:var(--d)}
+.slide.on .js.done .jd::after{opacity:1}
+.js.now .jd{border-color:var(--gold)}
+.js.now .jd::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--gold)}
+.slide.on .js.now .jd{animation:now 2.2s ease-out infinite;animation-delay:var(--d)}
+.js b{display:block;font-family:var(--f-d);font-weight:500;font-size:27px;line-height:1.1}
+.js span{display:block;font-size:15px;line-height:1.5;color:var(--ink3);margin-top:4px}
+.js em{font-style:normal;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line2);color:var(--ink3);white-space:nowrap;margin-top:4px}
+.js.done em{border-color:rgba(214,179,106,.5);color:var(--gold)}
+.js.now em{background:rgba(214,179,106,.14);border-color:var(--gold);color:var(--gold2)}
+.js.next b{color:#cfcbc2}
+.js>div,.js>em{opacity:0;transform:translateY(12px);transition:opacity .7s ease,transform .8s var(--out);transition-delay:var(--d)}
+.slide.on .js>div,.slide.on .js>em{opacity:1;transform:none}
+.slide:not(.on) .js *,.slide:not(.on) .js::after{transition:none!important}
+html.print .js>div,html.print .js>em{opacity:1;transform:none}
+html.print .js.done .jd{border-color:var(--gold);background:var(--gold)}html.print .js.done .jd::after{opacity:1}html.print .js.done::after{transform:none}
+/* route comparison */
+.cmp{list-style:none;margin-top:18px}
+.cmp li{font-size:19px;line-height:1.5;color:var(--ink3);padding:11px 0 11px 30px;border-top:1px solid var(--line);position:relative}
+.cmp li::before{content:"";position:absolute;left:4px;top:24px;width:12px;height:1px;background:#77756f}
+.cmp.g2 li{color:var(--ink2)}
+.cmp.g2 li::before{content:"✓";color:var(--gold)}
+.cmp b{color:var(--ink);font-weight:500}
+
+
+.gantt .gr{display:grid;grid-template-columns:230px 1fr;gap:20px;align-items:center;margin:10px 0}
+.gantt .gr span{font-size:16px;color:var(--ink2)}
+.gantt .gr>div{position:relative;height:18px;background:rgba(255,255,255,.05)}
+.gantt .gr i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,#77756f,#d6d3cb);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--out);transition-delay:var(--d)}
+.gantt .gr i.gd{background:linear-gradient(90deg,var(--goldd),var(--gold2))}
+.slide.on .gantt .gr i{transform:none}
+.gantt .ax>div{background:none;height:20px}
+.gantt .ax b{position:absolute;font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.2em;color:var(--ink3)}
+.vbars{display:grid;grid-template-columns:repeat(5,1fr);gap:26px;height:340px;align-items:end}
+.vbars>div{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.vbars i{display:block;height:calc(var(--p) * 250px);background:linear-gradient(0deg,#4a4945,#bdb9b0);transform:scaleY(0);transform-origin:bottom;transition:transform 1.3s var(--out);transition-delay:var(--d)}
+.vbars .g1 i{background:linear-gradient(0deg,var(--goldd),var(--gold2))}
+.slide.on .vbars i{transform:none}
+.vbars b{font-family:var(--f-m);font-weight:400;font-size:15px;color:#fff;margin-bottom:10px}
+.vbars .g1 b{color:var(--gold)}
+.vbars span{font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+.slide:not(.on) .gantt *,.slide:not(.on) .vbars *{transition:none!important}
+html.print .gantt .gr i,html.print .vbars i{transform:none!important;transition:none!important}
+.lt.risk td{font-size:14.5px;padding:6px 6px;vertical-align:top}
+.lt.risk td:first-child{font-family:var(--f-d);font-size:21px;color:var(--ink);width:260px;white-space:nowrap}
+.lt.risk td:last-child{text-align:left}
+.lt.risk th:last-child{text-align:left}
+
+
+.lt.sm td{font-size:15px;padding:7px 6px}.lt.sm th{padding:6px}
+.wfall .wf{display:grid;grid-template-columns:330px 1fr 64px 70px;gap:14px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.wf span{font-size:15px;color:var(--ink2);line-height:1.3}
+.wf .t{position:relative;height:20px}
+.wf .t i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--goldd),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--out);transition-delay:var(--d)}
+.wf.base .t i{background:linear-gradient(90deg,#55534e,#a9a59c)}
+.wf.sum .t i{background:linear-gradient(90deg,#55534e,#a9a59c);opacity:.55}
+.wf.inc2 .t i{background:repeating-linear-gradient(135deg,rgba(214,179,106,.95) 0 8px,rgba(214,179,106,.55) 8px 16px)}
+.wf.sum span,.wf.tot span{font-family:var(--f-d);font-size:20px;color:var(--ink)}
+.wf.tot{border-top:1px solid var(--gold);border-bottom:3px double var(--gold)}
+.wf.tot b{color:var(--gold)}
+.wf em{font-style:normal;font-family:var(--f-m);font-size:14px;color:var(--gold);text-align:right}
+.wf b{font-family:var(--f-m);font-weight:400;font-size:15px;color:#fff;text-align:right}
+.slide.on .wf .t i{transform:none}
+.slide:not(.on) .wf .t i{transition:none}
+html.print .wf .t i{transform:none!important;transition:none!important}
+
+.lt.su td{font-size:13.5px;padding:5px 6px}
+.lt.su td:nth-child(3){text-align:left;padding-left:22px;border-left:1px solid var(--line)}
+/* ── presenter chrome ── */
+#chrome{position:absolute;right:112px;bottom:36px;display:flex;align-items:center;gap:10px;z-index:20}
+#chrome button{font-family:var(--f-m);font-size:13px;color:#cfcac0;background:rgba(10,10,11,.6);border:1px solid rgba(255,255,255,.22);height:40px;min-width:48px;padding:0 14px;cursor:pointer;transition:.25s}
+#chrome button:hover{border-color:var(--gold);color:var(--gold)}
+#prog{position:absolute;left:0;right:0;bottom:0;height:3px;z-index:20;background:rgba(255,255,255,.05)}
+#prog i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 10px rgba(214,179,106,.6);transition:width .7s var(--out)}
+.ov{position:absolute;inset:0;z-index:40;background:rgba(4,4,5,.95);backdrop-filter:blur(10px);padding:90px 112px;opacity:0;visibility:hidden;transition:.35s}
+.ov.on{opacity:1;visibility:visible}
+.ov h3{font-family:var(--f-d);font-weight:500;font-size:60px}
+.ov h3 i{font-style:italic;font-weight:300;color:var(--gold)}
+.ov .hint{font-family:var(--f-m);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+#thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:40px}
+.th{border:1px solid var(--line2);padding:16px 18px;cursor:pointer;transition:.25s;min-height:122px}
+.th:hover,.th.cur{border-color:var(--gold);background:rgba(214,179,106,.07)}
+.th b{font-family:var(--f-n);font-weight:400;color:var(--gold);font-size:30px}
+.th span{display:block;font-family:var(--f-d);font-size:22px;margin-top:6px;line-height:1.1}
+.th i{display:block;font-style:normal;font-family:var(--f-m);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:8px}
+.keys{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 80px;margin-top:50px;max-width:1100px}
+.keys div{display:flex;gap:22px;align-items:center;font-size:20px;color:var(--ink2);border-bottom:1px solid var(--line);padding-bottom:16px}
+.keys kbd{font-family:var(--f-m);font-size:14px;color:var(--gold);border:1px solid rgba(214,179,106,.5);padding:6px 12px;min-width:130px;text-align:center}
+#notes{position:absolute;left:112px;right:112px;bottom:96px;z-index:30;background:rgba(8,8,9,.95);border:1px solid rgba(214,179,106,.4);padding:26px 32px;display:none}
+#notes.on{display:block}
+#notes h5{font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+#notes p{font-size:21px;line-height:1.6;color:var(--ink2);margin-top:10px}
+#black{position:absolute;inset:0;background:#000;z-index:60;display:none}
+#black.on{display:block}
+#toast{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:25;font-family:var(--f-m);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#cfcac0;background:rgba(10,10,11,.88);border:1px solid var(--line2);padding:12px 20px;transition:opacity 1s}
+#toast.gone{opacity:0;pointer-events:none}
+
+/* ── print / PDF: every slide, one per page ── */
+html.print,html.print body{overflow:visible;height:auto;background:#060607}
+html.print #stage{position:static;transform:none;width:1920px;height:auto;background:none;overflow:visible}
+html.print .slide{position:relative;width:1920px;height:1080px;opacity:1;visibility:visible;break-after:page;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(0,0,0,.35) 100%),url('a/field.jpg') center/cover no-repeat #060607}
+html.print .a,html.print .kb img,html.print .bar .t i,html.print .grow,html.print .path .fill,html.print .clock .tk i{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
+html.print .stg.done .dot{border-color:var(--gold);background:var(--gold)}
+html.print .stg.done .dot::after,html.print .stg.now .dot::before,html.print .stg.now .tag{opacity:1;transition:none}
+html.print #chrome,html.print #prog,html.print .ov,html.print #notes,html.print #toast,html.print #black{display:none!important}
+html.print .rail .no{margin-right:0}
+@page{size:1920px 1080px;margin:0}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media(prefers-reduced-motion:reduce){.a,.bar .t i,.grow,.path .fill,.clock .tk i{transition-duration:.01s!important;transition-delay:0s!important}}
+</style>
+<script>if(/[?&](print|all)\b/.test(location.search))document.documentElement.classList.add('print')</script>
+<link rel="stylesheet" href="jessica.css?v=38">
+<link rel="stylesheet" href="zh.css?v=1">
+</head>
+<body>
+<div id="stage">
+
+<!-- ═════ 01 COVER ═════ -->
+<section data-old="1" class="slide" data-sec="封面" data-title="Saint Village Preston" data-notes="Let the cover sit. One line: this is an equity opportunity in a build-to-rent project the Victorian Government has already accepted through its fast-track program, now with the Minister for Planning.">
+  <div class="bleed side kb" style="left:38%"><img src="a/r-sunset.jpg" alt="" style="object-position:40% center"></div>
+  <div class="pad" style="justify-content:flex-end;padding-bottom:10px">
+    <img class="a f" src="a/hori7on-gold.png" alt="HORI7ON" style="height:24px;width:auto;align-self:flex-start;margin-bottom:auto;--d:.2s">
+    <p class="eb a" style="--d:.4s">投资备忘录 · 股权融资</p>
+    <h1 class="mast xl a" style="margin-top:26px;--d:.55s">Saint Village<span class="it">Preston.</span></h1>
+    <p class="lead a" style="max-width:700px;margin-top:34px;--d:.8s">四百套建后出租住宅，一个会员俱乐部，一个健康养生街区，以及一个运转良好的首层公共空间。坐落于公园旁，距市中心七公里。</p>
+    <div class="meta a" style="margin-top:48px;--d:1s">
+      <div><b>地址</b>56至58 Oakover Road及<br>1至3 Newman Street, Preston VIC</div>
+      <div><b>策略</b>建后出租<br>400套住宅，单一业主</div>
+      <div><b>数字</b>3.25亿澳元完工价值（稳定运营，满租）<br>总开发成本2.29亿澳元（含融资）· 获批前已投入700万澳元</div><div><b>状态</b>已向规划部长提交<br>2026年9月15日</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 02 THE WALK ═════ -->
+<section data-old="2" class="slide" data-sec="目录" data-title="内容导览" data-notes="Set the order. We answer why before what, and what before how much. By the time we reach the numbers, they should feel obvious.">
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1.2fr;gap:120px;flex:1">
+      <div class="col">
+        <p class="eb a">编者按</p>
+        <h2 class="mast a" style="margin-top:26px;--d:.15s">先讲理由，<span class="it">再讲数字。</span></h2>
+        <p class="body a" style="margin-top:40px;max-width:600px;--d:.35s">大多数投资者是先被要求出资，之后才听到理由。我们反过来做：共七章，按一位审慎的投资者会提问的顺序排列。之所以是七，是因为这项工作应当完整。</p>
+        <p class="pq a" style="margin-top:auto;font-size:32px;--d:.5s">7EVEN不会在缺少能带来价值与信心的伙伴同桌参与的情况下启动任何项目。</p>
+      </div>
+      <div class="col" style="justify-content:center">
+        <div class="stat a r" style="--d:0.30s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">01</span><div><span class="lead" style="font-size:28px">7EVEN</span><p class="lbl" style="margin-top:4px">我们是谁，我们秉持什么</p></div></div>
+        <div class="stat a r" style="--d:0.40s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">02</span><div><span class="lead" style="font-size:28px">市场</span><p class="lbl" style="margin-top:4px">澳大利亚建后出租（BTR）市场分析</p></div></div>
+        <div class="stat a r" style="--d:0.50s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">03</span><div><span class="lead" style="font-size:28px">为何选择普雷斯顿</span><p class="lbl" style="margin-top:4px">一块位于公园旁的稀缺地块</p></div></div>
+        <div class="stat a r" style="--d:0.60s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">04</span><div><span class="lead" style="font-size:28px">项目内容</span><p class="lbl" style="margin-top:4px">Saint Village，其街区与团队</p></div></div>
+        <div class="stat a r" style="--d:0.70s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">05</span><div><span class="lead" style="font-size:28px">审批</span><p class="lbl" style="margin-top:4px">已投入700万澳元，审批路径、地块、土地价值、团队</p></div></div>
+        <div class="stat a r" style="--d:0.80s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0"><span class="num s" style="font-size:46px">06</span><div><span class="lead" style="font-size:28px">交付</span><p class="lbl" style="margin-top:4px">工厂制造，建造并交付</p></div></div>
+        <div class="stat a r" style="--d:0.90s;display:grid;grid-template-columns:130px 1fr;align-items:center;padding:12px 0;border-bottom:1px solid var(--line2)"><span class="num s" style="font-size:46px">07</span><div><span class="lead" style="font-size:28px">交易方案</span><p class="lbl" style="margin-top:4px">租金、价值、成本、融资、回报、风险</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 7EVEN · ONE TEAM, FIVE ENGINES (replaces old pages 3 to 12) ═════ -->
+<section class="slide plain" data-sec="01 · 7EVEN" data-title="一个团队，五大引擎" data-notes="Short version of the company. One team from feasibility to the front door. Five engines carrying one standard. Read across the tiles: what each does on Saint Village. Engine one is the developer and has funded the $7m pre-approval stage. Two runs the wellness precinct. Three designs the modular option with CCIST. Four runs the project from feasibility to completion. Five is a separate not-for-profit and is not part of this raise.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">01 · 7EVEN</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">一个团队。<span class="it">从可行性研究到交付入住。</span></h2></div>
+      <p class="body a" style="max-width:560px;--d:.3s">五大引擎，一个名字，一套标准，因此它们之间没有需要协商的缝隙。以下是各引擎在Saint Village项目中的职责。</p>
+    </div>
+    <div class="svt" style="margin-top:auto">
+      <div class="sv-t gold a" style="--d:.4s"><span class="k">01 · Enterprise</span><h3>开发</h3><p class="d">建后出租、建后出售及综合用途街区，从可行性研究到交付入住。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>7EVEN是开发商，并已出资完成700万澳元的获批前阶段。</p></div></div>
+      <div class="sv-t a" style="--d:.5s"><span class="k">02 · 5IVE</span><h3>酒店与健康养生</h3><p class="d">澳大利亚奢华酒店及健康养生品牌。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>运营楼内1,771平方米的健身与健康养生街区。</p></div></div>
+      <div class="sv-t a" style="--d:.6s"><span class="k">03 · HAAVN</span><h3>精密供应</h3><p class="d">精密制造的供应、融资与建造。咨询、供应、交付。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>与CCIST合作设计模块化方案，共724个模块。</p></div></div>
+      <div class="sv-t a" style="--d:.7s"><span class="k">04 · HM</span><h3>管理</h3><p class="d">从可行性研究到实际竣工，并贯穿资产全生命周期。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>负责项目从可行性研究到实际竣工的全过程。</p></div></div>
+      <div class="sv-t quiet a" style="--d:.8s"><span class="k">05 · PRO7ECT</span><h3>慈善</h3><p class="d">非营利分支。住房与青年人才。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>不属于本次融资。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 02 · MARKET · SECTION BREAK ═════ -->
+<section class="slide plain" data-sec="02 · 市场" data-title="澳大利亚建后出租（BTR）市场分析" data-notes="Section break. We move from who we are to the market. Three pages: the shortage of homes to rent, what build to rent is, and the capital already moving into it.">
+  <div class="pad">
+    <p class="eb a">02 · 市场</p>
+    <h2 class="mast xl a" style="margin-top:56px;--d:.15s">澳大利亚<span class="it">建后出租</span><span class="it">市场分析。</span></h2>
+    <div class="brk" style="margin-top:auto">
+      <div class="a" style="--d:.45s"><span class="k">06</span><h3>租赁住房短缺</h3><p>空置率，以及相对全国目标的缺口。</p></div>
+      <div class="a" style="--d:.55s"><span class="k">07</span><h3>什么是建后出租</h3><p>单一业主，单一运营方，以及州政府的土地税减免。</p></div>
+      <div class="a" style="--d:.65s"><span class="k">08</span><h3>资本已经入场</h3><p>机构资金正在涌入澳大利亚建后出租市场。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 03 WHY ═════ -->
+<section data-old="13" class="slide" data-sec="02 · 市场" data-title="租赁住房短缺" data-notes="The market has no slack. National vacancy is 1.3 per cent and Melbourne 1.8, against a balanced market of 2.5 to 3.5. Melbourne alone is about 3,700 rentals short, more than nine Saint Villages. The Accord targets 1.2 million homes; the forecast is about 938 thousand, some 262 thousand short. Whoever delivers well-run rental housing into this gap gets paid for it.">
+  <div class="pad">
+    <p class="eb a">02 · 市场</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">澳大利亚的出租住房<span class="it">供不应求。</span></h2>
+    <div class="g" style="grid-template-columns:1fr 1.25fr;gap:120px;margin-top:auto">
+      <div class="col" style="justify-content:flex-end">
+        <p class="lead a" style="--d:.3s">当空置率低于百分之二，市场便没有回旋余地。租金上涨，选择消失，家庭被迫搬往更远的地方。</p>
+        <p class="body a" style="margin-top:24px;--d:.42s">各级政府设定了雄心勃勃的目标，交付却落在其后。<b>缺口就是机会</b>，用运营良好的长期租赁住房来填补缺口的人，将因此获得回报。</p>
+      </div>
+      <div class="g" style="grid-template-columns:1fr 1fr;gap:44px 56px">
+        <div class="stat a" style="--d:.5s"><span class="num l" data-count="1.3">1.3<small style="font-size:.5em">%</small></span><p class="lbl">全国空置率 · 2026年8月</p><p class="lbl">平衡市场 · 2.5至3.5%</p><p class="body">平衡市场的空置率在2.5至3.5%之间。即使按下限计，仍缺约38,000套出租房。</p></div>
+        <div class="stat a" style="--d:.62s"><span class="num l w" data-count="1.8">1.8<small style="font-size:.5em">%</small></span><p class="lbl">墨尔本空置率 · 2026年8月</p><p class="lbl">平衡市场 · 2.5至3.5%</p><p class="body">距平衡市场约缺3,700套出租房。相当于九个以上Saint Village。</p></div>
+        <div class="stat a" style="--d:.74s"><span class="num l w" data-count="120">120<small style="font-size:.5em">万</small></span><p class="lbl">2029年前的住房目标</p><p class="body">国家住房协议。</p></div>
+        <div class="stat a" style="--d:.86s"><span class="num l" data-count="93.8">~93.8<small style="font-size:.5em">万</small></span><p class="lbl">预计交付量，2024年至2029年</p><p class="body">国家住房供应与可负担性委员会。距目标仍缺约26.2万套。</p></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:34px;--d:1s">资料来源：SQM Research全国空置率，2026年8月。平衡市场区间（空置率2.5至3.5%），约以REIV对维多利亚州平衡租赁市场的3%基准为中心（REIV，2026年）；缺口按SQM在2.5%空置率下的空置数量推算。国家住房供应与可负担性委员会，引自BDO，《The Australian housing landscape》，截至2026年3月。</p>
+  </div>
+</section>
+
+<!-- ═════ 04 BTR ═════ -->
+<section data-old="14" class="slide" data-sec="02 · 市场" data-title="什么是建后出租" data-notes="Keep this simple. One building, one owner, one operator. The State backs the model with a fifty per cent land tax concession for up to thirty years.">
+  <div class="bleed dk kb"><img src="a/r-bluesky.jpg" alt="" style="object-position:center 30%"></div>
+  <div class="pad">
+    <p class="eb a">02 · 市场</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">什么是<span class="it">建后出租？</span></h2>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+      <div class="card a" style="--d:.35s"><p class="lbl gold">它是什么</p><h3>单一业主。<br><i>单一运营方。</i></h3><p class="body">为长期出租而建的住宅，而不是逐套售出。业主年复一年收取租金。</p></div>
+      <div class="card a" style="--d:.5s"><p class="lbl gold">适合谁</p><h3>想要一个<br><i>真正的家的租客。</i></h3><p class="body">稳定的租期、专业的管理，以及在零散的私人租赁中永远找不到的配套设施。</p></div>
+      <div class="card gl a" style="--d:.65s"><p class="lbl gold">投资者为何看好</p><h3>收入，<br><i>有州政府支持。</i></h3><p class="body">机构愿为稳定运营的租金收入支付溢价。维多利亚州对符合条件的项目提供<b>最长30年、50%的土地税减免</b>，适用于2031年12月31日前竣工的项目。</p></div>
+    </div>
+    <p class="fn a" style="margin-top:22px;--d:.8s">资料来源：维多利亚州税务局，建后出租开发项目土地税折扣。须符合资格条件。接下来：该模式最适用于哪里。</p>
+  </div>
+</section>
+
+<!-- ═════ 02 · Why · CAPITAL IS ALREADY HERE ═════ -->
+<section data-old="15" class="slide" data-sec="02 · 市场" data-title="资本已经入场" data-notes="Big money wants rental housing, and there still is not much of it. Operating build to rent homes in Australia grow from about 16 thousand to 21 thousand by the end of 2026, with 73 thousand tracked nationally. A super fund is already building build to rent in Preston: Barings and Aware Super, 292 homes on High Street. Capital is hungry yet selective. BDO allows 13 months to stabilise.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px"><div><p class="eb a">02 · 市场</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">资本已经入场。<span class="it">而且就在普雷斯顿。</span></h2></div><p class="body a" style="max-width:520px;--d:.3s">大量资金想要租赁住房，而这类房源仍然稀少。Saint Village跟随机构资本，进入一个经过验证的区域。</p></div>
+    <div class="g" style="grid-template-columns:repeat(5,1fr);gap:34px;margin-top:auto">
+      <div class="stat a" style="--d:.4s"><span class="num s w">16,072</span><p class="lbl" style="margin-top:4px">至</p><span class="num s">21,096</span><p class="lbl">澳大利亚在营BTR住宅，目前至2026年底</p></div>
+      <div class="stat a" style="--d:.52s"><span class="num l" data-count="73,004" style="font-size:72px">73,004</span><p class="lbl">全国统计在册的BTR住宅 · Franklin St，2026年</p></div>
+      <div class="stat a" style="--d:.64s"><span class="num l w" data-count="292">292</span><p class="lbl">普雷斯顿的超级基金BTR住宅 · Barings与Aware Super</p></div>
+      <div class="stat a" style="--d:.76s"><span class="num l w" data-count="13">13</span><p class="lbl">稳定运营所需月数 · BDO估值，2026年9月</p></div>
+      <div class="stat a" style="--d:.88s"><p class="lead" style="font-size:32px;margin-top:8px"><i>“热切，但挑剔。”</i></p><p class="lbl">资金来自澳大利亚、北美、亚洲和欧洲</p></div>
+    </div>
+    <p class="fn a" style="margin-top:26px;--d:1s">资料来源：Franklin St，《Build to Rent Australia 2026》报告（2026年3月）。Barings新闻稿，6-34 High Street Preston。BDO估值，2026年9月。Colliers与Franklin St演讲材料，Urban Developer BTR Summit，2025年6月。</p>
+  </div>
+</section>
+
+<!-- ═════ 05 WHY PRESTON ═════ -->
+<section data-old="16" class="slide" data-sec="03 · 为何选择普雷斯顿" data-title="一块位于公园旁的稀缺地块" data-notes="Four reasons: seven kilometres to the city, a station nine hundred metres away, planning controls that make scale rare, and a park that protects the view for good.">
+  <div class="vert a f" style="--d:.9s">一块稀缺地块，<i>就在公园旁。</i></div>
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1.05fr;gap:90px;flex:1;min-height:0">
+      <div class="col">
+        <p class="eb a">03 · 为何选择普雷斯顿</p>
+        <h2 class="mast m a" style="margin-top:22px;--d:.12s">内城北区。<span class="it">供应匮乏。</span></h2>
+        <div class="col" style="margin-top:auto">
+          <div class="stat a" style="--d:.3s;display:grid;grid-template-columns:230px 1fr;gap:20px;padding:20px 0"><span class="num s">7公里</span><div><p class="lead" style="font-size:27px">距市中心</p><p class="body" style="font-size:16px;color:var(--ink3)">裙楼以上的景观越过公园，直达城市天际线。</p></div></div>
+          <div class="stat a" style="--d:.42s;display:grid;grid-template-columns:230px 1fr;gap:20px;padding:20px 0"><span class="num s">900米</span><div><p class="lead" style="font-size:27px">距Bell Station</p><p class="body" style="font-size:16px;color:var(--ink3)">St Georges Road有电车，门口即是公交和自行车道。</p></div></div>
+          <div class="stat a" style="--d:.54s;display:grid;grid-template-columns:230px 1fr;gap:20px;padding:20px 0"><span class="num s">DPO</span><div><p class="lead" style="font-size:27px">严格管控</p><p class="body" style="font-size:16px;color:var(--ink3)">Oakover Village第7街区。如此规模的新增租赁住房供应确属罕见。</p></div></div>
+          <div class="stat a" style="--d:.66s;display:grid;grid-template-columns:230px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--line2)"><span class="num s">公园</span><div><p class="lead" style="font-size:27px">Newman Reserve</p><p class="body" style="font-size:16px;color:var(--ink3)">一片无法被建筑遮挡的景观。</p></div></div>
+        </div>
+      </div>
+      <div class="col" style="min-height:0">
+        <div class="plate a w" style="flex:1;--d:.2s"><img src="a/r-corner.jpg" alt="Saint Village corner"></div>
+        <div class="cap"><span>图版 01 · 转角 · 屋顶花园</span><span>普雷斯顿 · 墨尔本</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 06 WHAT ═════ -->
+<section data-old="17" class="slide" data-sec="04 · 项目内容" data-title="Saint Village" data-notes="This is the product. Four hundred homes at full market rent, over a ground plane of retail, club and wellness. One owner, one operator, one standard.">
+  <div class="bleed kb"><img src="a/r-autumn.jpg" alt="" style="object-position:center 55%"></div>
+  <div class="pad">
+    <p class="eb a">04 · 项目内容</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">家，<span class="it">在公园旁。</span></h2>
+    <p class="lead a" style="max-width:700px;margin-top:30px;--d:.3s">四百套按市场租金出租的住宅，位于由零售、联合办公、会员俱乐部和健康养生街区构成的首层公共空间之上。一个业主。一个运营方。一套标准。以下是负责运营的团队。</p>
+    <div class="g" style="grid-template-columns:repeat(5,1fr);gap:40px;margin-top:auto">
+      <div class="stat a" style="--d:.45s"><span class="num" style="font-size:78px" data-count="400">400</span><p class="lbl">住宅，全部按市场租金</p></div>
+      <div class="stat a" style="--d:.57s"><span class="num w" style="font-size:78px" data-count="1,771">1,771</span><p class="lbl">平方米 5IVE健身及健康养生</p></div>
+      <div class="stat a" style="--d:.63s"><span class="num w" style="font-size:78px" data-count="589">589</span><p class="lbl">平方米 7X联合办公</p></div>
+      <div class="stat a" style="--d:.69s"><span class="num w" style="font-size:78px" data-count="21,373">21,373</span><p class="lbl">平方米净可租面积</p></div>
+      <div class="stat a" style="--d:.81s"><span class="num w" style="font-size:78px" data-count="1,098">1,098</span><p class="lbl">平方米零售 · 12间商铺</p></div>
+    </div>
+  </div>
+</section>
+
+<section data-old="19" class="slide pil" data-sec="04 · 项目内容" data-title="第1大支柱：零售" data-notes="Three pillars under the arches. First, retail: twelve tenancies chosen as a set, with Cafe 7 as the everyday anchor, run with Veneziano.">
+  <div class="bleed dk kb"><img src="a/r-sunset.jpg" alt="" style="object-position:center 88%"></div>
+  <div class="pad">
+    <p class="eb a">04 · 项目内容 · 第1大支柱（共3个）</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">首层公共空间，<span class="it">行之有效。</span></h2>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+      <div class="card gl a" style="--d:0.35s"><p class="lbl gold">零售</p><h3>精心甄选，<br><i>而非随意出租。</i></h3><p class="body">拱廊下十二间商铺，以Veneziano运营的Cafe 7作为日常核心。</p></div>
+      <div class="card a" style="--d:0.50s"><p class="lbl gold">5V · 5IVE Wellness</p><h3>通往健康养生的<br><i>前门。</i></h3><p class="body">通往1,771平方米5IVE健身与健康养生中心的入口，紧邻Saint Village住宅入口。</p></div>
+      <div class="card a" style="--d:0.65s"><p class="lbl gold">7X</p><h3>联合办公，<br><i>就在楼内。</i></h3><p class="body">589平方米联合办公空间，由7X通过ATRIUM应用运营，另设住户工作休息区。</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section data-old="20" class="slide" data-sec="04 · 项目内容" data-title="零售街" data-notes="Twelve tenancies chosen as a set, so each one sends people to the next. These are inspiration images showing character, not signed tenants.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">04 · 项目内容</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">零售街。<span class="it">精心甄选，而非随意出租。</span></h2></div>
+      <p class="body a" style="max-width:540px;--d:.3s">拱廊下十二间商铺，作为一个组合甄选，让每一间都把客流送往下一间。从清晨咖啡到深夜晚餐，一周七天。</p>
+    </div>
+    <div class="g" style="grid-template-columns:repeat(4,1fr);gap:26px;flex:1;margin-top:44px;min-height:0">
+      <div class="col person a" style="--d:.3s;min-height:0"><div class="plate" style="flex:1;aspect-ratio:auto;min-height:0"><img src="a/g-coffee.jpg" alt="Specialty coffee" style="filter:none"></div><h4>精品咖啡</h4><p>Veneziano出品的咖啡。一天的第一站。</p></div>
+      <div class="col person a" style="--d:.42s;min-height:0"><div class="plate" style="flex:1;aspect-ratio:auto;min-height:0"><img src="a/g-bakery.jpg" alt="Artisan bakery" style="filter:none"></div><h4>手工面包店</h4><p>现场烘焙，香气把人流引入这条街。</p></div>
+      <div class="col person a" style="--d:.54s;min-height:0"><div class="plate" style="flex:1;aspect-ratio:auto;min-height:0"><img src="a/g-dining.jpg" alt="Fine dining" style="filter:none"></div><h4>精致餐饮</h4><p>一个能吸引普雷斯顿以外客群的目的地。</p></div>
+      <div class="col person a" style="--d:.66s;min-height:0"><div class="plate" style="flex:1;aspect-ratio:auto;min-height:0"><img src="a/g-barber.jpg" alt="Barber and grooming" style="filter:none"></div><h4>理发与美容</h4><p>住户每周都会光顾的服务。</p></div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.8s">仅为设计示意。图片展示零售业态的预期风格，并非最终装修或已确认的租户。</p>
+  </div>
+</section>
+
+<section data-old="18" class="slide" data-sec="04 · 项目内容" data-title="由行业佼佼者运营的街区" data-notes="Rocky and Veneziano. Some of the country's most prestigious restaurants and cafes, and a coffee brand found across Victoria's major new developments. They will curate and manage the ground plane.">
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1fr;gap:100px;flex:1;min-height:0">
+      <div class="col" style="justify-content:center">
+        <p class="eb a">04 · 项目内容</p>
+        <h2 class="mast m a" style="margin-top:22px;--d:.12s">一个街区，由<span class="it">最擅长此道的人来运营。</span></h2>
+        <p class="lead a" style="font-size:28px;margin-top:36px;--d:.3s">Rocky及Veneziano团队打造了澳大利亚一些最负盛名的餐厅与咖啡馆。高端餐饮与场所营造是他们的强项。</p>
+        <p class="body a" style="margin-top:20px;--d:.42s">Veneziano如今是澳大利亚最大的咖啡烘焙商之一，遍布维多利亚州的主要新开发项目。凭借NBA球员和世界级品牌的合作，它为社区带来任何标准招租方案都无法提供的体验。</p>
+        <p class="body a" style="margin-top:20px;--d:.54s"><b>Rocky团队将负责街区的策划与管理</b>，并期待与7EVEN共同书写下一章。</p>
+      </div>
+      <div class="col" style="min-height:0"><div class="plate a w" style="flex:1;--d:.2s"><img src="a/p-veneziano.jpg" alt="Veneziano" style="object-position:center top"></div><div class="cap"><span>Veneziano Coffee Roasters · 20年</span><span>街区运营方</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section data-old="19" class="slide pil" data-sec="04 · 项目内容" data-title="第2大支柱：健康养生" data-notes="Back to the three pillars. Second, wellness: the 5IVE gym and wellness precinct inside the building.">
+  <div class="bleed dk kb"><img src="a/w-water.jpg" alt="" style="object-position:center 50%"></div>
+  <div class="pad">
+    <p class="eb a">04 · 项目内容 · 第2大支柱（共3个）</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">首层公共空间，<span class="it">行之有效。</span></h2>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+      <div class="card a" style="--d:0.35s"><p class="lbl gold">零售</p><h3>精心甄选，<br><i>而非随意出租。</i></h3><p class="body">拱廊下十二间商铺，以Veneziano运营的Cafe 7作为日常核心。</p></div>
+      <div class="card gl a" style="--d:0.50s"><p class="lbl gold">5V · 5IVE Wellness</p><h3>通往健康养生的<br><i>前门。</i></h3><p class="body">通往1,771平方米5IVE健身与健康养生中心的入口，紧邻Saint Village住宅入口。</p></div>
+      <div class="card a" style="--d:0.65s"><p class="lbl gold">7X</p><h3>联合办公，<br><i>就在楼内。</i></h3><p class="body">589平方米联合办公空间，由7X通过ATRIUM应用运营，另设住户工作休息区。</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section data-old="21" class="slide" data-sec="04 · 项目内容" data-title="5IVE Wellness" data-notes="5IVE is 7EVEN's hotel and wellness brand. Seventeen hundred and seventy one square metres: bath house on the ground floor, studios and recovery on the mezzanine, gym on level one. For residents it is home. For the asset it is retention.">
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1.3fr;gap:90px;flex:1;min-height:0">
+      <div class="col">
+        <p class="eb a">04 · 项目内容</p>
+        <h2 class="mast m a" style="margin-top:22px;--d:.12s">5IVE Wellness。<span class="it">世界级，就在家中。</span></h2>
+        <img class="a f" src="a/5v-white.png" alt="5V" style="height:150px;width:auto;align-self:flex-start;margin:40px 0 36px;filter:drop-shadow(0 0 14px rgba(214,179,106,.35));--d:.35s">
+        <p class="lead a" style="font-size:27px;--d:.45s">7EVEN的酒店与健康养生品牌，在楼内运营一个完整的健康养生街区。</p>
+        <p class="body a" style="margin-top:16px;--d:.55s">首层是浴场，夹层设有工作室、更衣室和恢复区，健身房位于首层之上的第一层，均按五星级酒店标准建造。对住户而言，是家的一部分。对资产而言，<b>既是留下的理由，也是付费的理由。</b></p>
+        <div class="g" style="grid-template-columns:1fr 1fr;gap:40px;margin-top:auto">
+          <div class="stat a" style="--d:.7s"><span class="num" data-count="1,771">1,771</span><p class="lbl">平方米健身与健康养生</p></div>
+          <div class="stat a" style="--d:.8s"><span class="num w">5<small style="font-size:.5em">★</small></span><p class="lbl">酒店级健身房、水疗、浴场</p></div>
+        </div>
+      </div>
+      <div class="g" style="grid-template-columns:1.1fr 1fr;grid-template-rows:1fr 1fr;gap:22px;min-height:0">
+        <div class="plate a w" style="grid-row:span 2;--d:.2s"><img src="a/w-water.jpg" alt="Water lounge"></div>
+        <div class="plate a w" style="--d:.4s"><img src="a/w-garden.jpg" alt="Garden lounge" style="object-position:center 60%"></div>
+        <div class="plate a w" style="--d:.55s"><img src="a/w-sauna.jpg" alt="Sauna" style="object-position:center 45%"></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.9s">仅为设计示意。图片展示健康养生街区的预期风格，并非最终装修。</p>
+  </div>
+</section>
+
+<section data-old="22" class="slide" data-sec="04 · 项目内容" data-title="球场" data-notes="The court on the podium. A full outdoor basketball court opening straight off the 5IVE Wellness and Gym, under a signature mural, with a lit stair down to the laneway. This is the image people remember: amenity that is an event, not a line item.">
+  <div class="bleed lite kb"><img src="a/r-court.jpg" alt="" style="object-position:center 40%"></div>
+  <div class="pad" style="justify-content:flex-end">
+    <p class="eb a">04 · 项目内容 · 5IVE Wellness及Gym</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.15s">裙楼上，<span class="it">尽情运动。</span></h2>
+    <p class="lead a" style="max-width:640px;margin-top:28px;--d:.35s">裙楼上设有一个完整球场，直接连通健身房，上方是标志性壁画。一座灯光楼梯通向下方的巷道。</p>
+    <div class="row a" style="gap:14px;margin-top:36px;--d:.5s"><span class="lbl" style="border:1px solid var(--line2);padding:10px 16px">室外球场</span><span class="lbl" style="border:1px solid var(--line2);padding:10px 16px">健身与健康养生</span><span class="lbl" style="border:1px solid rgba(214,179,106,.6);padding:10px 16px;color:var(--gold)">让配套成为活动</span></div>
+  </div>
+</section>
+
+<section data-old="19" class="slide pil" data-sec="04 · 项目内容" data-title="第3大支柱：联合办公" data-notes="Back to the three pillars. Third, co-working: 589 square metres plus a residents work lounge, run by 7X.">
+  <div class="bleed dk kb"><img src="a/x-atrium.jpg" alt="" style="object-position:center 40%"></div>
+  <div class="pad">
+    <p class="eb a">04 · 项目内容 · 第3大支柱（共3个）</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">首层公共空间，<span class="it">行之有效。</span></h2>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+      <div class="card a" style="--d:0.35s"><p class="lbl gold">零售</p><h3>精心甄选，<br><i>而非随意出租。</i></h3><p class="body">拱廊下十二间商铺，以Veneziano运营的Cafe 7作为日常核心。</p></div>
+      <div class="card a" style="--d:0.50s"><p class="lbl gold">5V · 5IVE Wellness</p><h3>通往健康养生的<br><i>前门。</i></h3><p class="body">通往1,771平方米5IVE健身与健康养生中心的入口，紧邻Saint Village住宅入口。</p></div>
+      <div class="card gl a" style="--d:0.65s"><p class="lbl gold">7X</p><h3>联合办公，<br><i>就在楼内。</i></h3><p class="body">589平方米联合办公空间，由7X通过ATRIUM应用运营，另设住户工作休息区。</p></div>
+    </div>
+  </div>
+</section>
+
+
+<section data-old="23" class="slide" data-sec="04 · 项目内容" data-title="联合办公" data-notes="Co-working on site. 589 square metres plus a 141 square metre residents work lounge, run by 7X. Residents have the lounge included in their rent. Outside members pay to join.">
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1.1fr;gap:90px;flex:1;min-height:0">
+      <div class="col">
+        <p class="eb a">04 · 项目内容 · 7X</p>
+        <div class="a f" style="margin-top:40px;--d:.15s"><svg class="x7" viewBox="30 30 1920 1810" aria-label="7X" role="img"><polygon points="60,60 1935,60 1845,150 60,150" fill="#F3F2EE"/><polygon points="1293,348 1548,348 1125,888 1035,768" fill="#F3F2EE"/><polygon points="816,1128 874,1205 401,1806" fill="#F3F2EE"/><polygon points="360,348 543,348 1716,1839 1533,1839" fill="url(#pdFoil)"/><defs><linearGradient id="pdFoil" gradientUnits="userSpaceOnUse" x1="360" y1="348" x2="1716" y2="1839"><stop offset="0" stop-color="#8f6a25"/><stop offset=".14" stop-color="#e9d08f"/><stop offset=".26" stop-color="#fff3cf"/><stop offset=".38" stop-color="#c79b45"/><stop offset=".5" stop-color="#7d5a1c"/><stop offset=".6" stop-color="#d9b566"/><stop offset=".74" stop-color="#fff0c4"/><stop offset=".86" stop-color="#c9993f"/><stop offset="1" stop-color="#96702a"/></linearGradient></defs></svg></div>
+        <h2 class="mast m a" style="margin-top:40px;--d:.3s">联合办公，<span class="it">就在楼内。</span></h2>
+        <p class="lead a" style="font-size:28px;margin-top:28px;--d:.45s">589平方米联合办公空间及141平方米住户工作休息区，由7X运营。</p>
+        <p class="body a" style="margin-top:16px;--d:.55s">住户无须另付费用。外部会员付费加入。</p>
+        <div class="row a" style="gap:60px;align-items:flex-end;margin-top:auto;--d:.7s"><div class="stat" style="min-width:300px"><span class="num" data-count="589">589</span><p class="lbl">平方米联合办公 · 7X</p></div><div class="stat" style="min-width:300px"><span class="num w" data-count="141">141</span><p class="lbl">平方米住户工作休息区</p></div>
+        </div>
+      </div>
+      <div class="g" style="grid-template-columns:1fr 1fr;gap:22px;min-height:0">
+        <div class="col" style="min-height:0"><div class="plate a w" style="flex:1;--d:.2s"><img src="a/x-atrium.jpg" alt="Co-working atrium" style="object-position:center 40%"></div><div class="cap"><span>图 03 · 中庭层</span></div></div>
+        <div class="col" style="min-height:0"><div class="plate a w" style="flex:1;--d:.4s"><img src="a/x-green.jpg" alt="Co-working garden floor" style="object-position:center 45%"></div><div class="cap"><span>图 04 · 花园层</span></div></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.9s">仅为设计示意。图片展示7X联合办公楼层的预期风格，并非最终装修。</p>
+  </div>
+</section>
+
+<section data-old="24" class="slide" data-sec="04 · 项目内容" data-title="配套设施，创造租金" data-notes="Saints Row is two businesses on two leases: 5IVE gym and wellness, and 7X co-working. Residents are included in their rent, and outside members pay. The same space earns twice: higher apartment rents and rent from two operators.">
+  <div class="vert a f" style="--d:.9s">配套设施，<i>创造租金。</i></div>
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1.35fr 1fr;gap:80px;flex:1;min-height:0">
+      <div class="g" style="grid-template-columns:1.15fr 1fr;gap:26px;min-height:0">
+        <div class="col" style="min-height:0"><div class="plate a w" style="flex:1;--d:.1s"><img src="a/r-court.jpg" alt="The court" style="object-position:40% center"></div><div class="cap"><span>图 01 · 球场 · 5IVE Wellness及Gym</span></div></div>
+        <div class="col" style="min-height:0"><div class="plate a w" style="flex:1;--d:.3s"><img src="a/r-spa.jpg" alt="Bath house" style="object-position:42% center"></div><div class="cap"><span>图 02 · 浴场</span></div></div>
+      </div>
+      <div class="col" style="justify-content:center">
+        <p class="eb a">04 · 项目内容</p>
+        <h2 class="mast s a" style="margin-top:20px;--d:.15s">Saints Row。<span class="it">同一空间赚两次。</span></h2>
+        <p class="body a" style="margin-top:30px;--d:.3s"><b>Saints Row</b>是两门生意、两份租约：5IVE健身与健康养生（1,771平方米）及7X联合办公（589平方米）。住户无须另付费用。外部会员付费加入。</p>
+        <p class="body a" style="margin-top:18px;--d:.4s">因此同一空间赚取两次：<b>更高的住宅租金</b>，加上<b>两家专业运营方的租金。</b></p>
+        <div class="a" style="margin-top:44px;--d:.55s">
+          <p class="lbl" style="margin-bottom:14px">户型组合 · 400套住宅</p>
+          <div class="grow row" style="height:14px;--d:.8s"><i style="width:33.75%;background:#77756f"></i><i style="width:36.75%;background:#b8b4ab"></i><i style="width:26.5%;background:var(--gold)"></i><i style="width:3%;background:var(--gold2)"></i></div>
+          <div class="g" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px">
+            <div><span class="num s w" style="font-size:40px">135</span><p class="lbl" style="font-size:10px">开间</p></div>
+            <div><span class="num s w" style="font-size:40px">147</span><p class="lbl" style="font-size:10px">一居室</p></div>
+            <div><span class="num s" style="font-size:40px">106</span><p class="lbl" style="font-size:10px">两居室</p></div>
+            <div><span class="num s" style="font-size:40px">12</span><p class="lbl" style="font-size:10px">三居室</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide plain" data-sec="04 · 项目内容" data-title="整栋楼，统一运营" data-notes="Who runs Saint Village once it is open. 7X runs the building and the co-working floor. ATRIUM is the one platform for the operator, the residents and the members. The BTR operator runs the homes day to day. 7EVEN manages the asset until sale: the rental community, run to one standard.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">04 · 项目内容 · 管理</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">整栋楼，<span class="it">统一运营。</span></h2></div>
+      <p class="body a" style="max-width:560px;--d:.3s">一个平台，服务运营方、住户和会员，从前门到联合办公楼层。</p>
+    </div>
+    <div class="svt" style="margin-top:auto;grid-template-columns:repeat(4,1fr)">
+      <div class="sv-t a" style="--d:.4s"><span class="k">01 · 7X</span><h3>楼宇</h3><p class="d">7EVEN打造的品牌，用于运营和服务整栋楼宇。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>运营联合办公楼层和住户工作休息区。</p></div></div>
+      <div class="sv-t a" style="--d:.5s"><span class="k">02 · ATRIUM</span><h3>平台</h3><p class="d">7X内部自主设计的应用。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>运营方、住户和会员共用一个平台。</p></div></div>
+      <div class="sv-t a" style="--d:.6s"><span class="k">03 · BTR运营商</span><h3>住宅</h3><p class="d">400套建后出租住宅的运营方。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>礼宾、包裹和维修，均在现场处理。</p></div></div>
+      <div class="sv-t gold a" style="--d:.7s"><span class="k">04 · 7EVEN</span><h3>物业管理</h3><p class="d">按统一标准运营的租赁社区。</p><div class="sv"><span class="lbl">在Saint Village项目中</span><p>管理该资产直至出售。</p></div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═════ 05 · ALREADY MOVING ═════ -->
+<section data-old="25" class="slide" data-sec="05 · 审批" data-title="已经启动" data-notes="The most important idea in the document. Seven million dollars has already gone into the pre-approval stage: two million as the land deposit and five million on contamination remediation, the permit and design. That funded and de-risked the slow, expensive part of development. It is repaid at financial close, and 7EVEN contributes the land uplift on approval.">
+  <div class="bleed side kb" style="left:52%"><img src="a/r-corner.jpg" alt="" style="object-position:center 40%"></div>
+  <div class="pad">
+    <p class="eb a">05 · 审批</p>
+    <h2 class="mast a" style="margin-top:26px;font-size:128px;--d:.12s">不是设想，<span class="it">而是已经启动。</span></h2>
+    <p class="lead a" style="max-width:760px;margin-top:30px;--d:.3s">7EVEN先做了昂贵而缓慢的部分：<i>它出资并化解了获批前阶段的风险，并在获批时贡献土地增值。</i></p>
+    <div class="row a" style="gap:70px;margin-top:auto;align-items:flex-end;--d:.45s">
+      <div><span class="num xl" data-count="700">700<small style="font-size:.45em">万澳元</small></span><p class="lbl" style="margin-top:6px">获批前阶段迄今已投入（融资交割时偿还）</p></div>
+      <div style="width:560px;padding-bottom:22px">
+        <div class="grow row" style="height:16px;--d:1s"><i style="width:28.6%;background:#b8b4ab"></i><i style="width:71.4%;background:linear-gradient(90deg,var(--goldd),var(--gold2))"></i></div>
+        <div class="g" style="grid-template-columns:28.6% 71.4%;margin-top:16px">
+          <div><span class="num s w" style="font-size:44px">200<small style="font-size:.45em">万澳元</small></span><p class="lbl">土地定金</p></div>
+          <div style="padding-left:22px"><span class="num s" style="font-size:44px">500<small style="font-size:.45em">万澳元</small></span><p class="lbl">污染治理、<br>许可与设计</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 05 · WHERE WE ARE (animated journey) ═════ -->
+<section data-old="26" class="slide" data-sec="05 · 审批" data-title="目前进展" data-notes="Walk the journey top to bottom, left then right. Five steps done: land secured, two and a half thousand tonnes of contaminated soil removed, DFP eligibility confirmed, the full design, cost and technical package built with the DFP team over eleven months, and lodgement with the Minister through DTP on the fifteenth of September. The assessment is under way now. The DFP target is four months, and we expect the decision in six to eight weeks. Everything after that is the delivery program.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">05 · 审批 · 流程</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">目前进展。<span class="it">耗时的部分已经完成。</span></h2></div>
+      <div class="row a" style="gap:44px;--d:.3s"><div><span class="num s" data-count="5">5</span><p class="lbl">已完成步骤</p></div><div><span class="num s w">1</span><p class="lbl">进行中</p></div><div><span class="num s w" style="color:#8b8983">6</span><p class="lbl">迈向交付</p></div></div>
+    </div>
+    <div class="journey" style="margin-top:auto">
+      <ol class="jc"><li class="js done" style="--d:0.50s"><i class="jd"></i><div><b>土地已锁定</b><span>合同已签署，已支付200万澳元定金</span></div><em>已完成</em></li><li class="js done" style="--d:0.78s"><i class="jd"></i><div><b>受污染土壤已清除</b><span>2,500吨已运离现场，先于施工完成</span></div><em>已完成</em></li><li class="js done" style="--d:1.06s"><i class="jd"></i><div><b>DFP资格已确认</b><span>第1类，第53.23条（PPA-2094），获投资维多利亚（Invest Victoria）支持</span></div><em>已完成</em></li><li class="js done" style="--d:1.34s"><i class="jd"></i><div><b>设计、成本及技术报告</b><span>与DFP团队历时11个月共同完成。建筑商的1.6亿澳元报价经独立工料测量师DrawDown Partners确认合理</span></div><em>已完成</em></li><li class="js done" style="--d:1.62s"><i class="jd"></i><div><b>已提交规划部长</b><span>2026年9月15日，通过交通与规划部提交</span></div><em>2026年9月15日</em></li><li class="js now" style="--d:1.90s"><i class="jd"></i><div><b>DTP评估</b><span>交通与规划部。DFP四个月目标。预计6至8周内作出决定</span></div><em>进行中</em></li></ol>
+      <ol class="jc"><li class="js next" style="--d:2.18s"><i class="jd"></i><div><b>规划许可</b><span>预计6至8周</span></div><em>下一步</em></li><li class="js next" style="--d:2.46s"><i class="jd"></i><div><b>土地交割</b><span>尾款1300万澳元</span></div><em>约2027年3月</em></li><li class="js next" style="--d:2.74s"><i class="jd"></i><div><b>前期工程</b><span>在审计收尾期间，与Hamilton Marino同步施工地下室</span></div><em>2027</em></li><li class="js next" style="--d:3.02s"><i class="jd"></i><div><b>融资交割</b><span>第二期股权加优先债务</span></div><em>2028年1月</em></li><li class="js next" style="--d:3.16s"><i class="jd"></i><div><b>预租</b><span>零售、健康养生及联合办公运营方在竣工前完成签约</span></div><em>~2028</em></li><li class="js next" style="--d:3.30s"><i class="jd"></i><div><b>建造与出售</b><span>23个月（若采用模块化建造为20个月），竣工前或竣工时向机构出售</span></div><em>2028年至2029年</em></li></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 05 · WHY THE DFP ROUTE ═════ -->
+<section data-old="27" class="slide" data-sec="05 · 审批" data-title="为何选择DFP路径" data-notes="Why we chose the harder, more expensive route. The council route is cheaper at the start, but issues get pushed into permit conditions and neighbours can appeal to VCAT. The DFP makes you pay for the full package upfront, and in exchange the Minister decides, on a four-month target, with the decision expected in six to eight weeks, and no third-party VCAT appeals. Eligibility is confirmed as a Category 1 project with Invest Victoria support, and the design was resolved with the DFP team before lodgement.">
+  <div class="vert a f" style="--d:.9s">州政府<i>快速通道。</i></div>
+  <div class="pad">
+    <p class="eb a">05 · 审批 · 路径</p>
+    <h2 class="mast m a" style="margin-top:22px;--d:.12s">以月计，而非以年计。<span class="it">也没有VCAT上诉。</span></h2>
+    <div class="g" style="grid-template-columns:1fr 1fr;gap:28px;margin-top:auto">
+      <div class="card a" style="--d:.35s;opacity:.9"><p class="lbl">传统的市议会路径</p>
+        <ul class="cmp">
+          <li>起步阶段<b>成本较低</b></li><li><b>市议会</b>作出决定</li><li>问题<b>推迟到许可条件中处理</b></li><li>邻居可<b>向VCAT上诉</b>，增加延误和风险</li>
+        </ul></div>
+      <div class="card gl a" style="--d:.55s"><p class="lbl gold">DFP路径 · Saint Village</p>
+        <ul class="cmp g2">
+          <li><b>完整方案费用前期付清</b>，问题在提交前解决</li><li><b>规划部长</b>作出决定</li><li>预计<b>6至8周</b>内作出决定，在四个月目标之内</li><li><b>无第三方VCAT上诉</b></li>
+        </ul></div>
+    </div>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:40px;margin-top:40px">
+      <div class="stat a" style="--d:.8s"><p class="lead" style="font-size:28px">资格<i>已确认。</i></p><p class="lbl">第1类DFP，获Invest Victoria支持</p></div>
+      <div class="stat a" style="--d:.9s"><p class="lead" style="font-size:28px">设计<i>已定稿。</i></p><p class="lbl">提交前已与DFP团队逐项梳理</p></div>
+      <div class="stat a" style="--d:1s"><p class="lead" style="font-size:28px">规划风险，<i>已逐项梳理。</i></p><p class="lbl">投资者在最难的部分完成之后进入</p></div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:1.1s">依据第53.23条（PPA-2094）的第1类DFP项目。最终决定权在规划部长，尚未作出。时间安排仅供参考。</p>
+  </div>
+</section>
+
+<!-- ═════ 05 · ENVIRONMENT DE-RISKED ═════ -->
+<section data-old="28" class="slide" data-sec="05 · 审批" data-title="风险提前化解" data-notes="Contaminated land is one of the biggest unknowns on any site. 7EVEN has completed the auditor's site requirements and removed two and a half thousand tonnes of soil. The audit itself is still under way, with the statement due in Q2 2027, and rather than wait for it, Hamilton Marino builds the basement while the audit closes out, so no time is lost.">
+  <div class="pad">
+    <div class="g" style="grid-template-columns:1fr 1fr;gap:110px;flex:1;min-height:0">
+      <div class="col">
+        <p class="eb a">05 · 审批 · 场地</p>
+        <h2 class="mast m a" style="margin-top:22px;--d:.12s">最大的未知数，<span class="it">已经处理完毕。</span></h2>
+        <p class="body a" style="margin-top:30px;max-width:640px;--d:.3s">受污染土地是任何开发场地最大的风险之一。Saint Village位于环境审计覆盖区内，<b>7EVEN已完成审计师对场地的各项要求</b>。</p>
+        <div class="row a" style="gap:60px;margin-top:auto;--d:.45s">
+          <div class="stat" style="min-width:300px"><span class="num l" data-count="2,500">2,500</span><p class="lbl">已清除的受污染土壤（吨）</p></div>
+          <div class="stat"><span class="num l w">Q2<small style="font-size:.45em"> 27</small></span><p class="lbl">预计出具审计声明</p></div>
+        </div>
+      </div>
+      <div class="col" style="justify-content:center">
+        <ol class="jc" style="gap:0">
+          <li class="js now" style="--d:.6s"><i class="jd"></i><div><b>环境审计进行中</b><span>审计师要求的工作由7EVEN实施</span></div><em>进行中</em></li>
+          <li class="js done" style="--d:.9s"><i class="jd"></i><div><b>受污染土壤已清除</b><span>2,500吨已运离现场，先于施工完成</span></div><em>已完成</em></li>
+          <li class="js now" style="--d:1.2s"><i class="jd"></i><div><b>与Hamilton Marino进行前期工程</b><span>在审计收尾期间同步建造地下室</span></div><em>下一步</em></li>
+          <li class="js next" style="--d:1.5s"><i class="jd"></i><div><b>审计声明已出具</b><span>场地获准用于住宅用途</span></div><em>2027年第二季度</em></li>
+        </ol>
+        <p class="pq a" style="font-size:28px;margin-top:40px;--d:1.8s">无需等待审计签发，地下室在审计收尾期间同步施工。不浪费时间。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 05 · Approval · VALUE FROM DAY ONE ═════ -->
+<section data-old="29" class="slide" data-sec="05 · 审批" data-title="从第一天起就有价值" data-notes="We bought the land for fifteen million including GST, thirteen point six million ex GST. On the 325 million end value, at a 17.5 per cent build to rent margin and after GST, selling costs, the 3 per cent contribution and finance, the residual land value is about 33 million on approval, 2.4 times the purchase price. If built modular, about 64 million, 4.7 times. That value is already in the project profit, so it should not be added to it.">
+  <div class="pad">
+    <div><p class="eb a">05 · 审批 · 土地</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">以含GST的1500万澳元购入。<span class="it">获批后价值约3300万澳元。</span></h2></div>
+    <div class="g" style="grid-template-columns:1.35fr 1fr;gap:100px;margin-top:auto;align-items:end">
+      <div>
+        <div class="bar a f" style="--d:.3s;grid-template-columns:280px 1fr 150px"><span>购入价格（不含GST）</span><div class="t" style="height:22px"><i style="--w:21.1%;--d:.5s"></i></div><span class="v">$13.6m</span></div>
+        <div class="bar a f" style="--d:.4s;grid-template-columns:280px 1fr 150px"><span>土地剩余价值 · 传统建造</span><div class="t" style="height:22px"><i class="gd" style="--w:51.2%;--d:.9s"></i></div><span class="v gold">~$33.0m</span></div>
+        <div class="bar a f" style="--d:.5s;grid-template-columns:280px 1fr 150px"><span>土地剩余价值 · 模块化</span><div class="t" style="height:22px"><i class="gd" style="--w:100%;--d:1.3s;opacity:.7"></i></div><span class="v gold">~$64.4m</span></div>
+        <table class="lt a" style="margin-top:34px;--d:.7s">
+          <thead><tr><th>每平方米 · 每户</th><th>购入</th><th>传统建造</th><th>模块化</th></tr></thead>
+          <tbody><tr><td>每平方米场地</td><td class="n">$2,865</td><td class="n">$6,930</td><td class="n">$13,530</td></tr><tr><td>每户</td><td class="n">$34,100</td><td class="n">$82,500</td><td class="n">$161,000</td></tr></tbody>
+        </table>
+      </div>
+      <div class="col" style="gap:28px">
+        <div class="stat a" style="--d:1.5s"><span class="num xl" data-count="1940">+1940<small style="font-size:.4em">万澳元</small></span><p class="lbl">创造的价值 · 土地剩余价值为购入价格的2.4倍</p></div>
+        <div class="stat a" style="--d:1.7s"><span class="num l w" data-count="5080">+5080<small style="font-size:.4em">万澳元</small></span><p class="lbl">若采用模块化建造（上行情形，目标单价待定） · 剩余价值为购入价格的4.7倍</p></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:22px;--d:1.8s">土地剩余价值：在以下条件下仍能实现17.5%开发利润率（建后出租口径）的最高土地价格：完工价值3.25亿澳元（公寓含GST，出售时缴纳）、销售成本1.5%（含GST）、不可预见费5%、3%出资、约8.6%的印花税及购置成本，以及8.0%的融资利率。不含额外土地成本的利息（计入后：传统建造约2900万澳元，模块化约5400万澳元）。模块化须待模块化单价确认。所创造的价值已体现在项目利润中，不应再与利润相加。场地4,759平方米；400户。购入价格按不含GST列示（含GST为1500万澳元），与土地剩余价值的口径一致。</p>
+  </div>
+</section>
+
+<!-- ═════ 14 THE TABLE ═════ -->
+<section data-old="30" class="slide" data-sec="05 · 审批" data-title="最优秀的人才齐聚一桌" data-notes="7EVEN does not attempt a project without the people who bring value and confidence to investors. Urban design, architecture, planning law and planning, each led by a recognised name in Victoria.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">05 · 审批 · 团队</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">业内最优秀的人才，<span class="it">齐聚一桌。</span></h2></div>
+      <p class="body a" style="max-width:520px;--d:.3s">正是这些人把Saint Village从DFP推进到DTP，与建筑商Hamilton Marino、独立工料测量师DrawDown Partners和独立估值师BDO并肩合作。没有他们，7EVEN不会启动项目：他们是维多利亚州设计、规划及规划法领域的领军者。</p>
+    </div>
+    <div class="g" style="grid-template-columns:repeat(4,1fr);gap:34px;margin-top:auto">
+      <div class="person a" style="--d:.35s"><div class="plate"><img src="a/p2.jpg" alt="Craig Czarny"></div><h4>Craig Czarny</h4><p class="lbl">Hansen Partnership</p><p>城市设计。塑造街区、公园与街道如何协同运作。</p></div>
+      <div class="person a" style="--d:.47s"><div class="plate"><img src="a/p1.jpg" alt="Callum Fraser"></div><h4>Callum Fraser</h4><p class="lbl">Fraser &amp; Partners</p><p>建筑设计。Saint Village及5IVE Hotels Caloundra的设计师。</p></div>
+      <div class="person a" style="--d:.59s"><div class="plate"><img src="a/p3.jpg" alt="Mark Naughton"></div><h4>Mark Naughton</h4><p class="lbl">董事 · PPP</p><p>规划律师，Planning &amp; Property Partners。确保审批路径稳妥。</p></div>
+      <div class="person a" style="--d:.71s"><div class="plate"><img src="a/p4.jpg" alt="Paul Little"></div><h4>Paul Little</h4><p class="lbl">首席规划师 · PPP</p><p>Planning &amp; Property Partners。将方案从DFP推进到DTP。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 15 DELIVERY ═════ -->
+<section data-old="31" class="slide" data-sec="06 · 交付" data-title="传统建造，附带模块化选项" data-notes="The base case is a conventional build by Hamilton Marino, priced at 160 million and fixed. The modular option sits on top: HAAVN designs for manufacture, and if built modular CCIST makes 724 modules, about 70 million of manufacture, running in parallel with site works.">
+  <div class="bleed dk kb"><img src="a/r-corner.jpg" alt="" style="object-position:center 30%"></div>
+  <div class="pad">
+    <p class="eb a">06 · 交付</p>
+    <h2 class="mast m a" style="margin-top:22px;--d:.12s">传统建造，另有模块化选项。<span class="it">由深谙此道的建筑商交付。</span></h2>
+    <div class="row a" style="align-items:center;gap:40px;margin-top:36px;--d:.3s"><div><p class="lbl gold" style="margin-bottom:6px">若采用模块化建造</p><span class="num xl" data-count="724">724</span></div><p class="lead" style="max-width:620px">个模块位于裙楼之上，精密制造后运抵现场。隔墙已完成。</p></div>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto">
+      <div class="card a" style="--d:.45s"><img src="a/haavn-wordmark-white.png" alt="HAAVN" style="height:30px;width:auto"><h3>为生产线<br><i>而设计。</i></h3><p class="body">HAAVN，7EVEN的精密供应业务。每个模块在下单前即按制造要求设计。</p></div>
+      <div class="card gl a" style="--d:.6s"><p class="lbl gold" style="font-size:18px;letter-spacing:.4em;height:30px;display:flex;align-items:center">CCIST</p><h3>全球最大的<br><i>模块化制造商。</i></h3><p class="body">与普雷斯顿项目直接合作。若采用模块化建造，约7000万澳元的制造工作与现场施工同步进行。</p></div>
+      <div class="card a" style="--d:.75s"><img src="a/hamiltonmarino-2tone.png" alt="Hamilton Marino" style="height:30px;width:auto"><h3>100亿澳元以上<br><i>已交付。</i></h3><p class="body">已聘用。报价1.6亿澳元，从地下室前期工程开始。一家能带领项目走到竣工并移交给客户的建筑商。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 06 · Delivery · THE MODULAR PATH ═════ -->
+<section data-old="32" class="slide" data-sec="06 · 交付" data-title="模块化路径" data-notes="The upside we have not counted. The apartment floors, about 27,500 square metres, are built off site while the basement, podium, retail and Saints Row go in conventionally. At a target rate of 3,600 a square metre it saves about 23.9 million on construction, and because the manufacturer is paid per level once installed and the build is three months faster, the bank lends less for less time: another 7.4 million. 31.3 million in all, taking cost excluding finance to about 190 million. None of it is in the base case.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px"><div><p class="eb a">06 · 交付 · 上行空间</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">模块化路径。<span class="it">我们尚未计入的3130万澳元。</span></h2></div><div class="row a" style="gap:50px;--d:.3s"><div><span class="num s w">23</span><p class="lbl">传统建造月数</p></div><div><span class="num s">20</span><p class="lbl">模块化月数</p></div></div></div>
+    <div class="g" style="grid-template-columns:1.25fr 1fr;gap:90px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.4s">
+        <p class="lbl" style="margin-bottom:16px">施工计划 · 27,511平方米公寓楼层在场外建造 · 仅供参考</p>
+        <div class="gantt">
+          <div class="gr"><span>地下室及裙楼</span><div><i style="left:0;width:50%;--d:.6s"></i></div></div>
+          <div class="gr"><span>模块制造</span><div><i class="gd" style="left:15%;width:55%;--d:.8s"></i></div></div>
+          <div class="gr"><span>10%定金，分阶段支付</span><div><i style="left:0;width:70%;--d:1s;opacity:.55"></i></div></div>
+          <div class="gr"><span>安装，按层付款</span><div><i class="gd" style="left:50%;width:35%;--d:1.2s"></i></div></div>
+          <div class="gr"><span>收尾安装、俱乐部、零售</span><div><i style="left:72%;width:28%;--d:1.4s"></i></div></div>
+          <div class="gr ax"><span></span><div><b style="left:0">M1</b><b style="left:20%">M5</b><b style="left:45%">M10</b><b style="left:70%">M15</b><b style="left:95%">M20</b></div></div>
+        </div>
+        <p class="body" style="font-size:15px;margin-top:16px;color:var(--ink3)">余款在各层安装完成并经贷款方工料测量师验收后，按楼层面积加权，从优先债务中逐层支付。</p>
+      </div>
+      <div class="col" style="gap:24px">
+        <div class="stat a" style="--d:1.5s"><span class="num" data-count="2390">2390<small style="font-size:.45em">万澳元</small></span><p class="lbl">建造成本节省 · 每平方米3,600澳元*，对比约4,467澳元</p></div>
+        <div class="stat a" style="--d:1.6s"><span class="num w" data-count="740">740<small style="font-size:.45em">万澳元</small></span><p class="lbl">融资成本节省 · 峰值债务1.56亿澳元，对比1.89亿澳元</p></div>
+        <div class="card gl a" style="--d:1.8s;padding:22px 26px"><span class="num" style="font-size:64px">3130<small style="font-size:.45em">万澳元</small></span><p class="lbl" style="margin-top:6px">合计 · 总开发成本（不含融资）降至约1.9亿澳元</p></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:22px;--d:1.9s">不计入基准情形。模块化单价须按安装完成的全包价确认，范围与DrawDown的公寓单价一致。定金须以银行保函或定金保证书担保。施工顺序仅供参考。* 每平方米3,600澳元为目标模块化单价，待定。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · RENTS ═════ -->
+<section data-old="33" class="slide" data-sec="07 · 交易方案" data-title="租金" data-notes="It starts with the rent. Two independent sources set today's rents and the operator is the more conservative. The numbers use BDO's rents, grown at BDO's own forecast, and the operator's rents, which are lower, are a further downside test. Against Preston, the operator's rents sit 15 to 40 per cent above new apartments nearby, in line with build to rent across Melbourne.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">一切从租金开始。<span class="it">务实，且经过检验。</span></h2></div>
+    <div class="g" style="grid-template-columns:1fr 1fr;gap:100px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.3s">
+        <p class="lbl" style="margin-bottom:12px">每周租金</p>
+        <table class="lt">
+          <thead><tr><th></th><th>开间</th><th>1居室</th><th>2居室</th><th>3居室</th></tr></thead>
+          <tbody>
+            <tr><td>BTR运营商，现价</td><td class="n">$510</td><td class="n">$625</td><td class="n">$775</td><td class="n">$1,200</td></tr>
+            <tr><td>BDO，现价</td><td class="n">$570</td><td class="n">$650</td><td class="n">$840</td><td class="n">$1,190</td></tr>
+            <tr class="tot"><td>2029年预估</td><td class="n">$660</td><td class="n">$752</td><td class="n">$972</td><td class="n">$1,378</td></tr>
+          </tbody>
+        </table>
+        <p class="body" style="font-size:15px;margin-top:16px;color:var(--ink3)">2029年的租金是将BDO的增长预测（5.5%、5.0%、4.5%）应用于BDO第1年租金得出。这些租金构成1358万澳元的公寓收入。</p>
+      </div>
+      <div class="a" style="--d:.5s">
+        <p class="lbl" style="margin-bottom:12px">普雷斯顿 · 2居室 · 每周</p>
+        <div class="bar a f" style="--d:.6s;grid-template-columns:230px 1fr 110px"><span>普雷斯顿中位数</span><div class="t"><i style="--w:65.5%;--d:.7s"></i></div><span class="v">$550</span></div>
+        <div class="bar a f" style="--d:.7s;grid-template-columns:230px 1fr 110px"><span>附近新建公寓</span><div class="t"><i style="--w:80.4%;--d:.85s"></i></div><span class="v">$560至675</span></div>
+        <div class="bar a f" style="--d:.8s;grid-template-columns:230px 1fr 110px"><span>BTR运营商</span><div class="t"><i class="gd" style="--w:92.3%;--d:1s"></i></div><span class="v gold">$775</span></div>
+        <div class="bar a f" style="--d:.9s;grid-template-columns:230px 1fr 110px"><span>BDO</span><div class="t"><i class="gd" style="--w:100%;--d:1.15s;opacity:.7"></i></div><span class="v">$840</span></div>
+        <p class="body" style="font-size:16px;margin-top:18px">运营商的租金<b>比附近新建公寓高15至40%</b>，与墨尔本各地的BTR水平一致。租金采用BDO的数据，并按BDO的增长预测上调。运营商对开间、1居室和2居室的租金低于BDO，构成进一步的下行测试。</p>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:22px;--d:1.1s">普雷斯顿公寓中位数（Domain）；近期新建公寓租约，High St及Clinch Ave，2026年8月至9月；BTR运营商；BDO。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · THE RENT PREMIUM ═════ -->
+<section data-old="34" class="slide" data-sec="07 · 交易方案" data-title="租金溢价" data-notes="Why the rents hold. A Saint Village rent is not just a home: it includes a hotel-grade gym and bath house, a work lounge and co-working floor, building-wide wifi, a concierge and maintenance on site. Priced separately those cost a renter 90 to 150 dollars a week. Walk the bar: a new two-bed nearby is about 620 a week, add the inclusions and you are at 737, add secure tenure and a professionally run new building and you reach BDO's 840. That is why build to rent rents sit above standard new apartments, and why residents stay.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:60px"><div><p class="eb a">07 · 交易方案 · 租金溢价</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">不只是一个家。<span class="it">价值超过租金。</span></h2></div>
+      <div class="row a" style="gap:46px;--d:.3s"><div><span class="num s">90至150澳元</span><p class="lbl">每周包含项目的价值</p></div><div><span class="num s w">$840</span><p class="lbl">BDO的2居室租金</p></div><div><span class="num s w">$775</span><p class="lbl">运营商的2居室租金</p></div></div></div>
+    <div class="g" style="grid-template-columns:1fr 1.15fr;gap:80px;margin-top:auto;align-items:end">
+      <div class="col" style="gap:22px">
+        <p class="body a" style="font-size:16.5px;line-height:1.65;--d:.35s">Saint Village的租金不只是一个住所。租金包含酒店级健身房及浴场的会籍、住户办公休息室及联合办公楼层、全楼无线网络、礼宾及包裹服务，以及由运营方在现场处理的维修。住户由单一业主提供稳定的长期租期，业主绝不会把住户的家卖掉；楼宇允许养宠物、节能，首层有咖啡馆，门口就是公园。如果单独购买，这些包含项目的费用约为租户每周90至150澳元。这正是建后出租的租金高于一般新建公寓的原因，也是住户愿意长住的原因。</p>
+        <div class="a" style="--d:.5s"><p class="lbl" style="margin-bottom:6px">包含项目</p>
+        <table class="lt sm"><thead><tr><th>租金包含</th><th>价值 / 每周</th></tr></thead><tbody>
+          <tr><td>酒店级健身房、水疗及浴场</td><td class="n">$35至$60</td></tr>
+          <tr><td>住户办公休息室及联合办公</td><td class="n">$25至$50</td></tr>
+          <tr><td>全楼无线网络</td><td class="n">~$22</td></tr>
+          <tr><td>礼宾、包裹及全天候（24/7）维修</td><td class="n">$10至$20</td></tr>
+          <tr class="tot"><td>合计</td><td class="n">$90至$150</td></tr></tbody></table>
+        <p class="body" style="font-size:14px;color:var(--ink3);margin-top:10px">另包含：户外球场 · 屋顶花园 · 住户活动 · ATRIUM应用 · 可养宠物 · 稳定的长期租期 · 节能住宅 · 门口咖啡馆</p></div>
+      </div>
+      <div class="a" style="--d:.4s"><p class="lbl" style="margin-bottom:10px">2居室租金构成 · 澳元每周</p>
+        <div class="wfall">
+<div class="wf base" style="--d:0.50s"><span>附近新建2居室（High St及Clinch Ave，中间值）</span><div class="t"><i style="left:0.00%;width:68.89%"></i></div><em>$620</em><b>$620</b></div>
+<div class="wf inc" style="--d:0.72s"><span>+ 健身房、水疗及浴场</span><div class="t"><i style="left:68.89%;width:5.00%"></i></div><em>+$45</em><b>$665</b></div>
+<div class="wf inc" style="--d:0.94s"><span>+ 联合办公及住户休息室</span><div class="t"><i style="left:73.89%;width:3.89%"></i></div><em>+$35</em><b>$700</b></div>
+<div class="wf inc" style="--d:1.16s"><span>+ 全楼无线网络</span><div class="t"><i style="left:77.78%;width:2.44%"></i></div><em>+$22</em><b>$722</b></div>
+<div class="wf inc" style="--d:1.38s"><span>+ 礼宾、包裹及全天候（24/7）维修</span><div class="t"><i style="left:80.22%;width:1.67%"></i></div><em>+$15</em><b>$737</b></div>
+<div class="wf sum" style="--d:1.60s"><span>= 租户的等值成本</span><div class="t"><i style="left:0.00%;width:81.89%"></i></div><em></em><b>$737</b></div>
+<div class="wf inc2" style="--d:1.82s"><span>+ 稳定租期、现场管理、全新楼宇</span><div class="t"><i style="left:81.89%;width:11.44%"></i></div><em>+$103</em><b>$840</b></div>
+<div class="wf tot" style="--d:2.04s"><span>= Saint Village 2居室（BDO）</span><div class="t"><i style="left:0.00%;width:93.33%"></i></div><em></em><b>$840</b></div>
+        </div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:18px;--d:2.4s">资料来源：新建公寓可比项目，High St及Clinch Ave租约，2026年8月至9月；BDO估值，2026年9月；Local Residential，2026年10月；Finder NBN 100平均价，2026年9月（约96澳元/月）；墨尔本联合办公灵活工位价格，2026年（179至440澳元/月）。包含项目的价值为典型市场区间，并非现场报价。示例按2居室住宅计算。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · WHAT IT IS WORTH ═════ -->
+<section data-old="35" class="slide" data-sec="07 · 交易方案" data-title="价值几何" data-notes="We value each part of the building from the income it earns, at the yields a buyer would accept. The apartments earn 13.6 million a year; at BDO's 4.5 per cent that is 301.8 million, including GST, which is remitted on sale. Add the shops and the two club operators and the building is worth 325 million. BDO's as-if-complete value today is 257.4 million. If buyers wanted 5 per cent, value falls to about 295 million and investors still get 1.6 times their money.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">价值几何。<span class="it">3.25亿澳元，按收入估值。</span></h2></div>
+    <div class="g" style="grid-template-columns:1.3fr 1fr;gap:90px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.3s">
+        <table class="lt">
+          <thead><tr><th>四项收入</th><th>净收入</th><th>资本化率</th><th>价值</th></tr></thead>
+          <tbody>
+            <tr><td>公寓 · 2029年，稳定运营，满租，含GST</td><td class="n">$13.58m</td><td class="n">4.5% · BDO</td><td class="n">$301.8m</td></tr>
+            <tr><td>零售 · 2028年预租</td><td class="n">$0.53m</td><td class="n">5.5% · BDO</td><td class="n">$9.7m</td></tr>
+            <tr><td>Saints Row · 5IVE健康养生租约（最佳情形，800名会员）</td><td class="n">$0.77m</td><td class="n">7.5%</td><td class="n">$10.3m</td></tr>
+            <tr><td>Saints Row · 7X联合办公租约（最佳情形）</td><td class="n">$0.24m</td><td class="n">7.5%</td><td class="n">$3.2m</td></tr>
+            <tr class="tot"><td>完工价值</td><td class="n">$15.12m</td><td class="n">综合4.7%</td><td class="n">$325.0m</td></tr>
+          </tbody>
+        </table>
+        <p class="lbl" style="margin:30px 0 4px">公寓，与独立估值观点对比 · 含GST</p>
+        <div class="bar a f" style="--d:.6s;grid-template-columns:260px 1fr 140px"><span>BDO，假定竣工（2026年9月）</span><div class="t"><i style="--w:85.3%;--d:.7s"></i></div><span class="v">$257.4m</span></div>
+        <div class="bar a f" style="--d:.65s;grid-template-columns:260px 1fr 140px"><span>BDO，上调至2029年</span><div class="t"><i style="--w:98.7%;--d:.85s"></i></div><span class="v">~$298m</span></div>
+        <div class="bar a f" style="--d:.7s;grid-template-columns:260px 1fr 140px"><span>收入 ÷ 4.5%，2029年</span><div class="t"><i class="gd" style="--w:100%;--d:1s"></i></div><span class="v gold">$301.8m</span></div>
+      </div>
+      <div class="col" style="gap:26px">
+        <div class="stat a" style="--d:.5s"><span class="num xl" data-count="3.25">3.25<small style="font-size:.4em">亿澳元</small></span><p class="lbl">完工价值 · 稳定运营，满租 · 公寓含GST · 买方自付印花税</p></div>
+        <table class="lt a" style="--d:.8s">
+          <thead><tr><th>公寓资本化率</th><th>完工价值</th><th>投资者回报倍数</th></tr></thead>
+          <tbody>
+            <tr><td>4.25%</td><td class="n">$342.7m</td><td class="n">2.2×</td></tr>
+            <tr class="tot"><td>4.5% · BDO</td><td class="n">$325.0m</td><td class="n">2.0×</td></tr>
+            <tr><td>4.75%</td><td class="n">$309.1m</td><td class="n">1.7×</td></tr>
+            <tr><td>5.0%</td><td class="n">$294.8m</td><td class="n">1.6×</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:1s">公寓价值含GST，GST于出售时缴纳。零售及Saints Row假定按持续经营（going concern）出售（不含GST）。公寓净收入假定100%的住宅出租；按BDO的98%入住率和0.9%坏账计算，净收入约为1313万澳元，价值约为2.918亿澳元。BDO的数字已扣除BDO约6.7%的买方印花税及费用。Saints Row资本化率仅供参考，并非BDO的数字。公寓资本化率每变动0.25%，价值变动约1400万至1800万澳元。Saints Row按最佳情形计算。基准情形（400名会员）为800万澳元；完工价值3.195亿澳元。按BDO的98%入住率和0.9%坏账计算：完工价值3.15亿澳元，利润5490万澳元，1.8倍。净收入已扣除约占2029年毛租金（1660万澳元）18%的运营成本。租赁在施工期间开始，因此资产在出售时已部分出租；买方完成出租爬坡。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · WHAT IT COSTS ═════ -->
+<section data-old="36" class="slide" data-sec="07 · 交易方案" data-title="成本几何" data-notes="It costs 215 million to build before bank interest, after claiming back GST, including the 3 per cent contribution in lieu of affordable housing. The builder priced it at 160 million, fixed, and independent QS DrawDown Partners at 168, about 5 per cent higher. DrawDown says the builder's price is reasonable, and because it is fixed the 5 per cent contingency remains available. Finance to completion adds 14.2 million, since we sell on completion, so returns are worked out on 229 million.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">成本几何。<span class="it">两次核查。</span></h2></div>
+    <div class="g" style="grid-template-columns:1.3fr 1fr;gap:90px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.3s">
+        <div class="grow row" style="height:18px;--d:.5s"><i style="width:6.9%;background:#b8b4ab"></i><i style="width:82.9%;background:linear-gradient(90deg,var(--goldd),var(--gold2))"></i><i style="width:7.3%;background:#77756f"></i><i style="width:2.9%;background:#4f4d48"></i></div>
+        <div class="g" style="grid-template-columns:1fr 1.3fr 1.2fr 1.1fr;gap:16px;margin-top:14px">
+          <p class="lbl">土地 · 1490万澳元 · 6.9%</p><p class="lbl gold">建造成本 · 1.783亿澳元 · 82.9%</p><p class="lbl">费用及规费 · 1560万澳元 · 7.3%</p><p class="lbl">出资 · 630万澳元 · 2.9%</p>
+        </div>
+        <table class="lt" style="margin-top:22px">
+          <thead><tr><th>总开发成本 · 传统建造</th><th>含GST</th><th>扣除GST抵扣后</th></tr></thead>
+          <tbody>
+            <tr><td>土地及购置成本</td><td class="n">$16.29m</td><td class="n">$14.89m</td></tr>
+            <tr><td>建造成本，含装修及5%不可预见费</td><td class="n">$196.10m</td><td class="n">$178.27m</td></tr>
+            <tr><td>费用及规费</td><td class="n">$17.16m</td><td class="n">$15.60m</td></tr>
+            <tr><td>代替可负担住房的3%出资</td><td class="n">$6.26m</td><td class="n">$6.26m</td></tr>
+            <tr class="tot"><td>总开发成本（不含融资）</td><td class="n">$235.81m</td><td class="n">$215.02m</td></tr>
+            <tr><td>融资成本 · 至竣工的费用及利息</td><td class="n">$14.23m</td><td class="n">$14.23m</td></tr>
+            <tr><td><b>总开发成本（含融资） · 回报计算的成本基础</b></td><td class="n">$250.04m</td><td class="n">$229.25m</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col" style="gap:24px">
+        <div class="stat a" style="--d:.5s"><span class="num" data-count="2.15">2.15<small style="font-size:.45em">亿澳元</small></span><p class="lbl">总开发成本（不含融资）</p></div>
+        <div class="card a" style="--d:.7s;padding:22px 26px"><p class="lbl" style="margin-bottom:14px">建造成本两次核查 · 传统建造，不含GST</p>
+          <div class="row" style="align-items:center;justify-content:space-between"><div><span class="num s w" style="font-size:46px">1.6<small style="font-size:.45em">亿澳元</small></span><p class="lbl">Hamilton Marino<br>2026年9月2日</p></div><div style="text-align:center"><span class="lbl gold">约</span><br><span class="num s" style="font-size:40px">5%</span></div><div style="text-align:right"><span class="num s w" style="font-size:46px">1.681<small style="font-size:.45em">亿澳元</small></span><p class="lbl">DrawDown Partners<br>2026年9月28日</p></div></div>
+          <p class="body" style="font-size:15px;margin-top:12px;color:var(--ink3)">DrawDown认为1.6亿澳元的报价合理，建筑商利润空间充足。Hamilton Marino的报价为固定价格，因此5%的不可预见费（850万澳元）仍然可用。</p></div>
+        <div class="card gl a" style="--d:.9s;padding:18px 26px"><p class="body" style="font-size:16px"><b class="gold">模块化上行空间：节省3130万澳元</b>，未计入基准情形。</p></div>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:1s">按EstateMaster数据，装修为880万澳元（含GST），另含5%不可预见费。融资按8.0%全包利率、23个月建筑商S曲线重新建模，其中含额外优先债务的利息约120万澳元；竣工时出售，竣工后不持有。含代替可负担住房的3%出资（开发成本的3%，630万澳元）。与Hamilton Marino签订固定价格合同；无需预留价格上涨准备金。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · FUNDING ═════ -->
+<section data-old="37" class="slide" data-sec="07 · 交易方案" data-title="资金安排" data-notes="Investors' money goes in first: 23 million in January 2027, conditional on the planning permit, which repays the seven million pre-approval facility and settles the land, and about 17 million at the start of the build. The bank only starts lending around month seven, and borrowing peaks at about 189 million, repaid when the building is sold before or on completion. About ten million of that debt relies on post-permit land equity, subject to the lender. If built modular, the bank lends 32 million less and the project sits inside the loan to cost and loan to value limits.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">资金安排。<span class="it">先投入股权，再动用银行贷款。</span></h2></div>
+    <div class="g" style="grid-template-columns:.85fr 1.4fr;gap:90px;margin-top:auto">
+      <div class="col" style="gap:24px">
+        <div class="stat a" style="--d:.3s"><span class="num l" data-count="4000">~4000<small style="font-size:.45em">万澳元</small></span><p class="lbl">股权，含偿还700万澳元的获批前融资</p></div>
+        <div class="g" style="grid-template-columns:1fr 1fr;gap:30px">
+          <div class="stat a" style="--d:.45s"><span class="num s w">2300<small style="font-size:.45em">万澳元</small></span><p class="lbl">第一期 · 2027年1月<br>以取得规划许可为条件 · 偿还获批前融资，完成土地交割</p></div>
+          <div class="stat a" style="--d:.55s"><span class="num s w">~1700<small style="font-size:.45em">万澳元</small></span><p class="lbl">第二期 · 融资交割<br>先于债务提款使用</p></div>
+        </div>
+        <div class="a" style="--d:.7s">
+          <p class="lbl" style="margin-bottom:12px">峰值优先债务</p>
+          <div class="bar f" style="grid-template-columns:150px 1fr 90px;margin:8px 0"><span>传统建造</span><div class="t"><i style="--w:100%;--d:.9s"></i></div><span class="v">$189m</span></div>
+          <div class="bar f" style="grid-template-columns:150px 1fr 90px;margin:8px 0"><span>模块化</span><div class="t"><i class="gd" style="--w:83.0%;--d:1.1s"></i></div><span class="v gold">$156m</span></div>
+          <p class="body" style="font-size:15px;color:var(--ink3);margin-top:8px">债务约在第7个月开始。模块化方案提前3个月还清。</p>
+        </div>
+      </div>
+      <div class="a" style="--d:.5s">
+        <table class="lt sm">
+          <thead><tr><th>贷款方测试</th><th>传统建造</th><th>模块化</th><th>常见上限</th></tr></thead>
+          <tbody>
+            <tr><td>贷款成本比（土地按价值计）</td><td class="n">76%</td><td class="n">72%</td><td class="n">75至80%</td></tr>
+            <tr><td>贷款价值比 · 2.976亿澳元（不含GST）</td><td class="n">64%</td><td class="n">52%</td><td class="n">60至65%</td></tr>
+            <tr><td>贷款价值比 · BDO假定竣工（2.574亿澳元，含GST）</td><td class="n">74%</td><td class="n">61%</td><td class="n">60至65%</td></tr>
+            <tr><td>稳定运营时的利息覆盖率</td><td class="n">1.0×</td><td class="n">1.2×</td><td class="n">持有须达1.5×以上</td></tr>
+          </tbody>
+        </table>
+        <p class="body" style="font-size:15px;margin-top:14px">若采用模块化建造，项目<b>处于贷款成本比及贷款价值比的上限之内</b>。利息覆盖率（1.2×）低于常见的持有测试，这正是计划在竣工时出售的原因。若采用传统建造，贷款方将上限定为BDO估值的65%，则需增加约2200万澳元股权。</p>
+        <p class="lbl" style="margin:20px 0 4px">资金来源与用途 · 传统建造 · 百万澳元</p>
+        <table class="lt sm su">
+          <thead><tr><th>用途</th><th>百万澳元</th><th>来源</th><th>百万澳元</th></tr></thead>
+          <tbody>
+            <tr><td>土地及购置成本</td><td class="n">14.89</td><td>投资者股权（含偿还700万澳元获批前融资）</td><td class="n">40.00</td></tr>
+            <tr><td>建造成本，含装修及5%不可预见费</td><td class="n">178.27</td><td>优先债务（峰值）</td><td class="n">189.25</td></tr>
+            <tr><td>费用及规费</td><td class="n">15.60</td><td></td><td class="n"></td></tr>
+            <tr><td>3%可负担住房出资</td><td class="n">6.26</td><td></td><td class="n"></td></tr>
+            <tr><td>至竣工的融资成本</td><td class="n">14.23</td><td></td><td class="n"></td></tr>
+            <tr class="tot"><td>合计</td><td class="n">229.25</td><td>合计</td><td class="n">229.25</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.9s">股权（4000万澳元，含偿还700万澳元获批前融资及其资本化利息）优先使用；全包利率8.0%；竣工前或竣工时出售。约1000万澳元的优先债务以获得许可后的土地股权作为支持，须经贷款方接受及独立土地估值。贷款方及条款待确定。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · FROM SALE TO PROFIT ═════ -->
+<section data-old="38" class="slide" data-sec="07 · 交易方案" data-title="从出售到利润" data-notes="The whole building earns 15.1 million a year and is worth 325 million on that income, stabilised and fully leased. Take off the GST on the apartments, 1.5 per cent to sell, the costs including the 3 per cent contribution, and finance to completion, since we sell on completion, and the project makes about 64 million. Investors share 60 per cent, 38.3 million; 7EVEN keeps 40. If built modular, profit rises to 95.8 million.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px"><div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">从出售到利润。<span class="it">约6400万澳元，未计模块化。</span></h2></div><div class="row a" style="gap:50px;--d:.3s"><div><span class="num s">1510<small style="font-size:.45em">万澳元</small></span><p class="lbl">年收入 · 2029年</p></div><div><span class="num s w">7.0<small style="font-size:.45em">%</small></span><p class="lbl">成本收益率（不含融资） · 对比4.5%资本化率</p></div></div></div>
+    <div class="g" style="grid-template-columns:1fr 1.15fr;gap:80px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.35s">
+        <table class="lt">
+          <thead><tr><th>完工价值3.25亿澳元</th><th>传统建造</th><th>若采用模块化建造的上行情形（目标单价，待定）</th></tr></thead>
+          <tbody>
+            <tr><td>完工价值</td><td class="n">$325.0m</td><td class="n">$325.0m</td></tr>
+            <tr><td>减：公寓GST（缴纳）</td><td class="n">($27.4m)</td><td class="n">($27.4m)</td></tr>
+            <tr><td>出售所得，不含GST</td><td class="n">$297.6m</td><td class="n">$297.6m</td></tr>
+            <tr><td>减：销售成本（1.5%，含GST，扣除GST抵扣后）</td><td class="n">($4.4m)</td><td class="n">($4.4m)</td></tr>
+            <tr><td>减：总开发成本（不含融资，含3%出资）</td><td class="n">($215.0m)</td><td class="n">($190.5m)</td></tr>
+            <tr><td>减：至竣工的融资成本</td><td class="n">($14.2m)</td><td class="n">($6.8m)</td></tr>
+            <tr class="tot"><td>融资后利润</td><td class="n">$63.9m</td><td class="n">$95.8m</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:26px"><div class="grow row" style="height:16px;--d:1s"><i style="width:60%;background:linear-gradient(90deg,var(--goldd),var(--gold2))"></i><i style="width:40%;background:#77756f"></i></div>
+        <div class="row" style="justify-content:space-between;margin-top:12px"><p class="lbl gold">投资者60% · 3830万澳元</p><p class="lbl">7EVEN 40% · 2560万澳元</p></div></div>
+      </div>
+      <div class="a" style="--d:.55s">
+        <table class="lt">
+          <thead><tr><th>公寓资本化率 · 完工价值</th><th>利润</th><th>利润率</th><th>投资者回报倍数</th><th>俱乐部基准情形</th></tr></thead>
+          <tbody>
+            <tr><td>5.0% · $294.8m</td><td class="n">$36.8m</td><td class="n">16.1%</td><td class="n">1.6×</td><td class="n">$31.4m</td></tr>
+            <tr><td>4.75% · $309.1m</td><td class="n">$49.6m</td><td class="n">21.6%</td><td class="n">1.7×</td><td class="n">$44.2m</td></tr>
+            <tr class="tot"><td>4.5% BDO · $325.0m</td><td class="n">$63.9m</td><td class="n">27.9%</td><td class="n">2.0×</td><td class="n">$58.4m</td></tr>
+            <tr><td>4.25% · $342.7m</td><td class="n">$79.8m</td><td class="n">34.8%</td><td class="n">2.2×</td><td class="n">$74.3m</td></tr>
+            <tr><td>4.5%加模块化（上行情形）</td><td class="n">$95.8m</td><td class="n">48.6%</td><td class="n">2.4×</td><td class="n"></td></tr>
+            <tr><td>运营商观点 · 公寓2.825亿澳元（含GST）</td><td class="n">$46.6m</td><td class="n">20.3%</td><td class="n">1.7×</td><td class="n"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.9s">融资后利润，税前。利润率以含融资及3%出资的总开发成本为基数（传统建造2.293亿澳元，模块化1.973亿澳元）。公寓价值含GST，于出售时缴纳；零售及Saints Row按持续经营出售。销售成本1.5%（含GST）（BDO采用0.5%）。融资按8.0%全包利率；传统建造每变动0.5%约为170万澳元。俱乐部基准情形：Saints Row拥有400名外部健身会员。运营商观点：Local Residential给出的稳定运营价值2.75亿至2.9亿澳元（中间值）。固定价格建造；无价格上涨。</p>
+  </div>
+</section>
+
+<!-- ═════ 19 YOUR SHARE ═════ -->
+<section data-old="39" class="slide" data-sec="07 · 交易方案" data-title="您的份额" data-notes="40 million of equity earns 60 per cent of the profit, so every million invested earns 1.5 per cent. 10 million comes back as about 20 million at the 325 million value: 2.0 times, an equity IRR of 29 per cent. If built modular it is about 24 million, 2.4 times, 41 per cent. Even if buyers want a 5 per cent yield it is 1.6 times and 18 per cent. If completion is six months late the IRRs are 26, 16 and 35 per cent. Tranche 1 is 57.5 per cent in January 2027 after the planning permit; tranche 2 is 42.5 per cent at construction financial close in January 2028; completion and sale settlement are in December 2029.">
+  <div class="bleed dk kb"><img src="a/r-sunset.jpg" alt="" style="object-position:center 40%"></div>
+  <div class="pad">
+    <p class="eb a">07 · 交易方案</p>
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:60px">
+      <div>
+        <h2 class="mast m a" style="margin-top:22px;--d:.12s">您的份额<span class="it">与您的出资相匹配。</span></h2>
+        <p class="lead a" style="max-width:1000px;margin-top:22px;--d:.3s">4000万澳元股权获得60%的利润。每投入100万澳元可获得1.5%。<i>1000万澳元约变为2000万澳元，若采用模块化建造则约为2400万澳元。</i></p>
+      </div>
+      <div class="row kp a" style="gap:56px;--d:.4s">
+        <div><span class="num" style="font-size:64px">29%</span><p class="lbl">股权内部收益率 · 基准情形</p></div>
+        <div><span class="num w" style="font-size:64px">2.0×</span><p class="lbl">回报倍数 · 基准情形</p></div>
+        <div><span class="num w" style="font-size:64px">~3年</span><p class="lbl">2027年1月至2029年12月</p></div>
+      </div>
+    </div>
+    <table class="lt irrt a" style="margin-top:auto;--d:.5s">
+      <thead>
+        <tr class="grp"><th></th><th></th><th class="gc" colspan="3">5.0%资本化率 · 下行</th><th class="gc base" colspan="3">4.5% BDO · 3.25亿澳元 · 基准</th><th class="gc" colspan="3">若采用模块化建造的上行情形</th></tr>
+        <tr><th>您的投资额</th><th>利润分成</th><th>利润</th><th>总回收</th><th>内部收益率</th><th class="base">利润</th><th class="base">总回收</th><th class="base">内部收益率</th><th>利润</th><th>总回收</th><th>内部收益率</th></tr>
+      </thead>
+      <tbody>
+<tr><td>$5m</td><td class="n">7.5%</td><td class="n">$2.8m</td><td class="n">$7.8m</td><td class="n irr">18%</td><td class="n base">$4.8m</td><td class="n base">$9.8m</td><td class="n base irr">29%</td><td class="n">$7.2m</td><td class="n">$12.2m</td><td class="n irr">41%</td></tr>
+<tr><td>$10m</td><td class="n">15%</td><td class="n">$5.5m</td><td class="n">$15.5m</td><td class="n irr">18%</td><td class="n base">$9.6m</td><td class="n base">$19.6m</td><td class="n base irr">29%</td><td class="n">$14.4m</td><td class="n">$24.4m</td><td class="n irr">41%</td></tr>
+<tr><td>$20m</td><td class="n">30%</td><td class="n">$11.0m</td><td class="n">$31.0m</td><td class="n irr">18%</td><td class="n base">$19.2m</td><td class="n base">$39.2m</td><td class="n base irr">29%</td><td class="n">$28.8m</td><td class="n">$48.8m</td><td class="n irr">41%</td></tr>
+<tr><td>$30m</td><td class="n">45%</td><td class="n">$16.6m</td><td class="n">$46.6m</td><td class="n irr">18%</td><td class="n base">$28.8m</td><td class="n base">$58.8m</td><td class="n base irr">29%</td><td class="n">$43.2m</td><td class="n">$73.2m</td><td class="n irr">41%</td></tr>
+<tr class="tot"><td>$40m</td><td class="n">60%</td><td class="n">$22.1m</td><td class="n">$62.1m</td><td class="n irr">18%</td><td class="n base">$38.3m</td><td class="n base">$78.3m</td><td class="n base irr">29%</td><td class="n">$57.5m</td><td class="n">$97.5m</td><td class="n irr">41%</td></tr>
+        <tr class="sum"><td>回报倍数，任意金额</td><td></td><td></td><td class="n">1.6×</td><td></td><td class="base"></td><td class="base n">2.0×</td><td class="base"></td><td></td><td class="n">2.4×</td><td></td></tr>
+        <tr class="sum late"><td>竣工延迟6个月时的内部收益率</td><td></td><td></td><td></td><td class="n">16%</td><td class="base"></td><td class="base"></td><td class="base n">26%</td><td></td><td></td><td class="n">35%</td></tr>
+      </tbody>
+    </table>
+    <p class="fn a" style="margin-top:14px;--d:.7s">利润分成 = 60% × （您的股权 ÷ 4000万澳元），因此在同一情形下，无论投资金额多少，内部收益率均相同。利润为融资后利润（竣工时出售），已扣除开发管理及所有项目费用、1.5%销售成本（含GST）、已缴纳的GST及3%出资；税前。股权内部收益率假设：第一期（57.5%）于2027年1月在取得规划许可后投入，第二期（42.5%）于2028年1月施工融资交割时投入，实际竣工及出售交割于2029年12月（23个月建造期）。日期仅供参考；延迟情形将竣工推迟至2030年6月，利润保持不变。模块化为按目标单价计算的上行情形，待定。仅作说明之用。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · SAINTS ROW ECONOMICS ═════ -->
+<section data-old="40" class="slide" data-sec="07 · 交易方案" data-title="Saints Row经济效益" data-notes="Saints Row is two businesses on two leases. Residents get the club as part of their home; outside members pay to join. On the base case of four hundred outside gym members, the two operators pay about six hundred thousand a year in rent, worth about eight million. The best case is about one million a year, worth thirteen and a half million, which is the figure in the three hundred and twenty five million end value. These are benchmark assumptions, to be replaced by operator proposals.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案 · Saints Row</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">两项业务，<span class="it">两份租约。</span></h2></div>
+    <div class="g" style="grid-template-columns:1fr 1fr;gap:40px;margin-top:auto">
+      <div class="card a" style="--d:.3s"><div class="row" style="justify-content:space-between;align-items:center"><span class="lbl gold">5IVE · 健身及健康养生</span><span class="lbl">1,771平方米</span></div>
+        <table class="lt" style="margin-top:14px"><thead><tr><th></th><th>基准</th><th>最佳</th></tr></thead><tbody>
+          <tr><td>外部会员</td><td class="n">400</td><td class="n">800</td></tr>
+          <tr><td>收入</td><td class="n">$1.97m</td><td class="n">$3.64m</td></tr>
+          <tr><td>租金前利润</td><td class="n">$0.65m</td><td class="n">$1.38m</td></tr>
+          <tr class="tot"><td>支付给业主的租金，2028年</td><td class="n">$0.41m</td><td class="n">$0.77m</td></tr>
+          <tr><td>7.5%下的价值</td><td class="n">~$5.5m</td><td class="n">~$10.3m</td></tr></tbody></table></div>
+      <div class="card a" style="--d:.45s"><div class="row" style="justify-content:space-between;align-items:center"><span class="lbl gold">7X · 联合办公</span><span class="lbl">589平方米 + 141平方米住户休息室</span></div>
+        <table class="lt" style="margin-top:14px"><thead><tr><th></th><th>基准</th><th>最佳</th></tr></thead><tbody>
+          <tr><td>外部会员</td><td class="n">105</td><td class="n">105 + 4间办公室</td></tr>
+          <tr><td>收入</td><td class="n">$0.50m</td><td class="n">$0.66m</td></tr>
+          <tr><td>租金前利润</td><td class="n">$0.25m</td><td class="n">$0.35m</td></tr>
+          <tr class="tot"><td>支付给业主的租金，2028年</td><td class="n">$0.19m</td><td class="n">$0.24m</td></tr>
+          <tr><td>7.5%下的价值</td><td class="n">~$2.5m</td><td class="n">~$3.2m</td></tr></tbody></table></div>
+    </div>
+    <div class="row a" style="gap:70px;margin-top:30px;align-items:flex-end;--d:.7s">
+      <div><span class="num s w">60<small style="font-size:.45em">万澳元</small></span><p class="lbl">基准 · 年租金 · 价值约800万澳元</p></div>
+      <div><span class="num s">101<small style="font-size:.45em">万澳元</small></span><p class="lbl">最佳 · 年租金 · 价值约1350万澳元</p></div>
+      <p class="body" style="font-size:16px;max-width:620px">住户可将俱乐部视为家的一部分。外部会员需付费，因此同一空间可以赚取两次收入。约25%的高峰容量保留给住户免费使用。</p>
+    </div>
+    <p class="fn a" style="margin-top:18px;--d:.9s">基于行业基准的假设，将由运营方的方案取代。资本化率仅供参考，并非BDO的数字。若住户使用俱乐部的成本尚未计入BTR运营成本，则每年约减少31万澳元（价值约减少400万澳元）。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · THE LONG HOLD ═════ -->
+<section data-old="41" class="slide" data-sec="07 · 交易方案" data-title="买方的投资逻辑" data-notes="Why an institution pays 325 million. Net income nearly doubles over twenty years, from 15.1 to 27.4 million. Buying at 325 million, after its own stamp duty, an institution earns about 7 per cent a year unlevered, above the roughly 6 per cent it targets for core assets. That is the buyer we sell to.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案 · 买方的投资逻辑</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">机构为何愿意出价3.25亿澳元。<span class="it">收入几乎翻倍。</span></h2></div>
+    <div class="g" style="grid-template-columns:1fr 1.1fr;gap:90px;margin-top:auto;align-items:end">
+      <div class="a" style="--d:.3s">
+        <div class="vbars">
+          <div style="--p:0.551;--d:.5s"><b>1510万澳元</b><i></i><span>第1年</span></div>
+          <div style="--p:0.635;--d:.65s"><b>1740万澳元</b><i></i><span>第5年</span></div>
+          <div style="--p:0.741;--d:.8s"><b>2030万澳元</b><i></i><span>第10年</span></div>
+          <div style="--p:0.861;--d:.95s"><b>2360万澳元</b><i></i><span>第15年</span></div>
+          <div class="g1" style="--p:1;--d:1.1s"><b>2740万澳元</b><i></i><span>第20年</span></div>
+        </div>
+        <p class="lbl" style="margin-top:16px">净营运收入 · 公寓、零售及Saints Row租金</p>
+      </div>
+      <div class="a" style="--d:.5s">
+        <table class="lt">
+          <thead><tr><th></th><th>机构买方 · 3.25亿澳元</th></tr></thead>
+          <tbody>
+            <tr><td>全包入场成本，含买方印花税及GST</td><td class="n">~$347m</td></tr>
+            <tr><td>第1年净收益率</td><td class="n">4.4%</td></tr>
+            <tr><td>退出价值，第10年 / 第20年</td><td class="n">~$441m / ~$564m</td></tr>
+            <tr class="tot"><td>10年内部收益率</td><td class="n">~6.9%</td></tr>
+            <tr><td>20年内部收益率</td><td class="n">~7.1%</td></tr>
+            <tr><td>Colliers基准</td><td class="n">核心资产约6%</td></tr>
+          </tbody>
+        </table>
+        <p class="body" style="font-size:16px;margin-top:20px">以3.25亿澳元计，机构每年可获得<b>约7%的无杠杆回报</b>，高于其对核心资产约6%的目标。这正是我们要出售给的买方。</p>
+      </div>
+    </div>
+    <p class="fn a" style="margin-top:20px;--d:.9s">机构买方的无杠杆回报。第1年 = 2029年。入场成本：3.25亿澳元（公寓含GST）加约6.7%的印花税及费用。公寓租金按BDO预测增长至2036年（4.0%、3.5%，之后3.25%），此后为3.0%。运营成本每年增长约2.75%，另加BDO的4.9%管理费。零售及Saints Row租金增长3%。退出资本化率：第10年4.75%（BDO终端利率），第20年5.0%。退出销售成本0.5%（BDO）。第10年及第20年退出时假定不含GST（楼宇不再属于“新住宅物业”）。GST及印花税的处理须经税务顾问确认。100%出租；按98%入住率计算，内部收益率约低0.3至0.4个百分点。</p>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · RISKS ═════ -->
+<section data-old="42" class="slide" data-sec="07 · 交易方案" data-title="风险" data-notes="Every big risk has been worked on before investors come in: planning, cost, contamination and leasing. The build price is fixed, so the contingency remains available. The building is sold before or on completion, with no post-completion hold. We value it on its income with apartments including GST, and allow 1.5 per cent to sell. The modular saving is upside only. Land settlement in March is not conditional on the permit, which is expected about four months earlier. GST treatment is to be confirmed by the tax adviser before financial close.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案 · 风险</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">可能出什么问题。<span class="it">以及我们已采取的措施。</span></h2></div>
+    <table class="lt risk" style="margin-top:auto">
+      <thead><tr><th>风险</th><th>应对措施</th></tr></thead>
+      <tbody><tr class="a" style="--d:0.30s"><td>规划批准</td><td>DFP第1类。提交前已与DTP逐项梳理各项问题。由规划部长决定；无第三方VCAT上诉。</td></tr><tr class="a" style="--d:0.37s"><td>建造成本</td><td>建筑商报价1.6亿澳元；独立工料测量师DrawDown Partners的估算为1.681亿澳元，高出约5%，确认建筑商的报价合理。建筑商的报价为固定价格，因此5%的不可预见费（850万澳元）仍然可用。</td></tr><tr class="a" style="--d:0.44s"><td>成本上涨</td><td>建筑商的报价为固定价格，因此无需预留价格上涨准备金。仅当开工日期超出固定价格有效期时，才适用DrawDown预估的每年5%涨幅。</td></tr><tr class="a" style="--d:0.51s"><td>污染</td><td>已清除2,500吨。预计2027年第二季度出具审计声明。总开发成本中已列入环境专项及不可预见费。</td></tr><tr class="a" style="--d:0.58s"><td>利率</td><td>按当前利率建模，全包利率8.0%。每变动0.5%约为170万澳元。股权先行投入，因此债务约在第7个月才开始。</td></tr><tr class="a" style="--d:0.65s"><td>债务规模</td><td>传统建造按BDO估值计算的LVR为74%，高于常见的60至65%；若上限为65%，则需增加约2200万澳元股权。约1000万澳元的优先债务依赖获得许可后的土地股权，须经贷款方接受及独立土地估值。模块化方案处于上限之内。</td></tr><tr class="a" style="--d:0.72s"><td>出售时机</td><td>竣工前或竣工时出售；竣工后不持有。租赁在施工期间开始，因此资产在出售时已部分出租。如需再融资，稳定运营时的利息覆盖率为1.0×至1.2×。</td></tr><tr class="a" style="--d:0.79s"><td>出租</td><td>公寓在竣工前6个月开始预租；BDO预留13个月达到稳定运营。商铺约在2028年预租；BDO的895万澳元空置价值为底线。</td></tr><tr class="a" style="--d:0.86s"><td>俱乐部需求</td><td>3.25亿澳元假定有800名外部健身会员（最佳情形），尚需运营方确认。400名会员的基准情形对应3.195亿澳元的完工价值及5840万澳元的利润。</td></tr><tr class="a" style="--d:0.93s"><td>出售价值</td><td>3.25亿澳元为收入 ÷ BDO资本化率，按稳定运营、满租计算，公寓含GST。按BDO的98%入住率计算为3.15亿澳元。按5.0%计算，投资者仍可获得1.6倍回报。按运营商观点，为1.7倍。</td></tr><tr class="a" style="--d:1.00s"><td>模块化交付</td><td>仅为上行情形；未计入基准情形。若采用：定金以银行保函担保，须在各层安装完成并经贷款方工料测量师验收后才按层付款。</td></tr><tr class="a" style="--d:1.07s"><td>GST处理</td><td>公寓出售按缴纳GST建模（2740万澳元）；零售及Saints Row按持续经营处理。须在融资交割前经税务顾问确认。</td></tr><tr class="a" style="--d:1.14s"><td>土地交割</td><td>交割（约2027年3月，尾款1300万澳元）不以许可为条件。许可预计于2026年10月至11月取得，约提前四个月。</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═════ 07 · The deal · TIMELINE ═════ -->
+<section data-old="43" class="slide" data-sec="07 · 交易方案" data-title="时间表" data-notes="The timeline from here. The permit in six to eight weeks. Tranche one equity in January, conditional on the permit. Land settles around March with the thirteen million balance. Early works and the audit statement in 2027. The build takes twenty three months, or twenty if built modular. Shops and club operators pre-lease around 2028, apartments six months before completion, and the building is sold to an institution before or on completion.">
+  <div class="pad">
+    <div><p class="eb a">07 · 交易方案</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">从现在到出售。<span class="it">2026年至2029年。</span></h2></div>
+    <div class="journey" style="margin-top:auto">
+      <ol class="jc"><li class="js now" style="--d:0.50s"><i class="jd"></i><div><b>规划许可</b><span>6至8周</span></div><em>现在</em></li><li class="js next" style="--d:0.75s"><i class="jd"></i><div><b>第一期股权</b><span>2300万澳元，以取得规划许可为条件</span></div><em>2027年1月</em></li><li class="js next" style="--d:1.00s"><i class="jd"></i><div><b>土地交割</b><span>尾款1300万澳元</span></div><em>约2027年3月</em></li><li class="js next" style="--d:1.25s"><i class="jd"></i><div><b>前期工程</b><span>地下室及审计收尾 · 审计声明2027年第二季度</span></div><em>2027</em></li></ol>
+      <ol class="jc"><li class="js next" style="--d:1.50s"><i class="jd"></i><div><b>融资交割及施工</b><span>23个月，模块化为20个月 · 第二期</span></div><em>2028年1月</em></li><li class="js next" style="--d:1.75s"><i class="jd"></i><div><b>预租</b><span>商铺及俱乐部运营方完成签约</span></div><em>~2028</em></li><li class="js next" style="--d:2.00s"><i class="jd"></i><div><b>公寓预租</b><span>竣工前6个月启动</span></div><em>竣工</em></li><li class="js next" style="--d:2.25s"><i class="jd"></i><div><b>出售</b><span>向机构出售</span></div><em>竣工前或竣工时 · 2029年12月</em></li></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 21 WAYS IN ═════ -->
+<section data-old="44" class="slide" data-sec="07 · 交易方案" data-title="三种参与方式" data-notes="Three routes: development equity with a 60 per cent profit share, a forward purchase with no build risk, or co-investment alongside 7EVEN and the operator. Ask which fits them, and offer the data room.">
+  <div class="bleed dk kb"><img src="a/r-court.jpg" alt="" style="object-position:center 30%"></div>
+  <div class="pad">
+    <p class="eb a">07 · 交易方案</p>
+    <h2 class="mast a" style="margin-top:22px;--d:.12s">三种方式，<span class="it">任您参与。</span></h2>
+    <p class="lead a" style="max-width:780px;margin-top:28px;--d:.3s">选择适合您的风险与回报。每一种方式都与7EVEN并肩而行，而7EVEN已经出资并化解了获批前阶段的风险。</p>
+    <div class="g" style="grid-template-columns:repeat(3,1fr);gap:24px;margin-top:auto">
+      <div class="card gl a" style="--d:.4s"><span class="num s">01</span><h3>开发<br><i>股权</i></h3><p class="body">约4000万澳元，在规划许可颁发后投入：用于偿还获批前融资、完成土地交割及支付施工前费用。投资者分享60%的利润：基准情形约2.0倍（股权内部收益率29%）；若采用模块化建造，最高约2.4倍。</p></div>
+      <div class="card a" style="--d:.64s"><span class="num s w">02</span><h3>远期<br><i>收购</i></h3><p class="body">现在锁定价格。无建造风险。</p></div>
+      <div class="card a" style="--d:.76s"><span class="num s w">03</span><h3>联合<br><i>投资</i></h3><p class="body">与7EVEN及BTR运营商共同投资。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ 22 CLOSE ═════ -->
+<section data-old="45" class="slide" data-sec="结语" data-title="下一章" data-notes="Close on the invitation. Approval is weeks away, the team is in place, and tranche one closes in January. Leave the contact details on screen.">
+  <div class="bleed kb"><img src="a/r-autumn.jpg" alt="" style="object-position:center 60%"></div>
+  <div class="pad" style="justify-content:flex-end">
+    <img class="a f" src="a/7EVEN-wordmark-white.png" alt="7EVEN" style="height:40px;width:auto;align-self:flex-start;margin-bottom:auto;--d:.2s">
+    <p class="eb a" style="--d:.3s">7EVEN Capital</p>
+    <h2 class="mast xl a" style="margin-top:24px;--d:.45s">与我们共同<span class="it">开启下一章。</span></h2>
+    <p class="lead a" style="margin-top:30px;--d:.6s">Daniel Sette及Jamie Baldwin，董事。</p>
+    <div class="row a" style="gap:18px;margin-top:40px;--d:.75s"><a class="btn" href="mailto:reception@7even.au?subject=Saint%20Village%20Preston%20equity">reception@7even.au <span class="ar">→</span></a><a class="btn" href="tel:0399622877">03 9962 2877 <span class="ar">→</span></a><a class="btn" href="https://7even.au" target="_blank" rel="noopener">7even.au <span class="ar">→</span></a></div>
+    <p class="fn a" style="max-width:1300px;margin-top:40px;--d:.9s">仅面向批发投资者及资深投资者。仅供参考。本文件不构成要约、金融产品建议或披露文件。完工价值3.25亿澳元为收入 ÷ 资本化率，按稳定运营、满租计算，并包含公寓GST（2740万澳元，出售时缴纳；净所得2.976亿澳元）。零售及Saints Row按持续经营出售。未扣除买方印花税及1.5%销售成本。建造成本依据Hamilton Marino（2026年9月2日）及DrawDown Partners（2026年9月28日）。2028年零售、Saints Row及模块化的数字为7EVEN的假设，有待租赁代理、运营方及制造商确认。模块化节省未计入基准情形。市场统计数据来自所引用的第三方来源。草稿，供审阅。除非另有说明，所有金额均以澳元计。本中文版本仅为方便阅读，如与英文版本有任何差异，以英文版本为准。</p>
+  </div>
+</section>
+
+<div id="prog"><i></i></div>
+<div id="chrome"><button id="bPrev" title="上一页">←</button><button id="bGrid" title="全部幻灯片（G）">▦</button><button id="bNext" title="下一页">→</button></div>
+<div class="ov" id="ovGrid"><h3>全部<i>幻灯片。</i></h3><p class="hint">点击跳转 · 按 G 或 Esc 关闭</p><div id="thumbs"></div></div>
+<div class="ov" id="ovHelp"><h3>演示<i>操作。</i></h3><p class="hint">按 ? 或 Esc 关闭</p>
+  <div class="keys">
+    <div><kbd>→ 空格</kbd>下一页</div><div><kbd>←</kbd>上一页</div>
+    <div><kbd>G</kbd>全部幻灯片</div><div><kbd>N</kbd>演讲备注</div>
+    <div><kbd>F</kbd>全屏</div><div><kbd>B</kbd>黑屏</div>
+    <div><kbd>R</kbd>重播本页</div><div><kbd>P</kbd>打印或保存为PDF</div>
+    <div><kbd>Home End</kbd>首页或末页</div><div><kbd>滑动</kbd>手机或平板</div>
+  </div></div>
+<div id="notes"><h5>演讲备注</h5><p id="notesBody"></p></div>
+<div id="black"></div>
+<div id="toast">← → 翻页 · G 全部幻灯片 · N 备注 · F 全屏 · ? 帮助</div>
+</div>
+
+<script>
+const $=q=>document.querySelector(q);
+const SL=[...document.querySelectorAll('.slide')], N=SL.length, p2=n=>String(n).padStart(2,'0');
+const PRINT=document.documentElement.classList.contains('print');
+let idx=-1;
+
+/* the IM's mono header rail and folio, on every slide */
+SL.forEach((s,i)=>{
+  s.insertAdjacentHTML('afterbegin',
+   `<div class="rail top"><span class="l"><img class="wm" src="a/7EVEN-wordmark-white.png" alt="7EVEN"><i></i>投资备忘录</span><span>Saint Village Preston · <b>Issue N° 03</b></span></div>`+
+   `<div class="rail bot"><span>7even.au · ${s.dataset.sec}</span><span class="no">${p2(i+1)} / ${p2(N)}</span></div>`);
+});
+
+/* brand names are always their artwork, never typed: 7EVEN, 5IVE, 5V, HAAVN, HORI7ON, PRO7ECT, ENTERPRISE, ATRIUM, 7X */
+const ATRI='<span class="atri" role="img" aria-label="ATRIUM"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="miter" stroke-miterlimit="10"/></svg><span>TRIUM</span></span>';
+const X7I='<svg class="x7i" viewBox="30 30 1920 1810" role="img" aria-label="7X"><polygon points="60,60 1935,60 1845,150 60,150" fill="currentColor"/><polygon points="1293,348 1548,348 1125,888 1035,768" fill="currentColor"/><polygon points="816,1128 874,1205 401,1806" fill="currentColor"/><polygon points="360,348 543,348 1716,1839 1533,1839" fill="#d6b36a"/></svg>';
+const MARKS={ '7EVEN':['a/7even-wm.png','a/7even-wm-gold.png',1400/223,0.7], '5IVE':['a/wm-5ive.png','a/wm-5ive-gold.png',700/191,0.74], 'HAAVN':['a/wm-haavn.png','a/wm-haavn-gold.png',1400/164,0.64], 'HORI7ON':['a/wm-hori7on.png','a/wm-hori7on-gold.png',1400/128,0.66], 'PRO7ECT':['a/wm-pro7ect.png','a/wm-pro7ect-gold.png',1400/127,0.66], 'ENTERPRISE':['a/wm-enterprise.png','a/wm-enterprise-gold.png',1400/94,0.6], '5V':['a/5v-white.png','a/5v-gold.png',612/845,1.05] };
+const BRAND=/(7EVEN|5IVE|HAAVN|HORI7ON|PRO7ECT|ENTERPRISE|\bATRIUM\b|\b7X\b|\b5V\b)/;
+SL.forEach(sl=>{
+  const walk=document.createTreeWalker(sl,NodeFilter.SHOW_TEXT,{acceptNode:n=>BRAND.test(n.nodeValue)&&!n.parentElement.closest('script,style,.rail,.atr,.plain')?1:2});
+  const hits=[];while(walk.nextNode())hits.push(walk.currentNode);
+  hits.forEach(n=>{
+    const f=document.createDocumentFragment(), c=getComputedStyle(n.parentElement).color.match(/\d+/g)||[255,255,255], gold=(c[0]-c[2]>40);
+    n.nodeValue.split(BRAND).forEach(part=>{
+      if(MARKS[part]){const [w,gw,ar,h]=MARKS[part];let el;
+        if(PRINT){el=document.createElement('img');el.src=gold?gw:w;el.className='bmp'}
+        else{el=document.createElement('span');el.className='bm';el.style.setProperty('--m',`url('${w}')`)}
+        el.style.setProperty('--ar',ar);el.style.setProperty('--h',h+'em');el.setAttribute('role','img');el.setAttribute('aria-label',part);el.alt=part;f.appendChild(el)}
+      else if(part==='ATRIUM'){const t=document.createElement('template');t.innerHTML=ATRI;f.appendChild(t.content.firstChild)}
+      else if(part==='7X'){const t=document.createElement('template');t.innerHTML=X7I;f.appendChild(t.content.firstChild)}
+      else if(part)f.appendChild(document.createTextNode(part))});
+    n.parentNode.replaceChild(f,n)});
+});
+$('#thumbs').innerHTML=SL.map((s,i)=>`<div class="th" data-i="${i}"><b>${p2(i+1)}</b><span>${s.dataset.title}</span><i>${s.dataset.sec}</i></div>`).join('');
+
+const fit=()=>document.documentElement.style.setProperty('--s',Math.min(innerWidth/1920,innerHeight/1080));
+
+/* numbers roll up as their line arrives */
+function countUp(s){
+  s.querySelectorAll('[data-count]').forEach(el=>{
+    const raw=el.dataset.count,target=parseFloat(raw.replace(/,/g,'')),dec=(raw.split('.')[1]||'').length,node=el.firstChild;
+    if(isNaN(target)||!node||node.nodeType!==3)return;
+    const pre=(node.nodeValue.match(/^[^0-9]*/)||[''])[0];
+    const host=el.closest('.a'), d0=host?(parseFloat(getComputedStyle(host).getPropertyValue('--d'))||0)*1000:0;
+    const t0=performance.now()+d0, dur=1500, fmt=v=>raw.includes(',')?Math.round(v).toLocaleString('en-AU'):v.toFixed(dec);
+    node.nodeValue=pre+fmt(0);
+    const tick=now=>{const k=Math.max(0,Math.min(1,(now-t0)/dur)),v=target*(1-Math.pow(1-k,4));
+      node.nodeValue=pre+fmt(v); if(k<1)requestAnimationFrame(tick); else node.nodeValue=pre+raw};
+    requestAnimationFrame(tick);
+  });
+}
+
+function go(n,replay){
+  n=Math.max(0,Math.min(n,N-1));
+  if(n===idx&&!replay)return;
+  idx=n;
+  if(replay){SL[idx].classList.remove('on');void SL[idx].offsetWidth}
+  SL.forEach((s,i)=>s.classList.toggle('on',i===idx));
+  $('#prog i').style.width=(idx/(N-1)*100)+'%';
+  $('#notesBody').textContent=SL[idx].dataset.notes||'';
+  document.querySelectorAll('.th').forEach((t,i)=>t.classList.toggle('cur',i===idx));
+  countUp(SL[idx]);
+  history.replaceState(null,'','#'+(idx+1));
+}
+const next=()=>go(idx+1), prev=()=>go(idx-1);
+const closeOv=()=>document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));
+const toggleOv=id=>{const o=$(id),w=o.classList.contains('on');closeOv();if(!w)o.classList.add('on')};
+
+if(!PRINT){
+  fit(); addEventListener('resize',fit);
+  document.querySelectorAll('.th').forEach(t=>t.addEventListener('click',e=>{e.stopPropagation();go(+t.dataset.i);closeOv()}));
+  addEventListener('keydown',e=>{
+    const k=e.key;
+    if(k==='Escape'){closeOv();$('#black').classList.remove('on');return}
+    if(['ArrowRight',' ','PageDown','ArrowDown','Enter'].includes(k)){e.preventDefault();next()}
+    else if(['ArrowLeft','PageUp','ArrowUp','Backspace'].includes(k)){e.preventDefault();prev()}
+    else if(k==='Home')go(0); else if(k==='End')go(N-1);
+    else if(k==='g'||k==='G')toggleOv('#ovGrid');
+    else if(k==='?'||k==='/')toggleOv('#ovHelp');
+    else if(k==='n'||k==='N')$('#notes').classList.toggle('on');
+    else if(k==='b'||k==='B')$('#black').classList.toggle('on');
+    else if(k==='r'||k==='R')go(idx,true);
+    else if(k==='p'||k==='P')window.open(location.pathname+'?print','_blank');
+    else if(k==='f'||k==='F')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
+  });
+  $('#bNext').onclick=e=>{e.stopPropagation();next()};
+  $('#bPrev').onclick=e=>{e.stopPropagation();prev()};
+  $('#bGrid').onclick=e=>{e.stopPropagation();toggleOv('#ovGrid')};
+  document.addEventListener('click',e=>{if(e.target.closest('a,button,.ov,#notes'))return;next()});
+  let tx=0;
+  addEventListener('touchstart',e=>tx=e.changedTouches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)dx<0?next():prev()},{passive:true});
+  const start=parseInt(location.hash.slice(1),10);
+  go(start>0?start-1:0);
+  setTimeout(()=>$('#toast').classList.add('gone'),5200);
+}
+</script>
+<script src="jessica.js?v=22"></script>
+</body>
+</html>

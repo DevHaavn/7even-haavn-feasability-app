@@ -222,6 +222,22 @@
    "slides": 24,
    "note": "The equity pitch: Preston, what is being built, the approval, the delivery and the deal on one page.",
    "path": "/hori7on-next/decks/preston-equity/index.html"
+  },
+  {
+   "key": "zh",
+   "label": "Investor presentation, Chinese 中文",
+   "short": "Presentation 中文",
+   "slides": 40,
+   "note": "The investor presentation in Simplified Chinese, for Chinese-speaking investors. Same slides and figures; amounts shown in 万 and 亿 Australian dollars.",
+   "path": "/hori7on-next/preston-deck/index-zh.html"
+  },
+  {
+   "key": "equity-zh",
+   "label": "Equity presentation, Chinese 中文",
+   "short": "Equity 中文",
+   "slides": 24,
+   "note": "The equity pitch in Simplified Chinese, for Chinese-speaking investors.",
+   "path": "/hori7on-next/decks/preston-equity/index-zh.html"
   }
  ]
 }
