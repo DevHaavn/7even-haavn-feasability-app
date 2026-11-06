@@ -7,7 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050607">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- The fonts load without holding the page up: a stylesheet that is slow or blocked on the phone's network used to stop every script from running, which left this page blank. The system font shows until Inter arrives. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* HAAVN BLACK Sales on a phone. The same customers, the same rules and the same server as the desktop pipeline (atrium-sales.html): this page only
    changes how it is held. Built for one thumb on the road: the next step is always the big gold button at the bottom, every change is a tap,
@@ -228,6 +230,7 @@ textarea.in{padding:13px 14px;min-height:130px;line-height:1.5;resize:none}
 /* This page never goes black. If anything stops it drawing, the reason is written on the screen with a way back. */
 window.__hbsFail=function(msg,force){try{
   if(window.__hbsDrawn&&!force)return;
+  window.__hbsErr=String(msg||'Unknown error').slice(0,200);
   var b=document.getElementById('body');if(!b)return;
   b.innerHTML='';var d=document.createElement('div');d.className='gate';
   function add(tag,txt,css){var n=document.createElement(tag);n.textContent=txt;if(css)n.style.cssText=css;d.appendChild(n);return n}
