@@ -644,7 +644,7 @@ function sheetMenu(){
   var t=curTheme(),n=qGet().length;
   openSheet({eb:'HAAVN BLACK',title:'<span class="wm0" aria-label="HAAVN BLACK"></span>',body:'<div class="menu"><div style="margin:4px 0 16px;color:var(--ink2);font-size:14px"><b style="color:var(--ink);font-weight:500">'+esc(S.me.name)+'</b><br><span style="color:var(--ink3)">'+(H.isInternal()?'HAAVN BLACK team':'Agent')+(S.me.roles&&S.me.roles.length?' · '+S.me.roles.map(H.roleName).join(' and '):'')+'</span></div>'+
    (FORCED?'':'<div class="seg"><button class="'+(t==='dark'?'on':'')+'" data-a="theme" data-t="dark">Dark</button><button class="'+(t==='light'?'on':'')+'" data-a="theme" data-t="light">Light, for sunlight</button></div>')+
-   '<button class="btn" data-a="reload">'+ic('arrow')+'Refresh</button><a class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px;text-decoration:none" href="/atrium-sales.html?desktop=1" target="_top">'+ic('pipe')+'Desktop version</a>'+(n?'<div class="hint" style="margin:6px 0 0">'+n+' change'+(n===1?'':'s')+' waiting to be sent</div>':'')+'</div>'},{k:'menu'})}
+   '<button class="btn" data-a="reload">'+ic('arrow')+'Refresh</button>'+(EMB==='chat'?'':'<a class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px;text-decoration:none" href="/atrium-sales.html?desktop=1" target="_top">'+ic('pipe')+'Desktop version</a>')+(n?'<div class="hint" style="margin:6px 0 0">'+n+' change'+(n===1?'':'s')+' waiting to be sent</div>':'')+'</div>'},{k:'menu'})}
 function sheetMore(l){
   UI.sl=l.id;var rows='';
   if(!l.concept&&l.status==='open'&&l.stage<=2&&!l.gate)rows+='<button class="btn" data-a="advance" data-id="'+l.id+'">'+ic('arrow')+'Move to '+esc(ST[l.stage+1].n)+'</button>';
