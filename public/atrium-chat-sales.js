@@ -117,6 +117,7 @@ D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest
 D.addEventListener('click',function(e){ if(on&&e.target.closest&&e.target.closest('[data-sales]')){ e.preventDefault(); open() } },true);
 window.addEventListener('message',function(e){ var d=e.data; if(!d||!fr||e.source!==fr.contentWindow) return;
   if(d.atriumSales==='close') close();
+  else if(d.atriumSales==='scheme'){ try{ if(window.AtriumScheme&&!AtriumScheme.follows()) AtriumScheme.set(d.v==='light'?'light':'dark') }catch(er){} }  /* the Dark / Light button inside Sales changes the whole of Chat with it */
   else if(d.atriumSales==='ready'){ alive=true; clearTimeout(waitT); showWait(false) }
   else if(d.atriumSales==='counts'){ counts={need:+d.need||0,late:+d.late||0,waiting:+d.waiting||0}; draw() } });
 try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.contentWindow&&frReady&&!desk) fr.contentWindow.postMessage({atriumScheme:s},'*') }) }catch(e){}

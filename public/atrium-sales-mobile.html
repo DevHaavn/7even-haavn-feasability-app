@@ -84,7 +84,7 @@ a{color:inherit}
 .do .acts .btn.primary span{overflow:hidden;text-overflow:ellipsis}
 .wait{margin:0 16px 8px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .wait b{font-weight:500;font-size:15px;display:block}.wait small{color:var(--ink3);font-size:12.5px}.wait .go{margin-left:auto;color:var(--ink4)}
-.fab{position:absolute;right:16px;bottom:calc(64px + var(--sab) + 16px);width:60px;height:60px;border-radius:18px;background:var(--gold);color:var(--onGold);display:grid;place-items:center;box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 1px rgb(0 0 0 / .3);z-index:5;clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)}
+.fab{position:absolute;right:16px;bottom:calc(64px + var(--sab) + 16px);width:60px;height:60px;border-radius:18px;background:var(--gold);color:var(--onGold);display:grid;place-items:center;z-index:5;clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)}
 .fab:active{filter:brightness(.92)}
 /* pipeline */
 .search{margin:0 16px 10px;height:48px;border-radius:6px;background:var(--inp);border:1px solid var(--hl);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--ink3)}
@@ -265,17 +265,22 @@ var EMB=(location.search.match(/[?&]embed=(\w+)/)||[])[1]||'';
 var CHAT_USERS=['jb','mf'];   /* Sales inside ATRIUM Chat is for Jamie and Mike only */
 var UI={tab:'today',stage:'all',q:'',mineOnly:null,lead:null,sl:null,sheet:null,open:{home:false,cust:false,pay:false,log:true},chk:{},offline:!navigator.onLine,pill:'',logMore:false,pend:null};
 
-/* ============ theme: black unless told otherwise. In Chat it follows Chat's scheme (?sch=), elsewhere ATRIUM's saved choice ============ */
+/* ============ theme: dark or light, switchable from the header on every surface. ?sch= is what the host (Chat or the ATRIUM shell) is showing when this opens;
+   a switch here is handed to the host so the whole app changes with it, and applied here at once either way. ============ */
 var FORCED=(location.search.match(/[?&]sch=(light|dark)/)||[])[1]||'';
-function theme(t){var m=$('meta[name=theme-color]');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');if(m)m.setAttribute('content',t==='light'?'#dfe2e6':'#050607')}
-function curTheme(){if(FORCED)return FORCED;var t='dark';try{t=localStorage.getItem('atrium_theme')||'dark'}catch(e){}return t==='light'?'light':'dark'}
+function theme(t){t=t==='light'?'light':'dark';var m=$('meta[name=theme-color]');document.documentElement.setAttribute('data-theme',t);if(m)m.setAttribute('content',t==='light'?'#dfe2e6':'#050607');
+  try{$$('.seg button[data-t]').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});$$('[data-a=flip]').forEach(function(b){b.setAttribute('aria-label',t==='light'?'Switch to dark':'Switch to light');b.innerHTML=ic(t==='light'?'moon':'sun',null,20)})}catch(e){}}
+function curTheme(){if(FORCED)return FORCED;var t='dark';try{if(EMB==='chat'){t=localStorage.getItem('atrium-chat-scheme')||'dark';if(t==='auto')t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}else t=localStorage.getItem('atrium_theme')||'dark'}catch(e){}return t==='light'?'light':'dark'}
 theme(curTheme());
-window.addEventListener('storage',function(e){if(e.key==='atrium_theme'&&!FORCED)theme(curTheme())});
+window.addEventListener('storage',function(e){if((e.key==='atrium_theme'||e.key==='atrium-chat-scheme')&&!FORCED)theme(curTheme())});
+function flipIcon(){return ic(curTheme()==='light'?'moon':'sun',null,20)}
+function setScheme(v){v=v==='light'?'light':'dark';FORCED=v;theme(v);
+  try{if(window.parent!==window)window.parent.postMessage({atriumSales:'scheme',v:v},'*');else if(EMB==='chat')localStorage.setItem('atrium-chat-scheme',v);else localStorage.setItem('atrium_theme',v)}catch(e){}}
 window.addEventListener('message',function(e){var d=e.data;if(!d)return;if(d.atriumScheme&&e.source===window.parent){FORCED=d.atriumScheme;theme(FORCED)}
   if(d.atriumSales==='open'&&d.lead&&e.source===window.parent){if(H.lead(d.lead))openLead(d.lead);else{H.load().then(function(){render();openLead(d.lead)})}}});
 
 /* ============ small helpers ============ */
-var IC={phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',sms:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>',note:'<path d="M5 19l1-4L17 4l3 3L9 18z"/><path d="M14.5 6.5l3 3"/>',plus:'<path d="M12 5v14M5 12h14"/>',chev:'<path d="M9 6l6 6-6 6"/>',down:'<path d="M6 9l6 6 6-6"/>',back:'<path d="M15 6l-6 6 6 6"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',day:'<circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/>',pipe:'<path d="M4 5v14M10 5v10M16 5v14M21 5v8"/>',appr:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',more:'<circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'};
+var IC={phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',sms:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>',note:'<path d="M5 19l1-4L17 4l3 3L9 18z"/><path d="M14.5 6.5l3 3"/>',plus:'<path d="M12 5v14M5 12h14"/>',chev:'<path d="M9 6l6 6-6 6"/>',down:'<path d="M6 9l6 6 6-6"/>',back:'<path d="M15 6l-6 6 6 6"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',day:'<circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/>',pipe:'<path d="M4 5v14M10 5v10M16 5v14M21 5v8"/>',appr:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',more:'<circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>'};
 function ic(n,c,s){return '<svg class="ic '+(c||'')+'" viewBox="0 0 24 24"'+(s?' style="width:'+s+'px;height:'+s+'px"':'')+'>'+(IC[n]||'')+'</svg>'}
 function sw(l){return '<span class="sw"><i style="--c:'+(CLAD[l.clad]||'#444')+'"></i><i style="--c:'+(PAL[l.pal]||'#444')+'"></i><i style="--c:'+(JOIN[l.join]||'#444')+'"></i></span>'}
 function phc(l){return PH[ST[l.stage].ph].c}
@@ -372,7 +377,7 @@ function announce(){if(!ready())return;try{var c=H.counts();parent.postMessage({
 function titleFor(){return {today:['HAAVN BLACK','Today'],pipe:['HAAVN BLACK','Pipeline'],appr:['HAAVN BLACK','Approvals']}[UI.tab]||['HAAVN BLACK','Sales']}
 function head(){
   var t=titleFor(),back=EMB==='chat'||EMB==='hb'||EMB==='hm';
-  $('#head').innerHTML='<div class="sh">'+(back?'<button class="ibtn" data-a="exit" aria-label="'+(EMB==='chat'?'Back to Chat':'Close')+'">'+ic('back',null,22)+'</button>':'')+'<h1><small>'+t[0]+'</small>'+t[1]+'</h1><span class="savedpill">Saved</span><button class="me" data-a="menu" aria-label="Menu">'+esc(H.ini(S.me.name))+'</button></div>';pill()}
+  $('#head').innerHTML='<div class="sh">'+(back?'<button class="ibtn" data-a="exit" aria-label="'+(EMB==='chat'?'Back to Chat':'Close')+'">'+ic('back',null,22)+'</button>':'')+'<h1><small>'+t[0]+'</small>'+t[1]+'</h1><span class="savedpill">Saved</span><button class="ibtn" data-a="flip" aria-label="'+(curTheme()==='light'?'Switch to dark':'Switch to light')+'">'+flipIcon()+'</button><button class="me" data-a="menu" aria-label="Menu">'+esc(H.ini(S.me.name))+'</button></div>';pill()}
 function tabs(){
   var c=H.counts(),list=[['today','day','Today',c.need],['pipe','pipe','Pipeline',0]];
   if(H.hasApprovals())list.push(['appr','appr','Approvals',c.approvals]);
@@ -643,7 +648,7 @@ function sheetNew(){
 function sheetMenu(){
   var t=curTheme(),n=qGet().length;
   openSheet({eb:'HAAVN BLACK',title:'<span class="wm0" aria-label="HAAVN BLACK"></span>',body:'<div class="menu"><div style="margin:4px 0 16px;color:var(--ink2);font-size:14px"><b style="color:var(--ink);font-weight:500">'+esc(S.me.name)+'</b><br><span style="color:var(--ink3)">'+(H.isInternal()?'HAAVN BLACK team':'Agent')+(S.me.roles&&S.me.roles.length?' · '+S.me.roles.map(H.roleName).join(' and '):'')+'</span></div>'+
-   (FORCED?'':'<div class="seg"><button class="'+(t==='dark'?'on':'')+'" data-a="theme" data-t="dark">Dark</button><button class="'+(t==='light'?'on':'')+'" data-a="theme" data-t="light">Light, for sunlight</button></div>')+
+   '<div class="seg"><button class="'+(t==='dark'?'on':'')+'" data-a="theme" data-t="dark">Dark</button><button class="'+(t==='light'?'on':'')+'" data-a="theme" data-t="light">Light, for sunlight</button></div>'+
    '<button class="btn" data-a="reload">'+ic('arrow')+'Refresh</button>'+(EMB==='chat'?'':'<a class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px;text-decoration:none" href="/atrium-sales.html?desktop=1" target="_top">'+ic('pipe')+'Desktop version</a>')+(n?'<div class="hint" style="margin:6px 0 0">'+n+' change'+(n===1?'':'s')+' waiting to be sent</div>':'')+'</div>'},{k:'menu'})}
 function sheetMore(l){
   UI.sl=l.id;var rows='';
@@ -674,7 +679,7 @@ var A={
  stage:function(t){var k=t.dataset.k;UI.stage=/^\d+$/.test(k)?+k:k;var sc=$('#body'),y=sc.scrollTop,sg=$('.stg'),x=sg?sg.scrollLeft:0;render();sc.scrollTop=y;var s2=$('.stg');if(s2)s2.scrollLeft=x},
  who:function(t){UI.mineOnly=t.dataset.k==='1';render()},
  menu:function(){sheetMenu()},more:function(t){sheetMore(cur(t))},
- theme:function(t){var v=t.dataset.t;try{localStorage.setItem('atrium_theme',v)}catch(e){}theme(v);$$('.seg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===v)})},
+ theme:function(t){setScheme(t.dataset.t)},flip:function(){setScheme(curTheme()==='light'?'dark':'light')},
  newlead:function(){sheetNew()},
  /* contact */
  call:function(t){var l=cur(t);if(!l)return;if(!l.mobile){toast('No mobile number on file.',true);return}UI.pend=l.id;dial('tel:'+clean(l.mobile));setTimeout(function(){if(UI.pend===l.id&&!UI.sheet){UI.pend=null;sheetCall(l)}},900)},
