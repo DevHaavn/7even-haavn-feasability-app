@@ -34,7 +34,7 @@ a{color:inherit}
 .eb{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
 .hide{display:none!important}
 /* the app fills the phone; on a wider screen it is one centred column */
-#app{position:fixed;top:0;left:50%;width:100%;max-width:520px;height:100%;transform:translateX(-50%);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+#app{position:fixed;top:0;left:50%;width:100%;max-width:520px;height:100%;transform:translateX(-50%);display:flex;flex-direction:column;overflow:hidden;overflow:clip;background:var(--bg)}   /* clip, not hidden: the sheets wait just below the screen, and a frame that is only "hidden" can still be scrolled up to them by a focused field */
 @media(min-width:521px){#app{box-shadow:0 0 0 1px var(--hl),0 0 80px rgba(0,0,0,.45)}}
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
@@ -238,7 +238,8 @@ window.__hbsFail=function(msg,force){try{
   add('p','Go back and open it again. If it keeps happening, tell Jess what is written underneath.');
   add('p',String(msg||'Unknown error').slice(0,240),'font-family:var(--mono);font-size:12px;word-break:break-word');
   var x=add('button','Back');x.className='btn primary block';
-  x.onclick=function(){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}if(parent===window&&history.length>1)history.back()};
+  x.onclick=function(){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}
+    if(parent===window){if(/[?&]embed=chat/.test(location.search))location.href='/atrium-chat.html?app=1';else if(history.length>1)history.back()}};
   b.appendChild(d)}catch(e){}};
 window.addEventListener('error',function(e){window.__hbsFail((e&&e.message)||'Script error')});
 window.addEventListener('unhandledrejection',function(e){window.__hbsFail((e&&e.reason&&e.reason.message)||'Request failed')});
@@ -555,6 +556,10 @@ var TOPLEVEL=true;try{TOPLEVEL=window.top===window}catch(e){TOPLEVEL=false}
 if(window.visualViewport&&TOPLEVEL){var vv=window.visualViewport,fit=function(){var a=$('#app');if(!a)return;
   if(window.innerHeight-vv.height>120&&vv.height>200){a.style.height=vv.height+'px';a.style.top=vv.offsetTop+'px'}else{a.style.height='';a.style.top=''}};
   vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
+/* Nothing may scroll the app frame itself. A focused field inside a sheet used to push the whole page up (the header went off the top and a black band
+   showed underneath, and stayed after the sheet closed). Browsers without overflow:clip are held at the top here. */
+(function(){var a=$('#app');if(a)a.addEventListener('scroll',function(){if(a.scrollTop||a.scrollLeft){a.scrollTop=0;a.scrollLeft=0}},{passive:true})})();
+window.addEventListener('scroll',function(){if(window.pageYOffset||window.pageXOffset)window.scrollTo(0,0)},{passive:true});
 
 /* dictation: the phone's own speech to text where it has one */
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition,REC=null;
@@ -753,6 +758,8 @@ var A={
 };
 function finishUpdate(l,send){var o=Object.assign({},l.order);o.lastUpdate=H.now();var d=H.DELIVERY[H.step(l)];o.log=[{t:H.now(),x:'Fortnightly update '+(send?'emailed':'logged')+': '+d.n+'.'}].concat(o.log||[]);return save(l,{order:o,act:[act(l,'Fortnightly update '+(send?'emailed to the customer':'logged as sent')+'.')]},{quiet:true})}
 function exit(){
+  /* opened from Chat as a page of its own (no frame): back to Chat, by history when Chat is the page before this one, else by address */
+  if(EMB==='chat'&&TOPLEVEL){if(history.length>1&&(document.referrer||'').indexOf('/atrium-chat.html')>=0)history.back();else location.href='/atrium-chat.html?app=1';return}
   if(EMB==='chat'||EMB==='hb'||EMB==='hm'){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}}
   else if(history.length>1)history.back()}
 
