@@ -23,6 +23,7 @@ function fake() {
       since: async (iso: string) => t.leads.filter((l: any) => l.updated_at > iso),
       get: async (id: string) => t.leads.find((l: any) => l.id === id) || null,
       upsert: async (row: any) => up(t.leads, row),
+      remove: async (id: string) => { t.leads = t.leads.filter((l: any) => l.id !== id) },
       findByContact: async (email: string, mob: string) => t.leads.filter((l: any) => (email && l.data.emailLower === email) || (mob && l.data.mobileDigits === mob)),
     },
     companies: { all: async () => t.companies, get: async (id: string) => t.companies.find((c: any) => c.id === id) || null, upsert: async (row: any) => up(t.companies, row) },
@@ -885,5 +886,74 @@ describe('several dwellings in one order', () => {
   it('the new-lead alert names the whole order', async () => {
     await run('newLead', { lead: { first: 'Bulk', last: 'Buyer', email: 'bulk2@example.com', state: 'VIC', product: 'max', qty: 3 } })
     expect(F.t.msgs.some((m: any) => /3 × SOLUM Max/.test(m.body))).toBe(true)
+  })
+})
+
+describe('changing a customer\'s status: lost at any stage, back a stage, delete', () => {
+  const lose = (id: string, who: any = jamie) => run('saveLead', { lead: { id, status: 'lost', lostWhy: 'Price' } }, who)
+  it('a customer can be marked lost at every stage, including once the contract is out', async () => {
+    for (const stage of [0, 1, 2, 3]) {
+      const l = await mkLead('s' + stage + Math.random())
+      F.t.leads = F.t.leads.filter((x: any) => x.id !== l.id)
+    }
+    const l = await mkLead('qual'); await through(l.id, 2)
+    expect((await lose(l.id, mike)).lead.status).toBe('lost')            // Qualified, by the salesperson
+    await run('saveLead', { lead: { id: l.id, status: 'open', lostWhy: '' } })
+    expect((await get(l.id)).status).toBe('open')
+  })
+  it('once a deposit is confirmed only a director or Finance marks them lost', async () => {
+    const l = await mkLead('paid'); await through(l.id, 4)   // pre-order confirmed, contract out
+    await expect(lose(l.id, mike)).rejects.toThrow(/director or Finance/)
+    expect((await lose(l.id, amy)).lead.status).toBe('lost')
+    await run('saveLead', { lead: { id: l.id, status: 'open' } })
+    expect((await lose(l.id, jamie)).lead.status).toBe('lost')
+  })
+  it('a director steps a customer back from Qualified to Contacted, and the log says who', async () => {
+    const l = await mkLead('back'); await through(l.id, 2)
+    await run('saveLead', { lead: { id: l.id, qual: { land: 'Owns the land', note: 'Block in the hills.' } } })
+    const r = (await run('saveLead', { lead: { id: l.id, stage: 1 } })).lead
+    expect(r.stage).toBe(1)
+    expect(r.act.some((a: any) => /Stepped back to Contacted by Jamie Baldwin/.test(a.x))).toBe(true)
+    expect(r.qual).toBeTruthy()   // what they told you stays
+  })
+  it('the salesperson can step back while it is Contacted or Qualified, but not from a money or contract step', async () => {
+    const l = await mkLead('back2'); await through(l.id, 2)
+    expect((await run('saveLead', { lead: { id: l.id, stage: 1 } }, mike)).lead.stage).toBe(1)
+    await through(l.id, 3)   // the pre-order deposit step
+    await expect(run('saveLead', { lead: { id: l.id, stage: 2 } }, mike)).rejects.toThrow(/Only a director steps/)
+    expect((await run('saveLead', { lead: { id: l.id, stage: 2 } })).lead.stage).toBe(2)   // a director can
+  })
+  it('only a director deletes, and it has to be confirmed', async () => {
+    const l = await mkLead('d1')
+    await expect(run('deleteLead', { id: l.id, confirm: true }, mike)).rejects.toThrow(/Only a director/)
+    await expect(run('deleteLead', { id: l.id }, jamie)).rejects.toThrow(/Confirm/)
+    expect(await get(l.id)).toBeTruthy()
+  })
+  it('deletes a test or a double for good: gone from the list, not counted as lost, its open tasks removed, its email never read in again', async () => {
+    const l = await mkLead('d2')
+    const before = (await run('init', {})).leads.length
+    const tasksBefore = JSON.stringify(F.t.doc[B.KEYS.workflow] || {})
+    expect(tasksBefore).toContain('Call')
+    const r = await run('deleteLead', { id: l.id, confirm: true, why: 'Double up' })
+    expect(r.ok).toBe(true); expect(r.tasks).toBeGreaterThan(0)
+    const after = await run('init', {})
+    expect(after.leads.length).toBe(before - 1)
+    expect(after.leads.some((x: any) => x.id === l.id)).toBe(false)
+    expect(after.leads.filter((x: any) => x.status === 'lost').length).toBe(0)   // not a missed lead
+    expect(JSON.stringify(F.t.doc[B.KEYS.workflow])).not.toContain('Call Mia')
+    const log = F.t.settings.salesDeleted
+    expect(log[0]).toMatchObject({ by: 'Jamie Baldwin', name: 'Mia Brennan', why: 'Double up' })
+    expect((await S.ingestEmail(F.deps, { messageId: 'md2', body: FORM() })).skipped).toBe('already seen')   // the same email does not make it again
+  })
+  it('will not delete a customer money has been confirmed on: mark them lost instead', async () => {
+    const l = await mkLead('d3'); await through(l.id, 4)
+    await expect(run('deleteLead', { id: l.id, confirm: true })).rejects.toThrow(/Money has been confirmed/)
+    expect(await get(l.id)).toBeTruthy()
+  })
+  it('can delete a customer who was lost, and one with no email or tasks', async () => {
+    const l = (await run('newLead', { lead: { first: 'Test', last: 'Person', mobile: '0400111222', state: 'VIC', product: 'plus' } })).lead
+    await lose(l.id)
+    expect((await run('deleteLead', { id: l.id, confirm: true })).ok).toBe(true)
+    expect(await get(l.id)).toBeUndefined()
   })
 })

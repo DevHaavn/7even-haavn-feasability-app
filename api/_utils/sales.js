@@ -591,13 +591,16 @@ async function run(action, a, session, deps) {
         else if (w.manager) { const ag = await db.agents.get(incoming.owner); if (ag && ag.company_id === w.companyId) { next.owner = ag.id; next.companyId = ag.company_id } }
       }
       if (!internal && cur.order && incoming.order) next.order = { ...incoming.order, step: cur.order.step, site: incoming.order.site !== undefined ? incoming.order.site : cur.order.site }
+      if (next.status === 'lost' && cur.status !== 'lost' && (cur.maxStage || 0) >= 4 && !(internal && (w.admin || isFinance(w, await getSettings(db))))) throw new SalesError('A deposit has been confirmed on this customer, so a director or Finance marks them lost: the deposit has to be dealt with.', 403)
       const to = Math.max(0, Math.min(LAST_STAGE, Number(next.stage) || 0)), at = Date.now()
       next.stage = cur.stage; next.gate = cur.gate; next.paid = cur.paid; next.gateAt = cur.gateAt; next.appr = cur.appr; next.ret = cur.ret
       let landed = false
       if (to !== cur.stage) {
         // A customer moves on by itself only through the early stages. Money and contract steps move on when the right person approves them.
         if (to < cur.stage) {
-          if (!(internal && w.admin)) throw new SalesError('Only a director steps a customer back.', 403)
+          // a director can step a customer back from anywhere; whoever owns the customer can while it is still Contacted or Qualified (no money or contract step yet)
+          const early = cur.stage <= 2 && !cur.gate && !cur.concept
+          if (!(internal && w.admin) && !early) throw new SalesError('Only a director steps a customer back from here.', 403)
           next.stage = to; next.gate = GATE_BY_STAGE[to] || null; next.paid = false; next.gateAt = at; next.ret = null; next.chased = 0
           next.act = mergeAct(next.act, [{ t: at, x: `Stepped back to ${STAGE_NAMES[to]} by ${w.name}.`, k: 'sys' }])
         } else if (to === cur.stage + 1 && !cur.gate && !cur.concept && to <= 3) {
@@ -876,6 +879,29 @@ async function run(action, a, session, deps) {
       if (action === 'handover') next.order = { ...(l.order || { step: 0, eta: Date.now() + 77 * 864e5, site: '', lastUpdate: Date.now(), log: [] }), handoverAt: Date.now() }
       const saved = await db.leads.upsert(leadRow(next, row))
       return { ok: true, lead: leadOut(saved) }
+    }
+    case 'deleteLead': {
+      // Removes a customer for good: a test, or a double. A lost customer counts as a missed lead; a deleted one counts as nothing. Directors only, and never once money has been confirmed.
+      if (!(internal && w.admin)) throw new SalesError('Only a director can delete a customer.', 403)
+      const row = await db.leads.get(String(a.id || ''))
+      if (!row) throw new SalesError('No such lead.', 404)
+      if (a.confirm !== true) throw new SalesError('Confirm the delete first.')
+      const raw = row.data || {}, l = leadOut(row), cp = raw.cpaid || {}
+      if ((l.maxStage || 0) >= 4 || l.paid || cp.h1 || cp.h2) throw new SalesError('Money has been confirmed on this customer, so it cannot be deleted. Mark them lost instead.', 409)
+      // the open tasks this pipeline made for them go too (a finished task stays)
+      const ids = [l.wfTaskId, ...Object.values(l.adminTasks || {})].filter((x) => typeof x === 'string')
+      let tasks = 0
+      if (ids.length && deps.kv && deps.kv.update) {
+        try { await deps.kv.update(B.KEYS.workflow, (ws) => { const all = (ws && ws.actions) || []; const keep = all.filter((t) => !(ids.includes(t.id) && !t.done)); tasks = all.length - keep.length; return { next: { ...(ws || {}), actions: keep }, result: null } }) } catch { /* the customer is still deleted */ }
+      }
+      // an email this customer came from stays marked as handled, so the same email is never read in as a new lead
+      try { for (const r of (await db.inbox.list(500)).filter((x) => x.lead_id === l.id)) await db.inbox.upsert({ ...r, lead_id: null, note: 'The customer made from this email was deleted.' }) } catch { /* ignore */ }
+      await db.leads.remove(l.id)
+      try {
+        const log = (await db.settings.get('salesDeleted')) || []
+        await db.settings.set('salesDeleted', [{ at: Date.now(), by: w.name, id: l.id, name: `${l.first} ${l.last}`.trim(), email: l.email || '', stage: STAGE_NAMES[l.stage] || '', why: clean(a.why, 120) }, ...(Array.isArray(log) ? log : [])].slice(0, 200))
+      } catch { /* the delete stands without its log line */ }
+      return { ok: true, id: l.id, tasks }
     }
     default: throw new SalesError('Unknown action.', 404)
   }

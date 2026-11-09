@@ -19,6 +19,7 @@ function supa(env = process.env, fetchImpl = fetch) {
       since: (iso) => rest('GET', `hb_leads?select=*&updated_at=gt.${q(iso)}&order=updated_at.asc&limit=1000`),
       get: async (id) => (await rest('GET', `hb_leads?id=eq.${q(id)}&select=*`))[0] || null,
       upsert: (row) => upsert('hb_leads', row),
+      remove: (id) => rest('DELETE', `hb_leads?id=eq.${q(id)}`, undefined, 'return=minimal'),
       findByContact: async (email, mobileDigits) => {
         const out = []
         if (email) out.push(...(await rest('GET', `hb_leads?select=*&data-%3E%3EemailLower=eq.${q(String(email).toLowerCase())}&limit=5`)))

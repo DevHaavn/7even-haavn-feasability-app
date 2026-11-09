@@ -655,11 +655,17 @@ function sheetMenu(){
   openSheet({eb:'HAAVN BLACK',title:'<span class="wm0" aria-label="HAAVN BLACK"></span>',body:'<div class="menu"><div style="margin:4px 0 16px;color:var(--ink2);font-size:14px"><b style="color:var(--ink);font-weight:500">'+esc(S.me.name)+'</b><br><span style="color:var(--ink3)">'+(H.isInternal()?'HAAVN BLACK team':'Agent')+(S.me.roles&&S.me.roles.length?' · '+S.me.roles.map(H.roleName).join(' and '):'')+'</span></div>'+
    '<div class="seg"><button class="'+(t==='dark'?'on':'')+'" data-a="theme" data-t="dark">Dark</button><button class="'+(t==='light'?'on':'')+'" data-a="theme" data-t="light">Light, for sunlight</button></div>'+
    '<button class="btn" data-a="reload">'+ic('arrow')+'Refresh</button>'+(EMB==='chat'?'':'<a class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px;text-decoration:none" href="/atrium-sales.html?desktop=1" target="_top">'+ic('pipe')+'Desktop version</a>')+(n?'<div class="hint" style="margin:6px 0 0">'+n+' change'+(n===1?'':'s')+' waiting to be sent</div>':'')+'</div>'},{k:'menu'})}
+/* changing a customer's status: back a stage (a director from anywhere; the owner while Contacted or Qualified), or delete a test or a double (directors; counts as nothing, unlike Lost) */
+function canBack(l){return l.status==='open'&&!l.concept&&l.stage>0&&(H.isAdmin()||(l.stage<=2&&!l.gate))}
+function sheetBack(l){UI.sl=l.id;openSheet({eb:name(l),title:'Move back to',body:'<div class="chips">'+ST.slice(0,l.stage).map(function(s,i){return '<button data-a="backto" data-id="'+l.id+'" data-s="'+i+'">'+esc(s.n)+'</button>'}).join('')+'</div><div class="hint" style="margin:0">Their notes and details stay.'+((l.maxStage||0)>=4?' A deposit is confirmed on this customer. Moving back does not refund or undo it.':'')+'</div>'},{k:'back'})}
+function sheetDelete(l){UI.sl=l.id;var paid=(l.maxStage||0)>=4||l.paid;openSheet({eb:name(l),title:'Delete this lead?',body:paid?'<div class="hint" style="margin:0">A deposit is confirmed on this customer, so they cannot be deleted. Mark them lost instead.</div>':'<div class="hint" style="margin:0 0 12px">This removes the customer, their notes and their open tasks for good. It cannot be undone, and it does not count as a lost or missed lead. Use it for a test or a double. For a real customer who did not buy, use Mark lost.</div><label class="f"><span>Why</span><select class="in" id="d_why"><option>Test lead</option><option>Double up</option><option>Entered by mistake</option></select></label>',foot:paid?'':'<button class="btn danger block" data-a="delgo" data-id="'+l.id+'"><span>Delete for good</span></button>'},{k:'del'})}
 function sheetMore(l){
   UI.sl=l.id;var rows='';
   if(!l.concept&&l.status==='open'&&l.stage<=2&&!l.gate)rows+='<button class="btn" data-a="advance" data-id="'+l.id+'">'+ic('arrow')+'Move to '+esc(ST[l.stage+1].n)+'</button>';
   rows+='<button class="btn" data-a="mail" data-id="'+l.id+'"'+(l.email?'':' disabled')+'>'+ic('mail')+'Write an email</button><button class="btn" data-a="smsmsg" data-id="'+l.id+'"'+(l.mobile?'':' disabled')+'>'+ic('sms')+'Write a text</button>';
+  if(canBack(l))rows+='<button class="btn" data-a="backsheet" data-id="'+l.id+'">'+ic('back')+'Move back a stage</button>';
   if(l.status==='open')rows+='<button class="btn danger" data-a="lose" data-id="'+l.id+'">'+ic('x')+'Mark lost</button>';else rows+='<button class="btn" data-a="reopen" data-id="'+l.id+'">'+ic('check')+'Re-open</button>';
+  if(H.isAdmin())rows+='<button class="btn danger" data-a="delsheet" data-id="'+l.id+'">'+ic('x')+'Delete this lead</button>';
   openSheet({eb:name(l),title:'More',body:'<div class="menu">'+rows+'</div>'},{k:'more'})}
 
 /* ============ the actions ============ */
@@ -753,6 +759,10 @@ var A={
  /* stage, lost */
  advance:function(t){var l=cur(t);if(!l)return;closeSheet();advance(l)},
  lose:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetLost(l)},60)},
+ backsheet:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetBack(l)},60)},
+ backto:function(t){var l=cur(t),to=+t.dataset.s;if(!l||!needNet())return;closeSheet();save(l,{stage:to}).then(function(){toast(l.first+' is back at '+ST[to].n)})},
+ delsheet:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetDelete(l)},60)},
+ delgo:function(t){var l=cur(t),why=($('#d_why')||{}).value||'';if(!l||!needNet())return;H.api('deleteLead',{id:l.id,confirm:true,why:why}).then(function(){S.leads=S.leads.filter(function(x){return x.id!==l.id});closeSheet();if(UI.lead===l.id){UI.lead=null;$('#lead').classList.remove('on');$('#lead').setAttribute('aria-hidden','true');unlay('lead')}toast('Deleted');render()}).catch(fail)},
  losewhy:function(t){var l=cur(t);if(!l||!needNet())return;closeSheet();save(l,{status:'lost',lostWhy:t.dataset.w,act:[act(l,'Marked lost: '+t.dataset.w+'.')]}).then(function(){toast('Marked lost')})},
  reopen:function(t){var l=cur(t);if(!l||!needNet())return;if(UI.sheet)closeSheet();save(l,{status:'open',lostWhy:'',act:[act(l,'Re-opened.')]}).then(function(){toast(l.first+' is open again')})},
  /* home and finishes: saved the moment you tap */
