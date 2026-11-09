@@ -209,3 +209,21 @@ describe('an order of several homes on the phone', () => {
     expect(H.isSolum(lead({ product: 'octa', concept: true }))).toBe(false)
   })
 })
+
+describe('the Chat Sales badge counts only what is overdue', () => {
+  it('a customer inside their window is in "need you" but not late; once past it, they are late', () => {
+    setMe({ id: 'mf', admin: false })
+    // Contacted: qualify within 2 days
+    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 1, lastTouch: NOW - 6 * HOUR, gateAt: NOW - 6 * HOUR })]
+    expect(H.counts().need).toBe(1); expect(H.counts().late).toBe(0)
+    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 1, lastTouch: NOW - 3 * DAY, gateAt: NOW - 3 * DAY })]
+    expect(H.counts().late).toBe(1)
+  })
+  it('nothing to do, or only things still inside their window, is 0', () => {
+    setMe({ id: 'mf', admin: false })
+    H.S.leads = [lead({ id: 'n', owner: 'mf', stage: 2, lastTouch: NOW - 1 * DAY, gateAt: NOW - 1 * DAY }), lead({ id: 'm', owner: 'mf', stage: 1, lastTouch: NOW - 1 * HOUR })]
+    expect(H.counts().late).toBe(0)
+    H.S.leads = []
+    expect(H.counts().late).toBe(0)
+  })
+})

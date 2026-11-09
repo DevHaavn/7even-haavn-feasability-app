@@ -1,6 +1,6 @@
 /* ATRIUM Chat: HAAVN BLACK Sales.
    For Jamie and Mike only (the two people who run the HAAVN BLACK sales pipeline from Chat). Signed in as either of them, Chat gets:
-     - on a phone: a Sales button in the bottom bar, with a red badge for how many customers need you;
+     - on a phone: a Sales button in the bottom bar, with a red badge for how many customers are overdue (past their window to be called, qualified, chased or approved), so it is 0 when nothing is late;
      - on a computer: a Sales button in the left bar, under Files (it opens the full pipeline);
      - an "Open in Sales" button on each new-lead message in the HAAVN BLACK Sales channel, which opens that customer.
    Each opens Sales as a full panel over Chat, the same way Notes opens. The phone panel is atrium-sales-mobile.html (its back arrow closes it);
@@ -41,7 +41,7 @@ D.head.appendChild(css);
 function scheme(){ try{ return window.AtriumScheme?AtriumScheme.get():'dark' }catch(e){ return 'dark' } }
 function draw(){
   if(!on) return;
-  var n=counts.need, t=n>99?'99+':String(n);
+  var n=counts.late, t=n>99?'99+':String(n);   /* only what is overdue: a customer who is simply waiting their turn does not light the badge */
   [tab,rail].forEach(function(el){ if(!el) return; var b=$('.badge',el); if(b){ b.textContent=t; b.hidden=!n } });
 }
 function build(){
