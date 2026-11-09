@@ -8,7 +8,7 @@ import { getLatest } from '../../components/RefreshButton'
 // public/atrium-hm.html holds the sidebar, the tab row and My day in the HAAVN skin, and runs the real tools behind them
 // (HAAVN workflow, the HAAVN BLACK Sales pipeline, Meeting Management), so their data and rules are untouched.
 // The old Management Hub is still one query string away (?hub=old).
-const VERSION = '20261106sp'
+const VERSION = '20261109ord'
 
 export default function AtriumHaavnShell({ onClose, onLogout, exit = 'close' }: { onClose: () => void; onLogout: () => void; exit?: 'close' | 'logout' }) {
   const frame = useRef<HTMLIFrameElement>(null)

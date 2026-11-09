@@ -5,6 +5,7 @@ const A = require('./atriumAuth')
 const B = require('./blaze')
 const O = require('./outside')
 const PREORDER = require('./preorderEmail')
+const H = require('./salesHomes')   // the homes in an order: several dwellings per customer
 
 class SalesError extends Error { constructor(m, status = 400) { super(m); this.status = status } }
 
@@ -12,7 +13,7 @@ const STATES = { NSW: 'New South Wales', VIC: 'Victoria', QLD: 'Queensland', SA:
 const SOURCES = ['Facebook', 'Instagram', 'LinkedIn', 'Google search', 'Website direct', 'Agent referral', 'Other']
 const PRODUCTS = ['studio', 'plus', 'max', 'octa', 'octaplus', 'octamax', 'none']
 const CONCEPT = ['octa', 'octaplus', 'octamax']
-const CLAD = ['Ivory', 'Char', 'Amber', 'Urbanite'], PAL = ['Burgundy', 'Sage', 'Tide', 'Vine'], JOIN = ['Dark Oak', 'Raw Walnut']
+const { CLAD, PAL, JOIN } = H
 const SETTING = ['City', 'Coast', 'Country', 'Not sure yet'], PAY = ['No preference', 'Cash', 'Finance', 'Undecided'], DELIV = ['No preference', 'Supply', 'Delivered', 'Installed']
 const STAGE_NAMES = ['Enquiry', 'Contacted', 'Qualified', 'Pre-order deposit', 'Contract out', 'Contract signed', '10% deposit paid', 'Order confirmed', 'Final payment', 'Delivered']
 const LAST_STAGE = STAGE_NAMES.length - 1
@@ -121,6 +122,7 @@ function parseEnquiry(text, meta = {}) {
   else if (utm && !/^(website|web|direct|organic|none|\(direct\))$/.test(utm)) { source = 'Other'; otherSource = clean(utm, 60) }
   const payv = g('preferredpayment', 'payment'), dv = g('delivery')
   const out = { first, last, email, mobile, state, setting: SETTING.find((x) => lower(x) === lower(g('setting'))) || '', product,
+    qty: Math.max(1, Math.min(H.MAX_QTY, Math.floor(Number(g('quantity', 'qty', 'numberofhomes', 'homes', 'howmany'))) || 1)),
     clad: pickOf(g('cladding', 'externalfinish', 'exterior'), CLAD), pal: pickOf(g('palette', 'interior', 'internalfinish', 'interiorpalette'), PAL), join: pickOf(g('joinery'), JOIN),
     pay: PAY.find((x) => lower(x) === lower(payv)) || 'No preference', deliv: DELIV.find((x) => lower(x) === lower(dv)) || 'No preference',
     msg: clean(g('message', 'comments', 'enquiry', 'notes'), 1500), source, otherSource, utm }
@@ -157,8 +159,8 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked', 'preMail']
-const SERVER_KEYS = ['preMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked', 'preMail', 'homes']
+const SERVER_KEYS = ['homes', 'preMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
 function leadOut(row) {
   const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
   const stage = row.stage || 0
@@ -184,7 +186,7 @@ async function notifyNewLead(deps, lead, settings) {
   const { chat, kv, wp } = deps
   const ownerName = personName(lead.owner)
   const nm = `${lead.first} ${lead.last}`.trim() || 'New enquiry'
-  const homeName = { studio: 'SOLUM Studio', plus: 'SOLUM Plus', max: 'SOLUM Max', octa: 'OCTA', octaplus: 'OCTA Plus', octamax: 'OCTA Max', none: 'no home chosen' }[lead.product] || ''
+  const homeName = H.summary(lead) || { octa: 'OCTA', octaplus: 'OCTA Plus', octamax: 'OCTA Max', none: 'no home chosen' }[lead.product] || ''
   const fins = [lead.clad, lead.pal, lead.join].filter(Boolean).join(', ')
   const line = `${nm}, ${homeName}${fins ? ' in ' + fins : ''}. ${lead.state || 'State unknown'}. ${lead.mobile || lead.email || 'no contact details'}. Source: ${lead.source === 'Other' && lead.otherSource ? 'Other (' + lead.otherSource + ')' : lead.source}.`
   if (settings.notify.task && ownerName && kv && kv.update) {
@@ -240,8 +242,10 @@ async function createLead(deps, p, opts = {}) {
   const state = STATES[p.state] ? p.state : ''
   const owner = opts.owner || routeOwner(settings, state)
   const now = Date.now()
+  const homes = concept ? undefined : H.fromRequest(p)   // several dwellings from the start (a form with a quantity, or a list of lines)
   const lead = { id: newId('L'), first: p.first, last: p.last, email: p.email || '', mobile: p.mobile || '', state, setting: p.setting || 'Not sure yet', product: PRODUCTS.includes(p.product) ? p.product : 'none',
-    clad: p.clad || '', pal: p.pal || '', join: p.join || '', asked: { product: PRODUCTS.includes(p.product) ? p.product : 'none', clad: p.clad || '', pal: p.pal || '', join: p.join || '' }, pay: p.pay || 'No preference', deliv: p.deliv || 'No preference', msg: p.msg || '', source: SOURCES.includes(p.source) ? p.source : 'Other', otherSource: p.otherSource || '',
+    clad: p.clad || '', pal: p.pal || '', join: p.join || '', asked: { product: PRODUCTS.includes(p.product) ? p.product : 'none', clad: p.clad || '', pal: p.pal || '', join: p.join || '', ...(homes ? { homes } : {}) },
+    ...(homes ? { homes, ...H.mirror(homes) } : {}), pay: p.pay || 'No preference', deliv: p.deliv || 'No preference', msg: p.msg || '', source: SOURCES.includes(p.source) ? p.source : 'Other', otherSource: p.otherSource || '',
     utm: p.utm || '', owner, companyId: opts.companyId || '', stage: 0, maxStage: 0, dates: [now], lastTouch: now, status: 'open', lostWhy: '', concept, cstage: 0, eng: 20, chk: {},
     act: [{ t: now, x: `Enquiry received from ${p.source === 'Other' && p.otherSource ? 'Other (' + p.otherSource + ')' : p.source}${opts.how ? ' ' + opts.how : ''}.`, k: 'sys' }] }
   if (p.msg) lead.act.unshift({ t: now + 1, x: 'Their message: ' + p.msg.slice(0, 300), k: 'note' })
@@ -318,7 +322,7 @@ function checkAbn(v) {
 
 // ---------- the gates: moving a customer on, and telling the right person ----------
 const money = (n) => '$' + Math.round(n).toLocaleString('en-AU')
-const priceOf = (st, l) => (['studio', 'plus', 'max'].includes(l.product) ? (st.prices[l.product] || 0) : 0)
+const priceOf = (st, l) => H.valueOf(st.prices, l)   // the whole order: every dwelling at its price
 const tenPct = (st, l) => Math.round(priceOf(st, l) * 0.1)
 const depBal = (st, l) => Math.max(0, tenPct(st, l) - st.preorder)        // the 10% deposit less the pre-order deposit already paid
 const finalAmt = (st, l) => Math.max(0, priceOf(st, l) - tenPct(st, l))   // the full 90% balance, paid before the home is delivered
@@ -419,27 +423,29 @@ const isFinance = (w, st) => w.kind === 'internal' && (w.admin || st.approvers.f
 const isOffice = (w, st) => w.kind === 'internal' && (w.admin || st.approvers.fin.includes(w.id) || st.approvers.con.includes(w.id) || (st.contractTeam || []).includes(w.id))
 const commissionRole = (w, st) => (isOffice(w, st) ? 'office' : w.kind === 'agent' || st.team.includes(w.id) ? 'agent' : 'none')
 // the rate is fixed when the first half falls due, so changing a rate later never alters what is already owed
+// Commission is per dwelling: an order of several homes earns the rate of each one, so 3 Plus and 4 Max pay 3 x the Plus rate and 4 x the Max rate.
+const rateFor = (st, ext, l) => H.homesOf(l).reduce((sum, h) => sum + h.qty * (st.commission.rates[ext ? 'ext' : 'int'][h.product] || 0), 0)
 function lockCommissionRate(l, st) {
-  if (l.cfix || !HOME_KEYS.includes(l.product)) return
+  if (l.cfix || !H.homesOf(l).length) return
   const ext = !st.team.includes(l.owner) || l.source === 'Agent referral'
-  l.cfix = { rate: st.commission.rates[ext ? 'ext' : 'int'][l.product], ext, at: Date.now() }
+  l.cfix = { rate: rateFor(st, ext, l), ext, units: H.unitsOf(l), at: Date.now() }
 }
 // one customer's commission, from the raw row. null when none is earned (no pre-order yet, not SOLUM, lost, or the owner is switched off) unless something was already paid.
 function commissionLine(row, st) {
   const raw = row.data || {}, l = leadOut(row), pd = raw.cpaid || {}
-  if (l.concept || !HOME_KEYS.includes(l.product)) return null
+  if (l.concept || !H.homesOf(l).length) return null
   const anyPaid = !!(pd.h1 || pd.h2)
   if (!anyPaid && ((l.maxStage || 0) < 3 || l.status === 'lost' || st.commission.off.includes(l.owner))) return null
   const kind = st.team.includes(l.owner) ? 'internal' : 'external'
   const own = l.source === 'Agent referral', fix = raw.cfix
   const ext = fix ? !!fix.ext : (kind === 'external' || own)
-  const rate = fix ? fix.rate : st.commission.rates[ext ? 'ext' : 'int'][l.product]
+  const rate = fix ? fix.rate : rateFor(st, ext, l)
   const a1 = Math.round(rate / 2), a2 = rate - a1, o = l.order || {}
   const reach1 = (l.maxStage || 0) >= 6, reach2 = (Number(o.step) || 0) >= 6
   const at1 = reach1 ? ((l.dates && l.dates[6]) || l.lastTouch || 0) : 0
   const at2 = reach2 ? (o.deliveredAt || (l.dates && l.dates[9]) || l.lastTouch || 0) : 0
   const half = (n, amt, reach, at) => { const r = pd['h' + n]; return { n, amt, st: !reach ? 'later' : r ? 'paid' : raw.chold ? 'hold' : 'due', at, paidAt: r ? r.at : 0, by: r ? r.by : '', byName: r ? r.name : '', ref: r ? (r.ref || '') : '' } }
-  return { id: l.id, owner: l.owner, kind, own, ext, rate, locked: !!fix, first: l.first, last: l.last, home: l.product, state: l.state, stage: l.stage, status: l.status, hold: !!raw.chold, h: [half(1, a1, reach1, at1), half(2, a2, reach2, at2)],
+  return { id: l.id, owner: l.owner, kind, own, ext, rate, locked: !!fix, first: l.first, last: l.last, home: l.product, homes: H.homesOf(l).map((h) => ({ product: h.product, qty: h.qty })), units: H.unitsOf(l), value: H.valueOf(st.prices, l), state: l.state, stage: l.stage, status: l.status, hold: !!raw.chold, h: [half(1, a1, reach1, at1), half(2, a2, reach2, at2)],
     notes: raw.cnotes || [], log: raw.clog || [] }
 }
 // what an agent may see of their own deal: the halves and when they were paid, notes shared with them, no staff names, no office notes, no history of undos or holds
@@ -514,7 +520,7 @@ async function run(action, a, session, deps) {
       const state = STATES[p.state] ? p.state : ''
       const src = SOURCES.includes(p.source) ? p.source : (internal ? 'Other' : 'Agent referral')
       const base = { first, last: clean(p.last, 60), email: isMail(lower(p.email)) ? lower(p.email) : '', mobile: clean(p.mobile, 30), state, setting: SETTING.includes(p.setting) ? p.setting : '', product: PRODUCTS.includes(p.product) ? p.product : 'none',
-        clad: CLAD.includes(p.clad) ? p.clad : '', pal: PAL.includes(p.pal) ? p.pal : '', join: JOIN.includes(p.join) ? p.join : '', pay: PAY.includes(p.pay) ? p.pay : 'No preference', deliv: DELIV.includes(p.deliv) ? p.deliv : 'No preference', msg: clean(p.msg, 1500), source: src, otherSource: clean(p.otherSource, 60), utm: '' }
+        clad: CLAD.includes(p.clad) ? p.clad : '', pal: PAL.includes(p.pal) ? p.pal : '', join: JOIN.includes(p.join) ? p.join : '', qty: p.qty, homes: p.homes, pay: PAY.includes(p.pay) ? p.pay : 'No preference', deliv: DELIV.includes(p.deliv) ? p.deliv : 'No preference', msg: clean(p.msg, 1500), source: src, otherSource: clean(p.otherSource, 60), utm: '' }
       const r = await createLead(deps, base, internal ? { owner: clean(p.owner, 40) || undefined, how: 'added by ' + w.name } : { owner: w.id, companyId: w.companyId, how: 'added by ' + w.name })
       return { lead: r.lead, dup: r.dup }
     }
@@ -536,7 +542,29 @@ async function run(action, a, session, deps) {
       {
         const tNow = Date.now(), changes = [], settingsNow = await getSettings(db)
         const HOME_NAME = { studio: 'SOLUM Studio', plus: 'SOLUM Plus', max: 'SOLUM Max', octa: 'OCTA concept', octaplus: 'OCTA Plus concept', octamax: 'OCTA Max concept', none: 'no home chosen' }
-        if (incoming.product !== undefined && incoming.product !== cur.product) {
+        const hadLines = !!(cur.homes && cur.homes.length)
+        if (incoming.homes !== undefined) {
+          // The order: every dwelling, how many of each, and each one's finishes. Changing which homes, or how many, is locked exactly as changing the home always was
+          // (fixed once the 10% deposit is paid; only a director once the contract is out). Finishes alone follow the finishes rule.
+          const want = H.normalise(incoming.homes), was = H.homesOf(cur)
+          if (cur.concept) throw new SalesError('Convert this OCTA concept to a SOLUM customer first.', 409)
+          if (!want.length) throw new SalesError('An order needs at least one SOLUM home.')
+          if (!H.sameLines({ homes: want }, { homes: was })) {
+            if (!H.sameCounts({ homes: want }, { homes: was })) {
+              if (cur.stage >= 6 || cur.cfix) throw new SalesError('The 10% deposit has been paid, so the homes are fixed. A change now needs a new contract.', 409)
+              if (cur.stage >= 4 && !(internal && w.admin)) throw new SalesError('The contract is out, so only a director can change the homes.', 403)
+              changes.push({ t: tNow, x: `Order changed by ${w.name}: from ${H.summary({ homes: was }) || 'no home'} to ${H.summary({ homes: want })}. The order total is now ${money(H.valueOf(settingsNow.prices, { homes: want }))}.`, k: 'sys' })
+            } else {
+              if (cur.stage >= 7 && !internal) throw new SalesError('The order is confirmed, so the projects team holds the finishes. Ask them to change it.', 403)
+              changes.push({ t: tNow, x: `Finishes updated by ${w.name} on ${H.summary({ homes: want })}.`, k: 'sys' })
+            }
+            next.homes = want; Object.assign(next, H.mirror(want)); next.concept = false
+          } else { next.product = cur.product; next.clad = cur.clad; next.pal = cur.pal; next.join = cur.join }   // nothing about the order changed
+        } else if (hadLines) {
+          // an order of several homes is changed in its list, never through the single-home fields
+          if (incoming.product !== undefined && incoming.product !== cur.product) throw new SalesError('This order has its own list of homes. Change the homes in that list.', 409)
+          next.product = cur.product; next.clad = cur.clad; next.pal = cur.pal; next.join = cur.join
+        } else if (incoming.product !== undefined && incoming.product !== cur.product) {
           if (!PRODUCTS.includes(incoming.product)) throw new SalesError('That is not a home we sell.')
           if (!cur.concept && (cur.stage >= 6 || cur.cfix)) throw new SalesError('The 10% deposit has been paid, so the home is fixed. A change now needs a new contract.', 409)
           if (!cur.concept && cur.stage >= 4 && !(internal && w.admin)) throw new SalesError('The contract is out, so only a director can change the home.', 403)
@@ -544,7 +572,7 @@ async function run(action, a, session, deps) {
           const pr = priceOf(settingsNow, next)
           changes.push({ t: tNow, x: `Home changed from ${HOME_NAME[cur.product] || cur.product} to ${HOME_NAME[next.product]} by ${w.name}.${pr ? ' The price is now ' + money(pr) + '.' : ''}`, k: 'sys' })
         } else next.product = cur.product
-        for (const [k, list, label] of [['clad', CLAD, 'Cladding'], ['pal', PAL, 'Interior palette'], ['join', JOIN, 'Joinery']]) {
+        if (incoming.homes === undefined && !hadLines) for (const [k, list, label] of [['clad', CLAD, 'Cladding'], ['pal', PAL, 'Interior palette'], ['join', JOIN, 'Joinery']]) {   // a list of homes carries its own finishes
           if (incoming[k] === undefined) { next[k] = cur[k]; continue }
           const v = incoming[k] === '' ? '' : list.includes(incoming[k]) ? incoming[k] : (cur[k] || '')   // anything that is not the website's own choice is ignored
           if (v !== (cur[k] || '')) {
@@ -554,7 +582,7 @@ async function run(action, a, session, deps) {
           next[k] = v
         }
         if (changes.length) {
-          if (!cur.asked) next.asked = { product: cur.product, clad: cur.clad || '', pal: cur.pal || '', join: cur.join || '' }
+          if (!cur.asked) next.asked = { product: cur.product, clad: cur.clad || '', pal: cur.pal || '', join: cur.join || '', ...(hadLines ? { homes: cur.homes } : {}) }
           next.act = mergeAct(next.act, changes); next.lastTouch = tNow
         }
       }
@@ -814,7 +842,7 @@ async function run(action, a, session, deps) {
       if (!isMail(l.email)) throw new SalesError('This customer has no email address.')
       try { await mail.send({ from, to: [l.email], subject: built.subject, html: built.html, replyTo: isMail(me0) ? me0 : from, replyName: isMail(me0) ? w.name : undefined, bcc: isMail(me0) ? me0 : undefined }) } catch (e) { throw new SalesError(String((e && e.message) || e).slice(0, 160), 502) }
       const at = Date.now()
-      const note = { t: at, x: `${l.preMail ? 'Pre-order email sent again' : 'Pre-order email sent'} to ${l.email} from ${from} by ${w.name}, with the ${money(settings.preorder)} payment link. ${built.fields.model}, ${built.fields.exterior} exterior, ${built.fields.interior} interior, ${built.fields.joinery} joinery.`, k: 'note' }
+      const note = { t: at, x: `${l.preMail ? 'Pre-order email sent again' : 'Pre-order email sent'} to ${l.email} from ${from} by ${w.name}, with the ${money(settings.preorder)} payment link. ${built.fields.multi ? `${built.fields.units} dwellings, ${built.fields.price} in all. ${built.fields.note}.` : `${built.fields.model}, ${built.fields.exterior} exterior, ${built.fields.interior} interior, ${built.fields.joinery} joinery.`}`, k: 'note' }
       const next = { ...l, preMail: { at, by: w.name, to: l.email, n: ((l.preMail && l.preMail.n) || 0) + 1 }, act: mergeAct(l.act, [note]), lastTouch: at }
       const saved = await db.leads.upsert(leadRow(next, row))
       return { ok: true, lead: leadOut(saved) }
@@ -830,9 +858,12 @@ async function run(action, a, session, deps) {
       let to, subject, text
       if (action === 'handover') {
         to = [PROJECTS_MAIL]; subject = `New HAAVN BLACK order: ${l.first} ${l.last}`
-        const prod = { studio: 'SOLUM Studio', plus: 'SOLUM Plus', max: 'SOLUM Max' }[l.product] || l.product
+        const hs = H.homesOf(l), prod = H.summary(l) || l.product
+        const homeLines = hs.length > 1 || (hs[0] && hs[0].qty > 1)
+          ? [`Homes: ${prod} (${H.unitsOf(l)} dwellings)`, ...hs.map((h, i) => `  ${i + 1}. ${H.lineName(h)}: cladding ${h.clad || '-'}, interior palette ${h.pal || '-'}, joinery ${h.join || '-'}`), `Order value: ${money(H.valueOf((await getSettings(db)).prices, l))}`]
+          : [`Home: ${prod}`, `Cladding: ${l.clad || '-'}`, `Interior palette: ${l.pal || '-'}`, `Joinery: ${l.join || '-'}`]
         text = [`Order confirmed. Handover to the projects team.`, '', `Customer: ${l.first} ${l.last}`, `Mobile: ${l.mobile || '-'}`, `Email: ${l.email || '-'}`, `State: ${l.state || '-'}`, `Site: ${(l.order && l.order.site) || 'to be confirmed'}`,
-          `Home: ${prod}`, `Cladding: ${l.clad || '-'}`, `Interior palette: ${l.pal || '-'}`, `Joinery: ${l.join || '-'}`, `Delivery: ${l.deliv}`, `Payment: ${l.pay}`, `Sales owner: ${personName(l.owner) || w.name}`, '', `Please confirm the production slot and send the customer an update every two weeks.`].join('\n')
+          ...homeLines, `Delivery: ${l.deliv}`, `Payment: ${l.pay}`, `Sales owner: ${personName(l.owner) || w.name}`, '', `Please confirm the production slot and send the customer an update every two weeks.`].join('\n')
       } else {
         if (!isMail(l.email)) throw new SalesError('This customer has no email address.')
         to = [l.email]; subject = clean(a.subject, 200) || 'Your HAAVN BLACK home'; text = String(a.body || '').slice(0, 5000)
@@ -850,4 +881,4 @@ async function run(action, a, session, deps) {
   }
 }
 
-module.exports = { commissionLine, commissionRole, isFinance, tidyInbox, clearHandled, run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }
+module.exports = { H, priceOf, depBal, finalAmt, commissionLine, commissionRole, isFinance, tidyInbox, clearHandled, run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }

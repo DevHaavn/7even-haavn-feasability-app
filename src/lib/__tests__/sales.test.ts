@@ -713,3 +713,177 @@ describe('the pre-order email', () => {
     await expect(S.run('preorderEmail', { id: l.id, mode: 'send' }, agentSession('x@y.com'), F.deps)).rejects.toThrow()
   })
 })
+
+describe('several dwellings in one order', () => {
+  const PRICES = { studio: 145000, plus: 185000, max: 215000 }
+  const H = S.H
+  const fresh = async () => (await run('init', {})).settings
+  // a customer, then their order set to 3 SOLUM Plus and 4 SOLUM Max
+  const orderOf = async (lines: any[], l?: any) => {
+    const lead = l || await mkLead()
+    const r = await run('saveLead', { lead: { id: lead.id, homes: lines } })
+    return r.lead
+  }
+  const THREE_FOUR = [{ product: 'plus', qty: 3, clad: 'Char', pal: 'Sage', join: 'Raw Walnut' }, { product: 'max', qty: 4, clad: 'Ivory', pal: 'Tide', join: 'Dark Oak' }]
+
+  it('reads the order: saved lines, else the one home a customer always had; cleans what it is given', () => {
+    expect(H.homesOf({ product: 'plus', clad: 'Char' })).toMatchObject([{ product: 'plus', qty: 1, clad: 'Char' }])
+    expect(H.homesOf({ product: 'octa' })).toEqual([])
+    expect(H.homesOf({ product: 'none' })).toEqual([])
+    const n = H.normalise([{ product: 'plus', qty: '6', clad: 'Pink' }, { product: 'octa', qty: 2 }, { product: 'max', qty: 999 }, { product: 'studio', qty: 0 }, null])
+    expect(n.map((x: any) => [x.product, x.qty, x.clad])).toEqual([['plus', 6, ''], ['max', 50, ''], ['studio', 1, '']])   // anything not a SOLUM we sell is dropped; a quantity is 1 to 50; a finish that is not ours is blank
+    expect(H.normalise(new Array(40).fill({ product: 'plus', qty: 1 })).length).toBe(12)
+  })
+  it('values an order at the price list and words it', () => {
+    const l = { homes: THREE_FOUR }
+    expect(H.valueOf(PRICES, l)).toBe(3 * 185000 + 4 * 215000)
+    expect(H.unitsOf(l)).toBe(7)
+    expect(H.summary(l)).toBe('3 × SOLUM Plus and 4 × SOLUM Max')
+    expect(H.short(l)).toBe('3 Plus + 4 Max')
+    expect(H.summary({ product: 'plus' })).toBe('SOLUM Plus')
+    expect(H.summary({ homes: [{ product: 'plus', qty: 6 }] })).toBe('6 × SOLUM Plus')
+  })
+  it('a customer with a quantity on the form starts with that many homes', async () => {
+    const l = (await run('newLead', { lead: { first: 'Bulk', last: 'Buyer', email: 'bulk@example.com', state: 'VIC', product: 'plus', qty: 6, clad: 'Char' } })).lead
+    expect(l.homes).toMatchObject([{ product: 'plus', qty: 6, clad: 'Char' }])
+    expect(l.product).toBe('plus'); expect(l.clad).toBe('Char')   // the old single-home fields follow the first line
+    expect(S.priceOf({ prices: PRICES }, l)).toBe(6 * 185000)
+    const one = (await run('newLead', { lead: { first: 'Solo', last: 'Buyer', email: 'solo@example.com', state: 'VIC', product: 'plus' } })).lead
+    expect(one.homes).toBeUndefined()   // a single home keeps the old shape, nothing is migrated
+  })
+  it('reads a quantity from the enquiry email', () => {
+    expect(S.parseEnquiry(FORM() + '\nQuantity: 4').qty).toBe(4)
+    expect(S.parseEnquiry(FORM()).qty).toBe(1)
+  })
+  it('saves an order of 3 Plus and 4 Max: the value is the sum, and the customer\'s log says what changed', async () => {
+    const l = await orderOf(THREE_FOUR)
+    expect(l.homes.map((h: any) => [h.product, h.qty])).toEqual([['plus', 3], ['max', 4]])
+    expect(l.product).toBe('plus')
+    const st = await fresh()
+    expect(S.priceOf(st, l)).toBe(1415000)
+    const note = l.act.find((a: any) => /Order changed/.test(a.x))
+    expect(note.x).toMatch(/from SOLUM Plus to 3 × SOLUM Plus and 4 × SOLUM Max/)
+    expect(note.x).toContain('$1,415,000')
+    expect(l.asked).toMatchObject({ product: 'plus' })   // what the customer first asked for is kept
+  })
+  it('the 10% deposit and the final payment follow the whole order, less the one pre-order deposit', async () => {
+    const l = await orderOf(THREE_FOUR), st = await fresh()
+    expect(S.depBal(st, l)).toBe(141500 - 2000)
+    expect(S.finalAmt(st, l)).toBe(1415000 - 141500)
+    expect(S.gateAmount(st, l, 'pre')).toBe(2000)
+    expect(S.gateAmount(st, l, 'dep')).toBe(139500)
+    expect(S.gateAmount(st, l, 'final')).toBe(1273500)
+  })
+  it('the Finance task for the invoice carries the whole order\'s amount', async () => {
+    const l = await orderOf(THREE_FOUR)
+    await through(l.id, 4)
+    const ws = F.t.doc[B.KEYS.workflow]
+    expect(JSON.stringify(ws)).toContain('Confirm the $2,000 pre-order deposit')
+    await through(l.id, 5)
+    expect(JSON.stringify(F.t.doc[B.KEYS.workflow])).toContain('(' + '$139,500' + ')')
+  })
+  it('refuses a list with no SOLUM home, and an OCTA concept cannot take a list', async () => {
+    const l = await mkLead()
+    await expect(run('saveLead', { lead: { id: l.id, homes: [] } })).rejects.toThrow(/at least one/)
+    await expect(run('saveLead', { lead: { id: l.id, homes: [{ product: 'octa', qty: 2 }] } })).rejects.toThrow(/at least one/)
+    const c = (await run('newLead', { lead: { first: 'Con', last: 'Cept', email: 'con@example.com', state: 'VIC', product: 'octa' } })).lead
+    await expect(run('saveLead', { lead: { id: c.id, homes: [{ product: 'plus', qty: 1 }] } })).rejects.toThrow(/concept/i)
+  })
+  it('the old single-home fields cannot change an order that has its own list', async () => {
+    const l = await orderOf(THREE_FOUR)
+    await expect(run('saveLead', { lead: { id: l.id, product: 'studio' } })).rejects.toThrow(/own list of homes/)
+    const same = (await run('saveLead', { lead: { id: l.id, clad: 'Amber', first: 'Mia' } })).lead
+    expect(same.homes[0].clad).toBe('Char')   // a stray finish on the old field changes nothing in the list
+  })
+  it('which homes and how many is locked like the home always was; finishes alone stay open', async () => {
+    const l = await orderOf(THREE_FOUR)
+    await through(l.id, 4)   // the contract is out
+    const bigger = THREE_FOUR.map((h) => ({ ...h, qty: h.qty + 1 }))
+    await expect(run('saveLead', { lead: { id: l.id, homes: bigger } }, mike)).rejects.toThrow(/only a director/)
+    const lines = (await get(l.id)).homes
+    const ok = (await run('saveLead', { lead: { id: l.id, homes: bigger.map((h, i) => ({ ...h, id: lines[i].id })) } })).lead   // a director may
+    expect(H.unitsOf(ok)).toBe(9)
+    await through(l.id, 6)   // the 10% deposit is in: fixed
+    await expect(run('saveLead', { lead: { id: l.id, homes: THREE_FOUR } })).rejects.toThrow(/homes are fixed/)
+    const re = (await get(l.id)).homes.map((h: any) => ({ ...h, pal: 'Vine' }))
+    const fin = (await run('saveLead', { lead: { id: l.id, homes: re } })).lead   // the finishes can still be set before the order is confirmed
+    expect(fin.homes.every((h: any) => h.pal === 'Vine')).toBe(true)
+    expect(fin.act.some((a: any) => /Finishes updated/.test(a.x))).toBe(true)
+  })
+  it('commission is per dwelling: 3 Plus and 4 Max pay 3 x the Plus rate and 4 x the Max rate, split in halves', async () => {
+    const l = await orderOf(THREE_FOUR)
+    await through(l.id, 6)
+    const c = (await run('commission', {})).lines.find((x: any) => x.id === l.id)
+    expect(c.rate).toBe(3 * 4000 + 4 * 5000)   // internal rates, Jamie's lead
+    expect(c.h[0].amt + c.h[1].amt).toBe(32000)
+    expect(c.units).toBe(7); expect(c.homes).toEqual([{ product: 'plus', qty: 3 }, { product: 'max', qty: 4 }])
+    expect(c.value).toBe(1415000)
+    const own = (await run('newLead', { lead: { first: 'Own', last: 'Lead', email: 'own.lead@example.com', state: 'VIC', product: 'plus', source: 'Agent referral' } })).lead   // an own lead earns the external rate
+    const ext = await orderOf(THREE_FOUR, own)
+    await through(ext.id, 6)
+    const e = (await run('commission', {})).lines.find((x: any) => x.id === ext.id)
+    expect(e.rate).toBe(3 * 6500 + 4 * 8000)
+  })
+  it('the commission rate is fixed when the first half falls due, so a later price or rate change never alters it', async () => {
+    const l = await orderOf([{ product: 'plus', qty: 2 }])
+    await through(l.id, 6)
+    await run('commissionSettings', { commission: { rates: { int: { plus: 9999 } } } })
+    const c = (await run('commission', {})).lines.find((x: any) => x.id === l.id)
+    expect(c.rate).toBe(8000); expect(c.locked).toBe(true)
+  })
+  it('a single home still earns exactly what it did', async () => {
+    const l = await mkLead()
+    await through(l.id, 6)
+    const c = (await run('commission', {})).lines.find((x: any) => x.id === l.id)
+    expect(c.rate).toBe(4000); expect(c.units).toBe(1)
+  })
+  it('the pre-order email lists every home with its own finishes and the total', async () => {
+    const l = await orderOf(THREE_FOUR)
+    const r = await run('preorderEmail', { id: l.id, mode: 'preview' })
+    expect(r.subject).toBe('Your 7 SOLUM homes, next steps | HAAVN BLACK')
+    expect(r.fields).toMatchObject({ multi: true, units: 7, price: '$1,415,000', model: '3 × SOLUM Plus and 4 × SOLUM Max' })
+    expect(r.fields.lines.map((x: any) => [x.qty, x.subtotal])).toEqual([[3, '$555,000'], [4, '$860,000']])
+    expect(r.html).toContain('3 × SOLUM Plus'); expect(r.html).toContain('4 × SOLUM Max')
+    expect(r.html).toContain('3 &times; $185,000 + 4 &times; $215,000')
+    expect(r.html).toContain('$1,415,000')
+    for (const hex of ['#b3aca6', '#96b483', '#d6b48c', '#e4dbc6', '#7cb5c0', '#77726d']) expect(r.html).toContain('bgcolor="' + hex + '"')   // both homes' finishes
+    expect(r.html).toContain('Home 1'); expect(r.html).toContain('Home 2')
+    expect(r.html).not.toMatch(/{{/)
+    expect(r.missing).toEqual([])
+  })
+  it('six of one home is one block of finishes and a total of six', async () => {
+    const l = await orderOf([{ product: 'plus', qty: 6, clad: 'Char', pal: 'Sage', join: 'Raw Walnut' }])
+    const r = await run('preorderEmail', { id: l.id, mode: 'preview' })
+    expect(r.subject).toBe('Your 6 SOLUM Plus homes, next steps | HAAVN BLACK')
+    expect(r.fields.price).toBe('$1,110,000')
+    expect(r.html).toContain('6 × SOLUM Plus'); expect(r.html).not.toContain('Home 1')
+    expect(r.html).toContain('6 &times; $185,000')
+  })
+  it('a single home\'s email is exactly as before', async () => {
+    const l = await mkLead()
+    const r = await run('preorderEmail', { id: l.id, mode: 'preview' })
+    expect(r.fields.multi).toBe(false)
+    expect(r.html).not.toContain('Indicative total'); expect(r.html).toContain('Indicative price')
+  })
+  it('sending the email writes the whole order on the customer', async () => {
+    const l = await orderOf(THREE_FOUR)
+    const r = await run('preorderEmail', { id: l.id, mode: 'send' })
+    const note = r.lead.act.find((a: any) => /Pre-order email sent/.test(a.x))
+    expect(note.x).toContain('7 dwellings, $1,415,000 in all')
+    expect(note.x).toContain('4 × SOLUM Max: Ivory exterior')
+  })
+  it('the handover to projects lists every home and the order value', async () => {
+    const l = await orderOf(THREE_FOUR)
+    await through(l.id, 7)
+    await run('handover', { id: l.id })
+    const m = F.sent[F.sent.length - 1]
+    expect(m.to).toEqual(['projects@haavn.au'])
+    expect(m.html).toContain('Homes: 3 × SOLUM Plus and 4 × SOLUM Max (7 dwellings)')
+    expect(m.html).toContain('1. 3 × SOLUM Plus: cladding Char'); expect(m.html).toContain('2. 4 × SOLUM Max: cladding Ivory')
+    expect(m.html).toContain('Order value: $1,415,000')
+  })
+  it('the new-lead alert names the whole order', async () => {
+    await run('newLead', { lead: { first: 'Bulk', last: 'Buyer', email: 'bulk2@example.com', state: 'VIC', product: 'max', qty: 3 } })
+    expect(F.t.msgs.some((m: any) => /3 × SOLUM Max/.test(m.body))).toBe(true)
+  })
+})
