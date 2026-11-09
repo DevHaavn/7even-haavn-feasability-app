@@ -227,3 +227,32 @@ describe('the Chat Sales badge counts only what is overdue', () => {
     expect(H.counts().late).toBe(0)
   })
 })
+
+describe('the Chat badge: overdue customers, and a director sees the whole pipeline\'s', () => {
+  // Mike's new enquiry from a day ago: the only overdue customer. Jamie's Contacted customers are all inside their 2 days.
+  const pipeline = () => [
+    lead({ id: 'robert', owner: 'mf', stage: 0, created: NOW - 1 * DAY, lastTouch: NOW - 1 * DAY }),
+    lead({ id: 'jess', owner: 'jb', stage: 1, lastTouch: NOW - 20 * HOUR }),
+    lead({ id: 'kerrie', owner: 'jb', stage: 1, lastTouch: NOW - 30 * HOUR }),
+    lead({ id: 'charli', owner: 'jb', stage: 1, lastTouch: NOW - 1 * DAY }),
+    lead({ id: 'len', owner: 'jb', stage: 1, lastTouch: NOW - 40 * HOUR }),
+  ]
+  it('a director sees the one overdue enquiry, not 5 and not 0', () => {
+    setMe({ id: 'jb', name: 'Jamie Baldwin', admin: true, gates: [], roles: [] })
+    H.S.leads = pipeline()
+    expect(H.counts().overdue).toBe(1)
+    expect(H.counts().need).toBeGreaterThan(1)   // the other four are waiting their turn, which no longer lights the badge
+  })
+  it('the salesperson sees their own overdue ones', () => {
+    setMe({ id: 'mf', admin: false })
+    H.S.leads = pipeline()
+    expect(H.counts().overdue).toBe(1)
+    setMe({ id: 'jb', name: 'Jamie Baldwin', admin: false })
+    expect(H.counts().overdue).toBe(0)   // not an admin, and none of Jamie's own are late
+  })
+  it('is 0 when nothing is late', () => {
+    setMe({ id: 'jb', admin: true })
+    H.S.leads = pipeline().slice(1)
+    expect(H.counts().overdue).toBe(0)
+  })
+})

@@ -1,6 +1,6 @@
 /* ATRIUM Chat: HAAVN BLACK Sales.
    For Jamie and Mike only (the two people who run the HAAVN BLACK sales pipeline from Chat). Signed in as either of them, Chat gets:
-     - on a phone: a Sales button in the bottom bar, with a red badge for how many customers are overdue (past their window to be called, qualified, chased or approved), so it is 0 when nothing is late;
+     - on a phone: a Sales button in the bottom bar, with a red badge for how many customers are overdue (past their window to be called, qualified, chased or approved; a director sees every overdue customer), so it is 0 when nothing is late;
      - on a computer: a Sales button in the left bar, under Files (it opens the full pipeline);
      - an "Open in Sales" button on each new-lead message in the HAAVN BLACK Sales channel, which opens that customer.
    Each opens Sales as a full panel over Chat, the same way Notes opens. The phone panel is atrium-sales-mobile.html (its back arrow closes it);
@@ -17,7 +17,7 @@ var D=document, C=window.AtriumChat;
 if(!C||!D.getElementById('tabbar')||!D.getElementById('groups')) return;
 var USERS=['jb','mf'];
 function $(s,r){ return (r||D).querySelector(s) }
-var on=false, loading=false, lastLoad=0, counts={need:0,late:0,waiting:0}, tab=null, rail=null, ov=null, fr=null, frReady=false, alive=false, waitT=0, diagT=0, desk=false;
+var on=false, loading=false, lastLoad=0, counts={need:0,late:0,waiting:0,overdue:0}, tab=null, rail=null, ov=null, fr=null, frReady=false, alive=false, waitT=0, diagT=0, desk=false;
 
 var css=D.createElement('style');
 css.textContent=
@@ -41,7 +41,7 @@ D.head.appendChild(css);
 function scheme(){ try{ return window.AtriumScheme?AtriumScheme.get():'dark' }catch(e){ return 'dark' } }
 function draw(){
   if(!on) return;
-  var n=counts.late, t=n>99?'99+':String(n);   /* only what is overdue: a customer who is simply waiting their turn does not light the badge */
+  var n=counts.overdue, t=n>99?'99+':String(n);   /* only what is overdue: a customer who is simply waiting their turn does not light the badge */
   [tab,rail].forEach(function(el){ if(!el) return; var b=$('.badge',el); if(b){ b.textContent=t; b.hidden=!n } });
 }
 function build(){
@@ -63,7 +63,7 @@ function build(){
 }
 function load(){
   if(!on||loading||!window.HBS) return; loading=true;
-  window.HBS.load().then(function(ok){ loading=false; lastLoad=Date.now(); if(!ok){ off(); return } var c=window.HBS.counts(); counts={need:c.need,late:c.late,waiting:c.waiting}; draw() }).catch(function(){ loading=false });
+  window.HBS.load().then(function(ok){ loading=false; lastLoad=Date.now(); if(!ok){ off(); return } var c=window.HBS.counts(); counts={need:c.need,late:c.late,waiting:c.waiting,overdue:c.overdue}; draw() }).catch(function(){ loading=false });
 }
 function off(){ on=false; if(tab){ tab.remove(); tab=null } if(rail){ rail.remove(); rail=null } }
 
@@ -119,14 +119,14 @@ window.addEventListener('message',function(e){ var d=e.data; if(!d||!fr||e.sourc
   if(d.atriumSales==='close') close();
   else if(d.atriumSales==='scheme'){ try{ if(window.AtriumScheme&&!AtriumScheme.follows()) AtriumScheme.set(d.v==='light'?'light':'dark') }catch(er){} }  /* the Dark / Light button inside Sales changes the whole of Chat with it */
   else if(d.atriumSales==='ready'){ alive=true; clearTimeout(waitT); showWait(false) }
-  else if(d.atriumSales==='counts'){ counts={need:+d.need||0,late:+d.late||0,waiting:+d.waiting||0}; draw() } });
+  else if(d.atriumSales==='counts'){ counts={need:+d.need||0,late:+d.late||0,waiting:+d.waiting||0,overdue:+d.overdue||0}; draw() } });
 try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.contentWindow&&frReady) fr.contentWindow.postMessage({atriumScheme:s},'*') }) }catch(e){}
 
 /* start once Chat knows who is signed in. Only Jamie and Mike ever get past this line. */
 function start(){
   if(on||!C.real()||USERS.indexOf(C.me())<0) return false;
   on=true; build(); watch();
-  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=3'; s.onload=load; D.head.appendChild(s);
+  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=4'; s.onload=load; D.head.appendChild(s);
   return true;
 }
 setTimeout(function(){ if(start()) return; var n=0, iv=setInterval(function(){ n++; if(start()||n>40) clearInterval(iv) },750) },1800);

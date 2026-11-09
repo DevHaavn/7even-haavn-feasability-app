@@ -206,12 +206,14 @@
     var wait = C.ITEMS().filter(function (i) { return i.k === 'approve' && !C.canGate(i.gate) && S.me && i.l.owner === S.me.id })
     return { all: all, appr: appr, todo: todo, wait: wait }
   }
+  /* the badge in Chat: customers past their window to be called, qualified, chased or approved. A director sees every overdue customer in the pipeline; everyone else sees their own. */
+  C.overdue = function () { return C.ITEMS().filter(function (i) { return (i.over || i.urgent) && (C.isAdmin() || C.mine(i)) }).length }
   C.counts = function () {
     /* "need you" is what I can act on: approvals I give and the follow-ups. What is with the office is counted on its own. */
     var t = C.today(), act = t.appr.concat(t.todo), late = act.filter(function (i) { return i.over || i.urgent }).length
     var inPlay = C.visible().filter(function (l) { return l.status === 'open' && !l.concept && l.stage === 3 }).length
     var mineOpen = C.visible().filter(function (l) { return l.status === 'open' && !l.concept && l.stage < 9 && S.me && l.owner === S.me.id })
-    return { need: act.length, late: late, waiting: t.wait.length, approvals: t.appr.length, preorders: inPlay, mineOpen: mineOpen.length }
+    return { need: act.length, late: late, overdue: C.overdue(), waiting: t.wait.length, approvals: t.appr.length, preorders: inPlay, mineOpen: mineOpen.length }
   }
   /* the status chip under a customer: how long they have waited, or where the home is */
   C.status = function (l) {

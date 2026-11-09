@@ -255,7 +255,7 @@ window.addEventListener('unhandledrejection',function(e){window.__hbsFail((e&&e.
   <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-<script src="/atrium-sales-core.js?v=3"></script>
+<script src="/atrium-sales-core.js?v=4"></script>
 <script>
 (function(){
 'use strict';
@@ -373,7 +373,7 @@ function dueChip(it){
   return '<span class="chip">'+H.dur(it.age*H.DAY)+' in stage</span>'}
 
 /* ============ rendering ============ */
-function announce(){if(!ready())return;try{var c=H.counts();parent.postMessage({atriumSales:'counts',need:c.need,late:c.late,waiting:c.waiting},'*')}catch(e){}}
+function announce(){if(!ready())return;try{var c=H.counts();parent.postMessage({atriumSales:'counts',need:c.need,late:c.late,waiting:c.waiting,overdue:c.overdue},'*')}catch(e){}}
 function titleFor(){return {today:['HAAVN BLACK','Today'],pipe:['HAAVN BLACK','Pipeline'],appr:['HAAVN BLACK','Approvals']}[UI.tab]||['HAAVN BLACK','Sales']}
 function head(){
   var t=titleFor(),back=EMB==='chat'||EMB==='hb'||EMB==='hm';
