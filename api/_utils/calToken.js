@@ -80,11 +80,18 @@ function make(env = process.env, fetchImpl = fetch) {
     catch (e) { if (e.revoked) { try { await forget(kv, personId) } catch { /* ignore */ } return { connected: false, reconnect: true } } throw e }
     const url = 'https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=' + encodeURIComponent(fromISO) + '&endDateTime=' + encodeURIComponent(toISO)
       + '&$orderby=start/dateTime&$top=100&$select=id,subject,start,end,isAllDay,isCancelled,location,onlineMeeting,attendees,organizer,webLink,showAs,sensitivity,categories'
-    const g = await fetchImpl(url, { headers: { Authorization: 'Bearer ' + tok, Prefer: `outlook.timezone="${TZ}"` } })
-    const j = await g.json().catch(() => ({}))
-    if (g.status === 401 || g.status === 403) { memo.delete(personId); return { connected: false, reconnect: true } }
-    if (!g.ok) throw new Error((j.error && j.error.message) || `Outlook answered ${g.status}`)
-    return { connected: true, account: r.acct || '', events: shapeEvents(j.value) }
+    // Outlook hands back a page at a time; follow the pages (a few at most) so a long window is read whole
+    const value = []
+    let next = url
+    for (let page = 0; next && page < 6; page++) {
+      const g = await fetchImpl(next, { headers: { Authorization: 'Bearer ' + tok, Prefer: `outlook.timezone="${TZ}"` } })
+      const j = await g.json().catch(() => ({}))
+      if (g.status === 401 || g.status === 403) { memo.delete(personId); return { connected: false, reconnect: true } }
+      if (!g.ok) throw new Error((j.error && j.error.message) || `Outlook answered ${g.status}`)
+      value.push(...(Array.isArray(j.value) ? j.value : []))
+      next = j['@odata.nextLink'] || ''
+    }
+    return { connected: true, account: r.acct || '', events: shapeEvents(value) }
   }
   // Any call to the person's own Graph diary. Returns { ok, status, json }; { revoked:true } when Microsoft has ended the permission.
   async function call(personId, kv, method, path, body) {

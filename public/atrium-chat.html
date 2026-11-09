@@ -755,6 +755,8 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .seg2{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);margin:0 0 14px}
 .seg2 button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
 .seg2 button.on{background:rgba(255,255,255,.22);color:#fff}
+.calconn .ls{font-size:11.5px;opacity:.7;line-height:1.45}
+.calconn .cb{transition:opacity .6s ease,background .3s ease}.calconn .cb:disabled{opacity:.4;cursor:default}.calconn .cb.done{opacity:.55}
 .calh{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.calconn{display:flex;flex-direction:column;gap:10px;margin:2px 0 10px;padding:12px 14px;border:1px dashed var(--edge,rgba(255,255,255,.3));border-radius:6px;font-size:12.5px;line-height:1.5;opacity:.95}.calconn b{font-weight:500}.calconn .ca{display:flex;gap:8px;flex-wrap:wrap}.calconn .cb{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.calconn.ok{border-style:solid;opacity:.8}.calh .tx{flex:1;min-width:0}.calh b{display:block;font-weight:400;font-size:16px}.calh .s{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .calref.spin svg{animation:calspin .9s linear infinite}
 @keyframes calspin{to{transform:rotate(360deg)}}
@@ -2132,7 +2134,8 @@ $('#sendBtn').onclick=send;
 /* ---- meetings from a chat ---- */
 const MT={}, MTL={};
 /* ---- Meetings tab: my live calendar from Outlook and Teams, and a way to add a meeting to it ---- */
-let meetSeg='cal', listMode='chats'; const CAL={events:null,mailbox:'',err:'',loading:false,at:0};
+let meetSeg='cal', listMode='chats'; const CAL={events:null,mailbox:'',err:'',loading:false,at:0,syncing:false,last:null};
+try{ CAL.last=JSON.parse(localStorage.getItem('atrium_cal_last')||'null') }catch(e){}
 const listCal=()=>listMode==='cal'&&innerWidth>760;   // desktop: the chats on the left can turn into the live calendar
 const redrawCal=()=>{ if(pane==='meet'&&meetSeg==='cal') renderPane(); if(listCal()) renderList() };
 function calListHtml(){ const un=totalUnread();
@@ -2141,7 +2144,12 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-cal]'); i
   if(a==='open'){ listMode='cal'; renderList() }
   else if(a==='chats'){ listMode='chats'; renderList() }
   else if(a==='ref'){ b.classList.add('spin'); loadCal(true) }
-  else if(a==='sync'){ b.disabled=true; api('calSync').then(r=>{ flash('Your haavn.au diary is up to date in '+(r.account||'your other Outlook')+(r.created||r.updated||r.removed?': '+[r.created?r.created+' added':'',r.updated?r.updated+' changed':'',r.removed?r.removed+' removed':''].filter(Boolean).join(', '):'.')); loadCal(true) }).catch(e=>{ flash(e.message||'That did not work.'); b.disabled=false }) }
+  else if(a==='sync'){ if(CAL.syncing) return; CAL.syncing=true; redrawCal(); api('calSync').then(r=>{ CAL.syncing=false;
+      if(r.skipped==='already running'){ flash('A sync is already running. Give it a moment.'); redrawCal(); return }
+      const bits=[r.created?r.created+' added':'',r.updated?r.updated+' changed':'',r.removed?r.removed+' removed':'',r.cleaned?r.cleaned+' double'+(r.cleaned===1?'':'s')+' cleaned up':''].filter(Boolean);
+      CAL.last={at:Date.now(),text:bits.length?bits.join(', '):'nothing to change',acct:r.account||''}; CAL.done=Date.now(); setTimeout(()=>redrawCal(),6200);
+      try{ localStorage.setItem('atrium_cal_last',JSON.stringify(CAL.last)) }catch(e){}
+      flash('Your haavn.au diary is up to date in '+(r.account||'your other Outlook')+(bits.length?': '+bits.join(', '):'.')); loadCal(true) }).catch(e=>{ CAL.syncing=false; flash(e.message||'That did not work.'); redrawCal() }) }
   else if(a==='disc'){ if(!confirm('Disconnect your other Outlook? ATRIUM will stop showing it, and will take its copies of your haavn.au diary out of it.')) return; b.disabled=true; api('calDisconnect').then(()=>{ CAL.st=null; flash('Disconnected.'); loadCal(true) }).catch(e=>{ flash(e.message||'That did not work.'); b.disabled=false }) }
   else if(a==='new') openCalSheet()
   else if(a==='retry'){ CAL.err=''; loadCal(true); redrawCal() } });
@@ -2164,7 +2172,7 @@ function loadCal(force){
 /* the person's OTHER Outlook (the company ATRIUM cannot reach itself): connect it once and it shows here, and their haavn.au diary is copied into it */
 function calConnHtml(){
   const st=CAL.st; if(!st||!st.available||CAL.mailbox==='practice') return '';
-  if(st.connected) return `<div class="calconn ok"><span><b>${esc(st.account||'Your other Outlook')}</b> is connected. Your haavn.au diary is kept in it as busy blocks, so Outlook shows both.</span><span class="ca"><button type="button" class="cb" data-cal="sync">Sync now</button><button type="button" class="cb" data-cal="disc">Disconnect</button></span></div>`;
+  if(st.connected) return `<div class="calconn ok"><span><b>${esc(st.account||'Your other Outlook')}</b> is connected. Your haavn.au diary is kept in it as busy blocks, so Outlook shows both.</span><span class="ls">${CAL.syncing?'Syncing...':CAL.last?'Last synced '+new Date(CAL.last.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+esc(CAL.last.text)+'. ':''}It also updates itself every 15 minutes, so you only need Sync now if you want it right away.</span><span class="ca"><button type="button" class="cb${CAL.syncing?' busy':CAL.done&&Date.now()-CAL.done<6000?' done':''}" data-cal="sync"${CAL.syncing||(CAL.done&&Date.now()-CAL.done<6000)?' disabled':''}>${CAL.syncing?'Syncing...':CAL.done&&Date.now()-CAL.done<6000?'Synced':'Sync now'}</button><button type="button" class="cb" data-cal="disc">Disconnect</button></span></div>`;
   if(!st.hint) return '';
   const ret=EMB?'%2F':encodeURIComponent(location.pathname+location.search);
   return `<div class="calconn"><span><b>Your ${esc(st.hint.split('@')[1])} diary is not showing.</b> Connect it once and it appears here with your haavn.au diary, and your haavn.au meetings are copied into it so you never double-book.</span><span class="ca"><a class="cb go" href="/api/auth/login?return=${ret}&cal=1&hint=${encodeURIComponent(st.hint)}" target="_top">Connect my ${esc(st.hint.split('@')[1])} Outlook</a></span></div>` }
@@ -2781,6 +2789,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 <script src="/atrium-chat-palette.js?v=1"></script>
 <script src="/atrium-chat-look.js?v=1"></script>
 <script src="/atrium-chat-suggest.js?v=1"></script>
-<script src="/atrium-chat-sales.js?v=11"></script>
+<script src="/atrium-chat-sales.js?v=12"></script>
 </body>
 </html>

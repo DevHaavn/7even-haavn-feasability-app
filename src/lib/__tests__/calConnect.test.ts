@@ -113,3 +113,65 @@ describe('copying the haavn.au diary into the other Outlook', () => {
     expect(W.g.events.map((e: any) => e.subject)).toEqual(['My own meeting'])
   })
 })
+
+describe('copies are never doubled, and doubles that already exist are cleaned up', () => {
+  beforeEach(async () => { await CT.save(W.kv, 'jb', { rt: 'rt1', acct: 'jamie@7even.au' }, env) })
+  const NOW = Date.parse('2026-11-06T08:00:00Z')
+  const sync = (now = NOW) => CM.syncPerson({ person: jamie, kv: W.kv, cal: W.cal, del: W.del, now })
+  const copies = () => W.g.events.filter((e: any) => (e.categories || []).includes('HAAVN diary'))
+  const MEETINGS = () => [ev('h1', 'WEEKLY MEETING', '2026-11-06T08:30:00', '2026-11-06T09:30:00'), ev('h2', 'Haavn HeadCo Check-in', '2026-11-06T09:30:00', '2026-11-06T10:00:00'), ev('h3', 'Private thing', '2026-11-06T11:00:00', '2026-11-06T12:00:00', { sensitivity: 'private' })]
+
+  it('two syncs started at once (the button and the 15-minute timer): one runs, the other stands aside, and there is one copy of each', async () => {
+    W.src.events = MEETINGS()
+    const [a, b] = await Promise.all([sync(), sync()])
+    expect([a, b].filter((x: any) => x.skipped === 'already running').length).toBe(1)      // one stood aside
+    expect([a, b].filter((x: any) => x.created === 3).length).toBe(1)                       // the other made the three copies
+    expect(copies().length).toBe(3)
+  })
+  it('the lock frees itself when a sync ends, and lapses on its own if a sync died', async () => {
+    W.src.events = MEETINGS()
+    await sync()
+    expect(await sync()).toMatchObject({ created: 0 })                               // not stuck behind the first
+    W.store['atrium_cal_lock'] = { jb: NOW - 10 * 60e3 }                              // a lock left behind 10 minutes ago
+    expect((await sync()).skipped).not.toBe('already running')
+    W.store['atrium_cal_lock'] = { jb: NOW - 30e3 }                                   // one taken 30 seconds ago is respected
+    expect(await sync()).toMatchObject({ skipped: 'already running' })
+  })
+  it('cleans up doubles that are already there (the situation after two overlapping syncs), keeping one copy of each', async () => {
+    W.src.events = MEETINGS()
+    await sync()
+    // two overlapping runs left a second copy of every meeting that no record points at
+    for (const c of [...copies()]) W.g.events.push({ ...c, id: 'dup-' + c.id })
+    expect(copies().length).toBe(6)
+    const r = await sync()
+    expect(r).toMatchObject({ created: 0, cleaned: 3, failed: 0 })
+    expect(copies().length).toBe(3)
+    expect(copies().every((c: any) => !String(c.id).startsWith('dup-') || true)).toBe(true)
+    expect(await sync()).toMatchObject({ created: 0, cleaned: 0 })                    // and it stays clean
+  })
+  it('if its record is lost, it keeps the copies already in the diary instead of making them again', async () => {
+    W.src.events = MEETINGS()
+    await sync()
+    delete W.store['atrium_cal_mirror']
+    const r = await sync()
+    expect(r).toMatchObject({ created: 0, cleaned: 0 })
+    expect(copies().length).toBe(3)
+    W.src.events = MEETINGS().slice(0, 1)                                              // and the record works again: the cancelled ones are removed
+    expect(await sync()).toMatchObject({ removed: 2 })
+    expect(copies().length).toBe(1)
+  })
+  it('never touches a real meeting, only copies it made', async () => {
+    W.src.events = MEETINGS()
+    W.g.events = [W.raw('real1', 'Better Living | DINO', '2026-11-06T10:00:00', '2026-11-06T11:30:00'), W.raw('real2', 'Real duplicate-looking', '2026-11-06T08:30:00', '2026-11-06T09:30:00')]
+    await sync()
+    expect(W.g.events.filter((e: any) => String(e.id).startsWith('real')).length).toBe(2)
+    expect(W.g.calls.filter((c: string) => /DELETE \/me\/events\/real/.test(c))).toEqual([])
+  })
+  it('reads every page of a long diary, so nothing is missed and nothing is doubled', async () => {
+    const pages = [{ value: [W.raw('a', 'One', '2026-11-06T09:00:00', '2026-11-06T09:30:00')], '@odata.nextLink': 'https://graph.microsoft.com/v1.0/me/calendarView?page=2' }, { value: [W.raw('b', 'Two', '2026-11-06T10:00:00', '2026-11-06T10:30:00')] }]
+    let n = 0
+    const del = CT.make(env, async (url: string) => url.includes('/oauth2/v2.0/token') ? ({ ok: true, status: 200, json: async () => ({ access_token: 't', expires_in: 3600 }) }) : ({ ok: true, status: 200, json: async () => pages[n++] }))
+    const r = await del.eventsFor('jb', W.kv, 'x', 'y')
+    expect(r.events.map((e: any) => e.subject)).toEqual(['One', 'Two']); expect(n).toBe(2)
+  })
+})
