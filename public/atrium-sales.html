@@ -449,6 +449,7 @@ label.f input,label.f select,label.f textarea{text-transform:none;letter-spacing
 .kcard.drag{opacity:.35}
 .alist .kcard{width:100%;text-align:left}
 body.embed .brand{display:none}
+body.inchat .tbr{margin-right:132px}   /* Chat's own Close Sales button sits in this corner */
 body.embed .tb{padding-left:20px}
 body.embed .wrap{padding-top:22px}
 @media(max-width:900px){.grid2,.grid3,.formgrid{grid-template-columns:1fr}}
@@ -532,6 +533,7 @@ if(!EMBED&&!/[?&]desktop=1/.test(location.search)&&window.matchMedia('(max-width
 /* theme: dark unless ATRIUM says otherwise. Inside ATRIUM it takes whatever the parent shows, so the two never disagree */
 /* Inside ATRIUM Chat the page is given Chat's own Dark / Light (?sch=), follows it when it changes, and its Dark / Light button changes the whole of Chat with it */
 var CHATSCH=(location.search.match(/[?&]sch=(light|dark)\b/)||[])[1]||'';
+if(CHATSCH)document.body.classList.add('inchat');
 function applyTheme(){
   var t='dark';
   try{t=localStorage.getItem('atrium_theme')||'dark'}catch(e){}
