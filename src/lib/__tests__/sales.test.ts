@@ -957,3 +957,47 @@ describe('changing a customer\'s status: lost at any stage, back a stage, delete
     expect(await get(l.id)).toBeUndefined()
   })
 })
+
+describe('the follow-up date and time', () => {
+  const HOUR = 36e5
+  const setFu = (id: string, fu: number, who: any = jamie) => run('saveLead', { lead: { id, fu } }, who)
+  it('a salesperson sets when they will follow up, and it is written on the customer', async () => {
+    const l = await mkLead('fu1'); await run('saveLead', { lead: { id: l.id, stage: 1 } })
+    const when = Date.now() + 26 * HOUR
+    const r = (await setFu(l.id, when)).lead
+    expect(r.fu).toBe(Math.round(when))
+    expect(r.act.some((a: any) => /Follow-up set for .* by Jamie Baldwin/.test(a.x))).toBe(true)
+  })
+  it('will not take a time that has already passed, or one years away', async () => {
+    const l = await mkLead('fu2')
+    await expect(setFu(l.id, Date.now() - 2 * HOUR)).rejects.toThrow(/in the future/)
+    await expect(setFu(l.id, Date.now() + 800 * 864e5)).rejects.toThrow(/in the future/)
+    expect((await get(l.id)).fu || 0).toBe(0)
+  })
+  it('can be changed and cleared, and each change is logged; saving something else leaves it alone', async () => {
+    const l = await mkLead('fu3')
+    const a = Date.now() + 5 * HOUR, b = Date.now() + 30 * HOUR
+    await setFu(l.id, a)
+    const r2 = (await setFu(l.id, b)).lead
+    expect(r2.fu).toBe(Math.round(b))
+    const r3 = (await run('saveLead', { lead: { id: l.id, first: 'Mia' } })).lead
+    expect(r3.fu).toBe(Math.round(b))
+    const r4 = (await setFu(l.id, 0)).lead
+    expect(r4.fu).toBe(0)
+    expect(r4.act.filter((x: any) => /Follow-up/.test(x.x)).length).toBe(3)
+  })
+  it('a move to the next stage starts a fresh follow-up (the old date belonged to the old stage)', async () => {
+    const l = await mkLead('fu4')
+    await run('saveLead', { lead: { id: l.id, stage: 1 } })
+    await setFu(l.id, Date.now() + 6 * HOUR)
+    const moved = (await run('saveLead', { lead: { id: l.id, stage: 2 } })).lead
+    expect(moved.fu || 0).toBe(0)
+    const both = (await run('saveLead', { lead: { id: l.id, stage: 2, fu: Date.now() + 40 * HOUR } })).lead   // set on the move itself, it is kept
+    expect(both.fu).toBeGreaterThan(Date.now())
+  })
+  it('the customer\'s own salesperson can set it on their customers; one who cannot see the customer cannot', async () => {
+    const l = await mkLead('fu5')
+    expect((await setFu(l.id, Date.now() + 8 * HOUR, mike)).lead.fu).toBeGreaterThan(Date.now())
+    await expect(setFu(l.id, Date.now() + 8 * HOUR, agentSession('stranger@example.com'))).rejects.toThrow()
+  })
+})

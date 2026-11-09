@@ -43,9 +43,10 @@ describe('what each customer needs next', () => {
     expect(H.itemOf(lead({ stage: 2 })).txt).toBe('Send the pre-order')
     expect(H.itemOf(lead({ stage: 0 })).k).toBe('call')
   })
-  it('a new enquiry is late after an hour', () => {
-    expect(H.itemOf(lead({ stage: 0, created: NOW - 30 * 60000 })).over).toBe(false)
-    expect(H.itemOf(lead({ stage: 0, created: NOW - 3 * HOUR })).over).toBe(true)
+  it('a new enquiry is late after 24 hours', () => {
+    expect(H.itemOf(lead({ stage: 0, created: NOW - 3 * HOUR, lastTouch: NOW - 3 * HOUR })).over).toBe(false)
+    expect(H.itemOf(lead({ stage: 0, created: NOW - 23 * HOUR, lastTouch: NOW - 23 * HOUR })).over).toBe(false)
+    expect(H.itemOf(lead({ stage: 0, created: NOW - 25 * HOUR, lastTouch: NOW - 25 * HOUR })).over).toBe(true)
   })
   it('a money step is chased until the payment is recorded, then it is Finance\'s to approve', () => {
     const waiting = H.itemOf(lead({ stage: 3, gate: 'pre', paid: false }))
@@ -153,7 +154,7 @@ describe('the words', () => {
 
 describe('the status under a customer', () => {
   it('shows how long they have waited, or where the home is', () => {
-    expect(H.status(lead({ stage: 0, created: NOW - 3 * HOUR })).c).toBe('over')
+    expect(H.status(lead({ stage: 0, created: NOW - 30 * HOUR, lastTouch: NOW - 30 * HOUR })).c).toBe('over')
     expect(H.status(lead({ stage: 7, order: { step: 2 } })).sh).toBe('Building')
     expect(H.status(lead({ stage: 8, paid: false, order: { depart: NOW + 3 * DAY } })).t).toBe('Leaves port in 3d')
     expect(H.status(lead({ stage: 8, paid: false, order: { depart: NOW + 3 * DAY } })).c).toBe('over')
@@ -210,49 +211,73 @@ describe('an order of several homes on the phone', () => {
   })
 })
 
-describe('the Chat Sales badge counts only what is overdue', () => {
-  it('a customer inside their window is in "need you" but not late; once past it, they are late', () => {
-    setMe({ id: 'mf', admin: false })
-    // Contacted: qualify within 2 days
-    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 1, lastTouch: NOW - 6 * HOUR, gateAt: NOW - 6 * HOUR })]
-    expect(H.counts().need).toBe(1); expect(H.counts().late).toBe(0)
-    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 1, lastTouch: NOW - 3 * DAY, gateAt: NOW - 3 * DAY })]
-    expect(H.counts().late).toBe(1)
+describe('follow-ups: 24 hours by default, or the date and time the salesperson sets', () => {
+  it('with no follow-up set, a customer is due 24 hours after their last contact (a new enquiry: after it arrived)', () => {
+    expect(H.dueOf(lead({ stage: 0, created: NOW - 5 * HOUR, lastTouch: NOW - 5 * HOUR }))).toBe(NOW - 5 * HOUR + DAY)
+    expect(H.dueOf(lead({ stage: 1, lastTouch: NOW - 6 * HOUR }))).toBe(NOW - 6 * HOUR + DAY)
   })
-  it('nothing to do, or only things still inside their window, is 0', () => {
+  it('is not red inside the 24 hours, and red once past it', () => {
     setMe({ id: 'mf', admin: false })
-    H.S.leads = [lead({ id: 'n', owner: 'mf', stage: 2, lastTouch: NOW - 1 * DAY, gateAt: NOW - 1 * DAY }), lead({ id: 'm', owner: 'mf', stage: 1, lastTouch: NOW - 1 * HOUR })]
-    expect(H.counts().late).toBe(0)
-    H.S.leads = []
-    expect(H.counts().late).toBe(0)
+    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 0, created: NOW - 20 * HOUR, lastTouch: NOW - 20 * HOUR })]
+    expect(H.counts().overdue).toBe(0)
+    H.S.leads = [lead({ id: 'a', owner: 'mf', stage: 0, created: NOW - 26 * HOUR, lastTouch: NOW - 26 * HOUR })]
+    expect(H.counts().overdue).toBe(1)
+  })
+  it('a follow-up the salesperson set rules: red only once that date and time has passed, however old the last contact', () => {
+    setMe({ id: 'jb', admin: false })
+    const l = (fu: number) => lead({ id: 'c', owner: 'jb', stage: 1, lastTouch: NOW - 3 * DAY, fu })
+    H.S.leads = [l(NOW + 2 * HOUR)]; expect(H.counts().overdue).toBe(0); expect(H.itemOf(H.S.leads[0]).over).toBe(false)
+    H.S.leads = [l(NOW + 3 * DAY)]; expect(H.counts().overdue).toBe(0)
+    H.S.leads = [l(NOW - 1 * HOUR)]; expect(H.counts().overdue).toBe(1); expect(H.itemOf(H.S.leads[0]).over).toBe(true)
+  })
+  it('once they have been contacted after the follow-up time, the old date is spent and 24 hours from that contact applies', () => {
+    const spent = lead({ stage: 1, fu: NOW - 5 * HOUR, lastTouch: NOW - 1 * HOUR })
+    expect(H.dueOf(spent)).toBe(NOW - 1 * HOUR + DAY)
+    setMe({ id: 'jb', admin: false }); H.S.leads = [{ ...spent, owner: 'jb' }]
+    expect(H.counts().overdue).toBe(0)
+  })
+  it('the follow-up only applies while they are Enquiry, Contacted or Qualified', () => {
+    expect(H.followed(lead({ stage: 1 }))).toBe(true)
+    expect(H.followed(lead({ stage: 3, gate: 'pre' }))).toBe(false)
+    expect(H.followed(lead({ stage: 1, status: 'lost' }))).toBe(false)
+    expect(H.followed(lead({ stage: 1, concept: true }))).toBe(false)
+  })
+  it('the words and quick choices for the picker', () => {
+    expect(H.fuQuick().map((q: any) => q[0])).toEqual(['In 2 hours', 'Tomorrow, 9am', 'In 2 days, 9am', 'Next Monday, 9am'])
+    expect(H.fuQuick().every((q: any) => q[1] > NOW)).toBe(true)
+    expect(H.whenText(NOW + 2 * HOUR)).toMatch(/^(Today|Tomorrow) \d{1,2}:\d{2}(am|pm)$/)
+    expect(H.toLocalInput(NOW)).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
   })
 })
 
-describe('the Chat badge: overdue customers, and a director sees the whole pipeline\'s', () => {
-  // Mike's new enquiry from a day ago: the only overdue customer. Jamie's Contacted customers are all inside their 2 days.
+describe('the badge is your own overdue customers: you 0, Mike 1', () => {
   const pipeline = () => [
-    lead({ id: 'robert', owner: 'mf', stage: 0, created: NOW - 1 * DAY, lastTouch: NOW - 1 * DAY }),
-    lead({ id: 'jess', owner: 'jb', stage: 1, lastTouch: NOW - 20 * HOUR }),
-    lead({ id: 'kerrie', owner: 'jb', stage: 1, lastTouch: NOW - 30 * HOUR }),
-    lead({ id: 'charli', owner: 'jb', stage: 1, lastTouch: NOW - 1 * DAY }),
-    lead({ id: 'len', owner: 'jb', stage: 1, lastTouch: NOW - 40 * HOUR }),
+    lead({ id: 'robert', owner: 'mf', stage: 0, created: NOW - 30 * HOUR, lastTouch: NOW - 30 * HOUR }),     // Mike's new enquiry, over 24 hours: overdue
+    lead({ id: 'jess', owner: 'jb', stage: 1, lastTouch: NOW - 3 * DAY, fu: NOW + 1 * DAY }),                 // Jamie's, follow-up set for tomorrow: on time
+    lead({ id: 'kerrie', owner: 'jb', stage: 1, lastTouch: NOW - 5 * HOUR }),                                 // Jamie's, contacted this morning: on time
+    lead({ id: 'charli', owner: 'jb', stage: 2, lastTouch: NOW - 2 * DAY, fu: NOW + 2 * DAY }),
+    lead({ id: 'len', owner: 'jb', stage: 1, lastTouch: NOW - 10 * HOUR }),
   ]
-  it('a director sees the one overdue enquiry, not 5 and not 0', () => {
+  it('a director sees only their own: 0, even though Mike has one overdue', () => {
     setMe({ id: 'jb', name: 'Jamie Baldwin', admin: true, gates: [], roles: [] })
     H.S.leads = pipeline()
-    expect(H.counts().overdue).toBe(1)
-    expect(H.counts().need).toBeGreaterThan(1)   // the other four are waiting their turn, which no longer lights the badge
+    expect(H.counts().overdue).toBe(0)
   })
-  it('the salesperson sees their own overdue ones', () => {
+  it('Mike sees his own one', () => {
     setMe({ id: 'mf', admin: false })
     H.S.leads = pipeline()
     expect(H.counts().overdue).toBe(1)
-    setMe({ id: 'jb', name: 'Jamie Baldwin', admin: false })
-    expect(H.counts().overdue).toBe(0)   // not an admin, and none of Jamie's own are late
   })
-  it('is 0 when nothing is late', () => {
+  it('turns red for the owner only when the follow-up is missed, and clears as soon as they act', () => {
     setMe({ id: 'jb', admin: true })
-    H.S.leads = pipeline().slice(1)
+    H.S.leads = pipeline().map((l: any) => (l.id === 'jess' ? { ...l, fu: NOW - 1 * HOUR } : l))               // the follow-up time passed
+    expect(H.counts().overdue).toBe(1)
+    H.S.leads = pipeline().map((l: any) => (l.id === 'jess' ? { ...l, fu: NOW + DAY, lastTouch: NOW } : l))    // followed up, next one set
     expect(H.counts().overdue).toBe(0)
+  })
+  it('the need-you list is still everything waiting, but only overdue lights the badge', () => {
+    setMe({ id: 'jb', admin: true })
+    H.S.leads = pipeline()
+    expect(H.counts().need).toBeGreaterThan(H.counts().overdue)
   })
 })

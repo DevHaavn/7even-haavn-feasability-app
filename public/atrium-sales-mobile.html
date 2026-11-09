@@ -255,7 +255,7 @@ window.addEventListener('unhandledrejection',function(e){window.__hbsFail((e&&e.
   <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-<script src="/atrium-sales-core.js?v=4"></script>
+<script src="/atrium-sales-core.js?v=5"></script>
 <script>
 (function(){
 'use strict';
@@ -379,7 +379,7 @@ function head(){
   var t=titleFor(),back=EMB==='chat'||EMB==='hb'||EMB==='hm';
   $('#head').innerHTML='<div class="sh">'+(back?'<button class="ibtn" data-a="exit" aria-label="'+(EMB==='chat'?'Back to Chat':'Close')+'">'+ic('back',null,22)+'</button>':'')+'<h1><small>'+t[0]+'</small>'+t[1]+'</h1><span class="savedpill">Saved</span><button class="ibtn" data-a="flip" aria-label="'+(curTheme()==='light'?'Switch to dark':'Switch to light')+'">'+flipIcon()+'</button><button class="me" data-a="menu" aria-label="Menu">'+esc(H.ini(S.me.name))+'</button></div>';pill()}
 function tabs(){
-  var c=H.counts(),list=[['today','day','Today',c.need],['pipe','pipe','Pipeline',0]];
+  var c=H.counts(),list=[['today','day','Today',c.overdue],['pipe','pipe','Pipeline',0]];
   if(H.hasApprovals())list.push(['appr','appr','Approvals',c.approvals]);
   if(EMB==='chat')list.push(['chat','chat','Chat',0]);else if(!EMB)list.push(['chat','chat','Chat',0]);
   $('#tabs').innerHTML=list.map(function(t){return '<button class="'+(UI.tab===t[0]?'on':'')+'" data-a="tab" data-k="'+t[0]+'">'+ic(t[1],'',22)+'<span>'+t[2]+'</span>'+(t[3]?'<i class="bdg">'+t[3]+'</i>':'')+'</button>'}).join('');
@@ -490,7 +490,10 @@ function nowCard(l){
     if(l.stage===2&&l.preMail)sec+='<div class="banner">Pre-order email sent '+esc(H.ago(l.preMail.at))+' by '+esc(l.preMail.by)+'. They have not been moved on yet.</div>'}
   if(l.concept)sec+='<button class="btn" data-a="toSolum" data-id="'+l.id+'">Convert to SOLUM sales</button>';
   sec+='<button class="btn ghost" data-a="note" data-id="'+l.id+'">'+ic('note')+'Add a note</button>';
-  return '<div class="card now"><div class="eb">Right now</div><div class="q">'+q+'</div><div class="s">'+sub+'</div><div class="row"><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.label)+'</span></button>'+sec+'</div></div>'}
+  var fu='';
+  if(H.followed(l)){var due=H.dueOf(l),over=H.now()>due,set=!!(l.fu&&l.fu>=(l.lastTouch||0));
+    fu='<div class="banner" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;'+(over?'border-color:var(--bad);color:var(--bad)':'')+'"><span style="flex:1;min-width:150px"><b>Follow up: '+esc(H.whenText(due))+'</b><br><small>'+(over?'Overdue.':set?'Set by you.':'Default: 24 hours after the last contact.')+'</small></span><button class="btn sm" data-a="fusheet" data-id="'+l.id+'">'+(set?'Change':'Set a date and time')+'</button></div>'}
+  return '<div class="card now"><div class="eb">Right now</div><div class="q">'+q+'</div><div class="s">'+sub+'</div>'+fu+'<div class="row"><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.label)+'</span></button>'+sec+'</div></div>'}
 function renderLead(){
   var el=$('#lead'),l=UI.lead&&H.lead(UI.lead);
   if(!l){el.classList.remove('on');el.setAttribute('aria-hidden','true');return}
@@ -642,6 +645,7 @@ function sheetReview(l){
    foot:'<button class="btn primary block'+(all?'':' off')+'" id="apbtn" data-a="approve" data-id="'+l.id+'"><span>'+(all?'Approve':'Tick each check to approve')+'</span></button><button class="btn block" data-a="retsheet" data-id="'+l.id+'"><span>Return to '+esc(H.firstName(l.owner))+'</span></button>'},{k:'review',id:l.id})}
 function sheetRet(l){UI.sl=l.id;openSheet({eb:name(l),title:'Return to '+esc(H.firstName(l.owner)),body:'<p style="color:var(--ink3);font-size:13.5px;margin-bottom:14px">It goes back to the sales agent with your reason, and leaves the approvals queue until they resubmit it.</p><div class="chips" id="retc">'+H.RET.map(function(r){return '<button data-a="retchip" data-t="'+esc(r)+'">'+esc(r)+'</button>'}).join('')+'</div><label class="f"><span>Or say why</span><textarea class="in" id="rwhy" style="min-height:90px"></textarea></label>',foot:'<button class="btn primary block" data-a="retgo" data-id="'+l.id+'"><span>Return to '+esc(H.firstName(l.owner))+'</span></button>'},{k:'ret'})}
 function sheetConfirm(l,o){UI.sl=l.id;openSheet({eb:name(l),title:o.title,body:'<p style="color:var(--ink2);font-size:14.5px;line-height:1.5">'+esc(o.text)+'</p>',foot:'<button class="btn primary block" data-a="'+o.go+'" data-id="'+l.id+'"><span>'+esc(o.yes)+'</span></button><button class="btn block" data-a="close"><span>Not yet</span></button>'},{k:'confirm'})}
+function sheetFollow(l){UI.sl=l.id;openSheet({eb:name(l),title:'When will you follow up?',body:'<div class="hint" style="margin:0 0 10px">Pick a date and time. With none set, they are due 24 hours after your last contact. If it passes without a follow-up, they go red.</div><div class="chips" id="fu_q">'+H.fuQuick().map(function(q){return '<button data-a="fupick" data-t="'+q[1]+'">'+esc(q[0])+'</button>'}).join('')+'</div><label class="f"><span>Or choose a date and time</span><input class="in" id="fu_dt" type="datetime-local"></label><div class="hint" id="fu_sel" style="margin:6px 0 0"></div>',foot:'<button class="btn primary block" data-a="fusave" data-id="'+l.id+'"><span>Set follow-up</span></button>'},{k:'fu'})}
 function sheetLost(l){UI.sl=l.id;openSheet({eb:name(l),title:'Why was it lost?',body:'<div class="chips">'+H.LOST.map(function(w){return '<button data-a="losewhy" data-id="'+l.id+'" data-w="'+esc(w)+'">'+esc(w)+'</button>'}).join('')+'</div><div class="lbl2" style="margin-top:6px">Not a real customer?</div><div class="chips"><button data-a="losewhy" data-id="'+l.id+'" data-w="Test lead">Test lead</button></div><div class="hint" style="margin:0">A test lead is left out of every number and list.</div>'},{k:'lost'})}
 function sheetNew(){
   var internal=H.isInternal();
@@ -673,7 +677,7 @@ function advance(l){
   if(!needNet())return Promise.resolve();
   if(l.stage===1&&!l.qual){sheetQual(l);return Promise.resolve()}
   if(l.stage>=3||l.gate||l.concept)return Promise.resolve();var to=l.stage+1;
-  return save(l,{stage:to,lastTouch:H.now(),act:[act(l,'Moved to '+ST[to].n+' by '+S.me.name+'.')]}).then(function(r){if(r)toast(name(l)+' is now at '+ST[to].n+'.');return r})}
+  return save(l,{stage:to,lastTouch:H.now(),act:[act(l,'Moved to '+ST[to].n+' by '+S.me.name+'.')]}).then(function(r){if(r){toast(name(l)+' is now at '+ST[to].n+'.');if(to<=2)setTimeout(function(){sheetFollow(l)},350)}return r})}
 function openLead(id){
   if(!H.lead(id))return;UI.lead=id;UI.open.log=UI.open.log!==false;renderLead();lay('lead');
   var s=$('#lead .scroll');if(s)s.scrollTop=0}
@@ -704,7 +708,7 @@ var A={
  callsave:function(t){var l=cur(t);if(!l)return;var oc=($('#outc .on')||{}).dataset.t||'Spoke to them',v=($('#ntxt').value||'').trim(),spoke=oc==='Spoke to them';
    var txt='Called. '+(spoke?'Spoke to '+l.first+'.':oc+'.')+(v?' '+v:''),patch={act:[act(l,txt,'call')],lastTouch:H.now()};UI.pend=null;
    if(spoke&&l.stage===0&&!l.gate&&!l.concept){if(!needNet())return;patch.stage=1;patch.act.push(act(l,'Moved to Contacted by '+S.me.name+'.'))}
-   closeSheet();save(l,patch).then(function(){toast(patch.stage?l.first+' is now Contacted.':UI.offline?'Kept on your phone.':'Call noted')})},
+   closeSheet();save(l,patch).then(function(){toast(patch.stage?l.first+' is now Contacted.':UI.offline?'Kept on your phone.':'Call noted');if(patch.stage)setTimeout(function(){sheetFollow(l)},350)})},
  /* qualify */
  qualify:function(t){var l=cur(t);if(l)sheetQual(l)},
  qchip:function(t){$$('#'+t.dataset.g+' button').forEach(function(b){b.classList.toggle('on',b===t)})},
@@ -715,7 +719,7 @@ var A={
    if(!q.land||!q.fin||!q.time||!q.note){toast('Choose the site, finance and timing, and say what they told you.',true);return}
    var first=l.stage<2,deliv=g('q_deliv')||l.deliv,txt=(first?'Qualified. ':'Qualification updated. ')+'Site: '+q.land+'. Finance: '+q.fin+'. Timing: '+q.time+'. Next: '+nx[1]+'. '+q.note;
    var patch={qual:q,deliv:deliv,lastTouch:H.now(),act:[act(l,txt,'note')]};if(first){patch.stage=2;patch.act.push(act(l,'Moved to '+ST[2].n+' by '+S.me.name+'.'))}
-   closeSheet();save(l,patch).then(function(){toast(first?l.first+' is qualified. Their details are saved.':'Saved')})},
+   closeSheet();save(l,patch).then(function(){toast(first?l.first+' is qualified. Their details are saved.':'Saved');if(first)setTimeout(function(){sheetFollow(l)},350)})},
  /* pre-order email */
  preorder:function(t){var l=cur(t);if(!l)return;if(!l.email){toast('Add '+l.first+'’s email first (Customer and site).',true);if(!UI.lead)openLead(l.id);else{UI.open.cust=true;renderLead()}return}if(!H.isSolum(l)){toast('Choose their SOLUM home first. OCTA is concept only.',true);return}if(UI.sheet)closeSheet();sheetPre(l)},
  prevtoggle:function(){var m=UI.sheet;if(!m)return;m.show=!m.show;drawPre()},
@@ -756,6 +760,10 @@ var A={
  handover:function(t){var l=cur(t);if(!l)return;sheetConfirm(l,{title:'Send the handover?',text:'Send the handover for '+name(l)+' to projects@haavn.au now.',go:'handovergo',yes:'Send the handover'})},
  handovergo:function(t){var l=cur(t);if(!l||!needNet())return;H.api('handover',{id:l.id}).then(function(j){put(j.lead);sentSheet('Handover sent','The projects team has it.');render()}).catch(fail)},
  resubmit:function(t){var l=cur(t);if(!l||!needNet())return;gateCall(l,'resubmit').then(function(){toast('Resubmitted. It is back in the approvals queue.');render()}).catch(function(e){fail(e);H.load().then(render)})},
+ /* follow-up */
+ fusheet:function(t){var l=cur(t);if(l)sheetFollow(l)},
+ fupick:function(t){$$('#fu_q button').forEach(function(b){b.classList.toggle('on',b===t)});var at=+t.dataset.t,i=$('#fu_dt');if(i)i.value=H.toLocalInput(at);var s=$('#fu_sel');if(s)s.textContent='Follow up: '+H.whenText(at)},
+ fusave:function(t){var l=cur(t);if(!l)return;var v=($('#fu_dt')||{}).value,at=v?new Date(v).getTime():0;if(!at){toast('Pick a date and time.',true);return}if(at<H.now()+60000){toast('Pick a time in the future.',true);return}if(!needNet())return;closeSheet();save(l,{fu:at}).then(function(){toast('Follow-up set for '+H.whenText(at))})},
  /* stage, lost */
  advance:function(t){var l=cur(t);if(!l)return;closeSheet();advance(l)},
  lose:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetLost(l)},60)},

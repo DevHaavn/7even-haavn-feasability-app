@@ -343,6 +343,7 @@ textarea{width:100%;resize:vertical;min-height:64px}
 .swb:hover{border-color:var(--edge)}
 .swb.on{border-color:var(--ink);background:var(--hov);color:var(--ink)}
 .hmlock{margin:-4px 0 0 130px}
+.fu{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border:1px solid var(--edge2);border-radius:6px}.fu b{font-weight:500;color:var(--ink)}.fu.over{border-color:color-mix(in srgb,var(--bad,#e5736a) 55%,transparent)}.fu.over b,.fu.over .small{color:var(--bad,#e5736a)}.fu .sp{flex:1}
 .oline{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--edge2);border-radius:6px}
 .olh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.olh .sp{flex:1}
 .olp{font-size:12.5px;color:var(--ink3)}.olp b{color:var(--ink);font-weight:500}
@@ -575,9 +576,9 @@ var PORTS={VIC:'Port of Melbourne',QLD:'Port of Brisbane'};
 /* four chapters of the journey, each one of the website's own colours; the gold $ marks where the customer pays */
 var PH={discover:{n:'Discover',c:'#7cb5c0',g:'1/4'},commit:{n:'Commit',c:'#d9a54f',g:'4/7'},secure:{n:'Secure',c:'#96b483',g:'7/9'},deliver:{n:'Deliver',c:'#c2747a',g:'9/11'}};
 var ST=[
- {n:'Enquiry',ph:'discover',note:'Call within 1 hour',sla:1/24},
- {n:'Contacted',ph:'discover',note:'Qualify within 2 days',sla:2},
- {n:'Qualified',ph:'discover',note:'Send the pre-order within 2 days',sla:2},
+ {n:'Enquiry',ph:'discover',note:'Call within 24 hours',sla:1},
+ {n:'Contacted',ph:'discover',note:'Follow up on the date you set',sla:1},
+ {n:'Qualified',ph:'discover',note:'Follow up on the date you set',sla:1},
  {n:'Pre-order deposit',ph:'commit',note:'Finance confirms the deposit',money:1},
  {n:'Contract out',ph:'commit',note:'Alessia issues and files'},
  {n:'Contract signed',ph:'commit',note:'10% invoice, then payment',money:1},
@@ -695,9 +696,14 @@ function phc(i){return PH[ST[i].ph].c}
 function reachDate(l,k){return l.dates&&l.dates[k]}
 
 /* what a customer is waiting on, and for how long */
+/* While a customer is Enquiry, Contacted or Qualified, the next follow-up is due at the date and time the salesperson set (l.fu), as long as it is still after their last contact;
+   with none set it is 24 hours after the last contact (or after the enquiry came in). Past that time the customer is overdue and goes red. (Same rule as atrium-sales-core.js.) */
+function dueOf(l){if(l.fu&&l.fu>=(l.lastTouch||0))return l.fu;return (l.stage===0?l.created:(l.lastTouch||(l.dates&&l.dates[l.stage])||l.created))+DAY}
+function followed(l){return l.stage<=2&&!l.gate&&!l.concept&&l.status==='open'}
+function whenText(ms){var d=new Date(ms),t=new Date(now()),tm=new Date(now()+DAY),same=function(a,b){return a.toDateString()===b.toDateString()},h=d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true}).replace(' am','am').replace(' pm','pm');return (same(d,t)?'Today':same(d,tm)?'Tomorrow':d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}))+' '+h}
 function sinceOf(l){return l.stage===0?l.created:(l.stage<=2?(l.lastTouch||(l.dates&&l.dates[l.stage])||l.created):(l.gateAt||l.lastTouch||l.created))}
 function slaOf(l){
-  if(l.stage<=2)return ST[l.stage].sla;
+  if(l.stage<=2)return (dueOf(l)-sinceOf(l))/DAY;
   if(l.gate){var g=G[l.gate];return (g.money&&!l.paid&&g.csla)?g.csla:g.sla}
   return null;
 }
@@ -710,7 +716,7 @@ function itemOf(l){
     if(g.wait){it.k='chase';it.txt=g.ask;it.sla=g.sla}
     else if(g.money&&!l.paid){it.k='chase';it.txt=g.chase;it.sla=g.csla||g.sla}
     else{it.k='approve';it.txt=g.ask;it.sla=g.sla}
-  }else if(l.stage<=2){it.k='call';it.role='sales';it.txt=['Call the customer','Qualify: site, finance and timing','Send the pre-order'][l.stage];it.sla=ST[l.stage].sla;it.amt=price(l)}
+  }else if(l.stage<=2){it.k='call';it.role='sales';it.txt=['Call the customer','Qualify: site, finance and timing','Send the pre-order'][l.stage];it.sla=(dueOf(l)-sinceOf(l))/DAY;it.due=dueOf(l);it.amt=price(l)}
   else if(l.stage===7&&l.order){
     var o=l.order;
     if(!o.handoverAt){it.k='handover';it.role='con';it.txt='Send the handover to projects';it.sla=1;it.amt=price(l);it.age=(now()-(l.gateAt||l.lastTouch||l.created))/DAY}
@@ -841,7 +847,7 @@ function gateCall(l,op,extra){
 function advance(l){
   if(l.stage===1&&!l.qual){UI.modal={t:'qual',id:l.id};render();return Promise.resolve()}   /* the Qualify form: the button's own handler skips the redraw, so it is done here */
   var from=l.stage,to=from+1,e=addAct(l,'Moved to '+ST[to].n+' by '+S.me.name+'.');
-  return saveLead(l,{stage:to,lastTouch:now(),act:[e]}).then(function(r){if(r)toast(full(l)+' is now at '+ST[to].n+(to===3?'. Finance will confirm the pre-order deposit.':'.'))});
+  return saveLead(l,{stage:to,lastTouch:now(),act:[e]}).then(function(r){if(r){toast(full(l)+' is now at '+ST[to].n+(to===3?'. Finance will confirm the pre-order deposit.':'.'));if(to>=1&&to<=2){UI.modal={t:'fu',id:l.id,at:0};render()}}});
 }
 
 /* ---------- the top bar ---------- */
@@ -1235,6 +1241,14 @@ function manageCard(l){
   if(!b)return '';
   return '<div class="nc card"><div class="tag" style="margin-bottom:10px">Change status</div><div class="row wrapx">'+b+'</div><div class="small" style="margin-top:10px">Mark lost is for a real customer who did not buy, and counts as a missed lead. Delete is for a test or a double and counts as nothing.'+(canBack(l)?'':' A director moves a customer back once they are past Qualified.')+'</div></div>'
 }
+function toLocalInput(ms){var d=new Date(ms),p=function(n){return n<10?'0'+n:''+n};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
+function fuQuick(){var n=new Date(now()),d=function(days,h){return new Date(n.getFullYear(),n.getMonth(),n.getDate()+days,h,0,0).getTime()},mon=(8-n.getDay())%7||7;return [['In 2 hours',now()+2*HOUR],['Tomorrow, 9am',d(1,9)],['In 2 days, 9am',d(2,9)],['Next Monday, 9am',d(mon,9)]]}
+/* the follow-up: when the salesperson will next contact this customer. Past it, the customer is red. */
+function fuLine(l){
+  if(!followed(l))return '';
+  var due=dueOf(l),set=!!(l.fu&&l.fu>=(l.lastTouch||0)),over=now()>due;
+  return '<div class="fu'+(over?' over':'')+'"><span class="eb">Follow up</span><b>'+esc(whenText(due))+'</b><span class="small">'+(over?'overdue':set?'set by you':'default: 24 hours after the last contact')+'</span><span class="sp"></span><button class="btn sm" data-act="fumodal">'+(set?'Change':'Set a date and time')+'</button></div>'
+}
 function nowCard(l,it){
   var h='<div class="nc now"><div class="eb">Right now</div>',st=ST[l.stage],btns='';
   if(l.status==='lost')return h+'<div class="q">Lost. <span class="serif">'+esc(l.lostWhy||'')+'</span></div><button class="btn" data-act="reopen">Re-open this lead</button></div>';
@@ -1259,7 +1273,7 @@ function nowCard(l,it){
     return h+'<div class="q">'+inner+'</div><div class="row wrapx">'+(it&&it.k==='handover'&&isInternal()?'<button class="btn gold" data-act="handover">Send handover to projects@haavn.au</button>':'')+(isInternal()&&o.step<7&&!block?'<button class="btn '+(it&&it.k==='handover'?'':'gold')+'" data-act="advdel" data-id="'+l.id+'">Projects team: next delivery step</button>':'')+'<button class="btn" data-act="msg">Suggested message</button></div></div>';
   }
   var chk=(l.chk||{})[l.stage]||[];
-  return h+'<div class="q">'+esc(it?it.txt:st.n)+'. <span class="serif">'+esc(st.note)+'.</span></div>'+(l.stage===2?qualBox(l)+(l.preMail?'<div class="small" style="margin-bottom:10px">Pre-order email sent '+fmtDT(l.preMail.at)+' by '+esc(l.preMail.by)+'. It has not been moved on yet.</div>':''):'')+'<div style="margin-bottom:12px">'+(STAGECHK[l.stage]||[]).map(function(c,i){return '<div class="ck '+(chk[i]?'on':'')+'" data-act="chk" data-i="'+i+'"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6.5l2.6 2.6L10 3.5"/></svg></i><span>'+esc(c)+'</span></div>'}).join('')+'</div><div class="row wrapx"><button class="btn gold" data-act="'+(l.stage===2?'preopen':'advance')+'">'+(l.stage===2?'Send the pre-order email':l.stage===1?'Qualify, with their details':'Done, move to '+esc(ST[l.stage+1].n))+' &rarr;</button><button class="btn" data-act="msg">Suggested message</button></div></div>';
+  return h+'<div class="q">'+esc(it?it.txt:st.n)+'. <span class="serif">'+esc(st.note)+'.</span></div>'+fuLine(l)+(l.stage===2?qualBox(l)+(l.preMail?'<div class="small" style="margin-bottom:10px">Pre-order email sent '+fmtDT(l.preMail.at)+' by '+esc(l.preMail.by)+'. It has not been moved on yet.</div>':''):'')+'<div style="margin-bottom:12px">'+(STAGECHK[l.stage]||[]).map(function(c,i){return '<div class="ck '+(chk[i]?'on':'')+'" data-act="chk" data-i="'+i+'"><i><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6.5l2.6 2.6L10 3.5"/></svg></i><span>'+esc(c)+'</span></div>'}).join('')+'</div><div class="row wrapx"><button class="btn gold" data-act="'+(l.stage===2?'preopen':'advance')+'">'+(l.stage===2?'Send the pre-order email':l.stage===1?'Qualify, with their details':'Done, move to '+esc(ST[l.stage+1].n))+' &rarr;</button><button class="btn" data-act="msg">Suggested message</button></div></div>';
 }
 function qualBox(l){
   var q=l.qual;if(!q)return '';
@@ -1315,6 +1329,7 @@ function renderModal(){
     h+='<div class="small" style="margin-bottom:6px">Subject: '+esc(pv.subject)+'</div><iframe title="Email preview" sandbox="" srcdoc="'+esc(pv.html)+'" style="width:100%;height:340px;border:1px solid var(--edge2);border-radius:4px;background:#000"></iframe>';
     h+='<div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn" data-act="pretest"'+ds1+'>Send me a test</button><button class="btn gold" data-act="presend"'+ds2+'>'+(bz?'Sending...':(lp.stage<3?'Send, and move to Pre-order deposit':'Send the email'))+' &rarr;</button></div>'}}
   else if(m.t==='origmail'){var lo=lead(m.id);h='<h4>The original <span class="serif">email</span></h4><p class="small">'+esc(lo?full(lo):'')+'</p>'+(m.mail.length?m.mail.map(function(e){return '<div class="nc card" style="margin-bottom:10px"><div class="small" style="margin-bottom:8px">'+fmtDT(e.at)+' · '+esc((e.from||'').replace(/<.*>/,''))+' · '+esc(e.subject||'')+'</div><div class="email">'+esc(e.body||'')+'</div></div>'}).join(''):'<div class="empty">No email was kept for this customer.</div>')+'<div class="foot"><button class="btn" data-act="mclose">Close</button></div>'}
+  else if(m.t==='fu'){var lf=lead(m.id);h='<h4>When will you <span class="serif">follow up</span> with '+esc(lf.first)+'?</h4><p class="lead">Pick the date and time. With none set, they are due 24 hours after your last contact. If it passes without a follow-up, they go red.</p><div class="pick">'+fuQuick().map(function(q){return '<button class="'+(m.at===q[1]?'on':'')+'" data-act="fupick" data-t="'+q[1]+'">'+q[0]+'</button>'}).join('')+'</div><label class="f">Or choose a date and time<input id="fu_dt" type="datetime-local" data-chg="fudt" value="'+(m.at?toLocalInput(m.at):'')+'"></label>'+(m.at?'<div class="small" style="margin:6px 0">Follow up: <b>'+esc(whenText(m.at))+'</b></div>':'')+'<div class="foot"><button class="btn" data-act="mclose">'+(lf.fu?'Cancel':'Not now')+'</button><button class="btn gold '+(m.at?'':'off')+'" data-act="fusave">Set follow-up</button></div>'}
   else if(m.t==='back'){var lb=lead(m.id);h='<h4>Move <span class="serif">'+esc(lb.first)+'</span> back</h4><p class="lead">Now at '+esc(ST[lb.stage].n)+'. Pick the stage to put them at. Their notes, details and what they told you stay.'+((lb.maxStage||0)>=4?' A deposit has been confirmed on this customer. Moving back does not refund or undo it.':'')+'</p><div class="pick">'+ST.slice(0,lb.stage).map(function(s,i){return '<button data-act="backto" data-s="'+i+'">'+pad(i+1)+' · '+esc(s.n)+'</button>'}).join('')+'</div><div class="foot"><button class="btn" data-act="mclose">Cancel</button></div>'}
   else if(m.t==='del'){var ld=lead(m.id),paidd=(ld.maxStage||0)>=4||ld.paid;h='<h4>Delete <span class="serif">'+esc(full(ld))+'</span>?</h4>'+(paidd?'<p class="lead">A deposit has been confirmed on this customer, so they cannot be deleted. Mark them lost instead.</p><div class="foot"><button class="btn" data-act="mclose">Close</button></div>':'<p class="lead">This removes the customer, their notes and their open tasks for good. It cannot be undone, and it does not count as a lost or missed lead. Use it for a test or a double. For a real customer who did not buy, use Mark lost.</p><div class="pick">'+['Test lead','Double up','Entered by mistake'].map(function(w){return '<button class="'+(m.why===w?'on':'')+'" data-act="delwhy" data-w="'+w+'">'+w+'</button>'}).join('')+'</div><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn red '+(m.why?'':'off')+'" data-act="delgo" data-id="'+ld.id+'">Delete for good</button></div>')}
   else if(m.t==='lose'){var lz=lead(m.id);h='<h4>Why was it lost?</h4>'+(lz&&(lz.maxStage||0)>=4?'<p class="lead">A deposit has been confirmed on this customer. Marking them lost does not refund it: Finance needs to deal with the deposit.</p>':'')+'<div class="pills" style="margin-top:12px">'+['No site yet','Price','Timing','Bought elsewhere','Could not reach them','Not a fit for the land'].map(function(w){return '<button class="pickchip" data-act="losewhy" data-w="'+w+'">'+w+'</button>'}).join('')+'</div><div class="small" style="margin-top:14px">Not a real customer?</div><div class="pills" style="margin-top:8px"><button class="pickchip" data-act="losewhy" data-w="Test lead">Test lead</button></div><div class="small" style="margin-top:6px">A test lead is left out of every number and list.</div><div class="foot"><button class="btn" data-act="mclose">Cancel</button></div>'}
@@ -1381,12 +1396,15 @@ var A={
    if(l.stage===2&&!l.gate){return advance(l).then(function(){var c=lead(id);toast(c&&c.stage===3?'Pre-order email sent to '+l.first+'. They are now at Pre-order deposit.':'Pre-order email sent to '+l.first+'. Move them on when you are ready.')})}
    render();toast('Pre-order email sent to '+l.first+'.')}).catch(function(e){m.busy=false;fail(e);render()});return false},
  advance:function(){var l=lead(UI.lead);advance(l);return false},
- qualopen:function(t){UI.modal={t:'qual',id:t.dataset.id}},qualsave:function(){var l=lead(UI.modal.id),g=function(i){return ($('#'+i).value||'').trim()},q={land:g('qu_land'),fin:g('qu_fin'),time:g('qu_time'),note:g('qu_note'),next:g('qu_next')||'preorder',by:S.me.name,at:now()};if(!q.land||!q.fin||!q.time||!q.note){toast('Fill in the site, finance, timing and what they told you');return false}var nx=(QNEXT.filter(function(n){return n[0]===q.next})[0]||[0,''])[1],first=l.stage<2,txt=(first?'Qualified. ':'Qualification updated. ')+'Site: '+q.land+'. Finance: '+q.fin+'. Timing: '+q.time+'. Next: '+nx+'. '+q.note,e=addAct(l,txt,'note'),patch={qual:q,deliv:g('qu_deliv')||l.deliv,lastTouch:now(),act:[e]};l.qual=q;l.deliv=patch.deliv;if(first){patch.stage=2;var e2=addAct(l,'Moved to '+ST[2].n+' by '+S.me.name+'.');patch.act=[e,e2]}UI.modal=null;saveLead(l,patch).then(function(r){if(r)toast(first?full(l)+' is qualified. Their details are saved.':'Saved.')});return false},
+ qualopen:function(t){UI.modal={t:'qual',id:t.dataset.id}},qualsave:function(){var l=lead(UI.modal.id),g=function(i){return ($('#'+i).value||'').trim()},q={land:g('qu_land'),fin:g('qu_fin'),time:g('qu_time'),note:g('qu_note'),next:g('qu_next')||'preorder',by:S.me.name,at:now()};if(!q.land||!q.fin||!q.time||!q.note){toast('Fill in the site, finance, timing and what they told you');return false}var nx=(QNEXT.filter(function(n){return n[0]===q.next})[0]||[0,''])[1],first=l.stage<2,txt=(first?'Qualified. ':'Qualification updated. ')+'Site: '+q.land+'. Finance: '+q.fin+'. Timing: '+q.time+'. Next: '+nx+'. '+q.note,e=addAct(l,txt,'note'),patch={qual:q,deliv:g('qu_deliv')||l.deliv,lastTouch:now(),act:[e]};l.qual=q;l.deliv=patch.deliv;if(first){patch.stage=2;var e2=addAct(l,'Moved to '+ST[2].n+' by '+S.me.name+'.');patch.act=[e,e2]}UI.modal=null;saveLead(l,patch).then(function(r){if(r){toast(first?full(l)+' is qualified. Their details are saved.':'Saved.');if(first){UI.modal={t:'fu',id:l.id,at:0};render()}}});return false},
  chk:function(t){var l=lead(UI.lead),c=(l.chk=l.chk||{}),arr=(c[l.stage]=(c[l.stage]||[]).slice());arr[+t.dataset.i]=!arr[+t.dataset.i];c[l.stage]=arr;saveLead(l,{chk:c},true)},
  msg:function(){UI.modal={t:'msg',id:UI.lead}},
  mcopy:function(){var l=lead(UI.modal.id),v=$('#mtxt').value,ch=UI.modal.chase;try{navigator.clipboard.writeText(v)}catch(e){}var e=addAct(l,(ch?'Chased: ':'Sent message: ')+v.slice(0,90)+'...','note');UI.modal=null;saveLead(l,{act:[e],lastTouch:now(),chased:ch?now():l.chased});toast('Copied. Logged on the customer.');return false},
  msend:function(){var l=lead(UI.modal.id),v=$('#mtxt').value,sub=$('#msubj').value,ch=UI.modal.chase;api('emailCustomer',{id:l.id,subject:sub,body:v}).then(function(j){var i=S.leads.findIndex(function(x){return x.id===l.id});S.leads[i]=j.lead;UI.modal=null;if(ch)return saveLead(S.leads[i],{chased:now()},true).then(function(){render();toast('Emailed '+l.first+'. You are copied.')});render();toast('Emailed '+l.first+'. You are copied.')}).catch(fail);return false},
  lose:function(){UI.modal={t:'lose',id:UI.lead}},
+ fumodal:function(){UI.modal={t:'fu',id:UI.lead,at:0}},
+ fupick:function(t){UI.modal.at=+t.dataset.t},
+ fusave:function(){var m=UI.modal,l=lead(m.id),at=m.at;if(!at){toast('Pick a date and time');return false}if(at<now()+60000){toast('Pick a time in the future');return false}UI.modal=null;saveLead(l,{fu:at}).then(function(){toast('Follow-up set for '+whenText(at))});return false},
  backmodal:function(){UI.modal={t:'back',id:UI.lead}},
  backto:function(t){var l=lead(UI.modal.id),to=+t.dataset.s;UI.modal=null;saveLead(l,{stage:to}).then(function(){toast(l.first+' moved back to '+ST[to].n)});return false},
  delmodal:function(){UI.modal={t:'del',id:UI.lead,why:''}},
@@ -1613,6 +1631,7 @@ document.addEventListener('change',function(e){
   if(c.indexOf('rate:')===0){var rp=c.split(':'),ro={};ro[rp[1]]={};ro[rp[1]][rp[2]]=v;api('commissionSettings',{commission:{rates:ro}}).then(function(){toast('Rate saved. It applies to deals whose first half is not yet due.');return cmLoad()}).catch(function(e){fail(e);cmLoad()});return}
   if(c.indexOf('f:')===0){UI.f[c.slice(2)]=v;render();return}
   if(c==='paste'){UI.paste=v;UI.parsed=null;UI.cp=null;return}
+  if(c==='fudt'){if(UI.modal)UI.modal.at=v?new Date(v).getTime():0;render();return}
   if(c==='nlsrc'){var w=$('#nl_oth_w');if(w)w.style.visibility=v==='Other'?'visible':'hidden';return}
   if(c.indexOf('rule:')===0){var r={};r[c.slice(5)]=v;saveSettings({rules:r});return}
   if(c.indexOf('price:')===0){var p={};p[c.slice(6)]=v;saveSettings({prices:p});return}

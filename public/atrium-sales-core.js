@@ -33,9 +33,9 @@
   /* four chapters of the journey, each one of the website's own colours */
   C.PH = { discover: { n: 'Discover', c: '#7cb5c0' }, commit: { n: 'Commit', c: '#d9a54f' }, secure: { n: 'Secure', c: '#96b483' }, deliver: { n: 'Deliver', c: '#c2747a' } }
   C.ST = [
-    { n: 'Enquiry', ph: 'discover', note: 'Call within 1 hour', sla: 1 / 24 },
-    { n: 'Contacted', ph: 'discover', note: 'Qualify within 2 days', sla: 2 },
-    { n: 'Qualified', ph: 'discover', note: 'Send the pre-order within 2 days', sla: 2 },
+    { n: 'Enquiry', ph: 'discover', note: 'Call within 24 hours', sla: 1 },
+    { n: 'Contacted', ph: 'discover', note: 'Follow up on the date you set', sla: 1 },
+    { n: 'Qualified', ph: 'discover', note: 'Follow up on the date you set', sla: 1 },
     { n: 'Pre-order deposit', ph: 'commit', note: 'Finance confirms the deposit', money: 1 },
     { n: 'Contract out', ph: 'commit', note: 'Alessia issues and files' },
     { n: 'Contract signed', ph: 'commit', note: '10% invoice, then payment', money: 1 },
@@ -162,12 +162,28 @@
   }
 
   /* ---------- what a customer is waiting on, and for how long ---------- */
+  /* While a customer is Enquiry, Contacted or Qualified, the next follow-up is due at the date and time the salesperson set (l.fu), as long as it is still after their last contact;
+     with none set it is 24 hours after the last contact (or after the enquiry came in). Past that time, the customer is overdue and goes red. */
+  C.FOLLOW_MS = 24 * 3600e3
+  C.dueOf = function (l) {
+    if (l.fu && l.fu >= (l.lastTouch || 0)) return l.fu
+    return (l.stage === 0 ? l.created : (l.lastTouch || (l.dates && l.dates[l.stage]) || l.created)) + C.FOLLOW_MS
+  }
   C.sinceOf = function (l) { return l.stage === 0 ? l.created : (l.stage <= 2 ? (l.lastTouch || (l.dates && l.dates[l.stage]) || l.created) : (l.gateAt || l.lastTouch || l.created)) }
   C.slaOf = function (l) {
-    if (l.stage <= 2) return C.ST[l.stage].sla
+    if (l.stage <= 2) return (C.dueOf(l) - C.sinceOf(l)) / DAY
     if (l.gate) { var g = C.G[l.gate]; return (g.money && !l.paid && g.csla) ? g.csla : g.sla }
     return null
   }
+  /* the follow-up picker: quick choices and the words for a date and time */
+  C.fuQuick = function () { var n = new Date(C.now()), d = function (days, h) { return new Date(n.getFullYear(), n.getMonth(), n.getDate() + days, h, 0, 0).getTime() }, mon = (8 - n.getDay()) % 7 || 7; return [['In 2 hours', C.now() + 2 * 36e5], ['Tomorrow, 9am', d(1, 9)], ['In 2 days, 9am', d(2, 9)], ['Next Monday, 9am', d(mon, 9)]] }
+  C.toLocalInput = function (ms) { var d = new Date(ms), p = function (n) { return n < 10 ? '0' + n : '' + n }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()) }
+  C.whenText = function (ms) {
+    var d = new Date(ms), t = new Date(C.now()), tm = new Date(C.now() + DAY), same = function (a, b) { return a.toDateString() === b.toDateString() }
+    var h = d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' am', 'am').replace(' pm', 'pm')
+    return (same(d, t) ? 'Today' : same(d, tm) ? 'Tomorrow' : d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })) + ' ' + h
+  }
+  C.followed = function (l) { return l.stage <= 2 && !l.gate && !l.concept && l.status === 'open' }
   C.itemOf = function (l) {
     if (l.concept || l.status !== 'open' || l.stage >= 9) return null
     var now = C.now()
@@ -178,7 +194,7 @@
       if (g.wait) { it.k = 'chase'; it.txt = g.ask; it.sla = g.sla }
       else if (g.money && !l.paid) { it.k = 'chase'; it.txt = g.chase; it.sla = g.csla || g.sla }
       else { it.k = 'approve'; it.txt = g.ask; it.sla = g.sla }
-    } else if (l.stage <= 2) { it.k = 'call'; it.role = 'sales'; it.txt = ['Call the customer', 'Qualify: site, finance and timing', 'Send the pre-order'][l.stage]; it.sla = C.ST[l.stage].sla; it.amt = C.price(l) }
+    } else if (l.stage <= 2) { it.k = 'call'; it.role = 'sales'; it.txt = ['Call the customer', 'Qualify: site, finance and timing', 'Send the pre-order'][l.stage]; it.sla = (C.dueOf(l) - C.sinceOf(l)) / DAY; it.due = C.dueOf(l); it.amt = C.price(l) }
     else if (l.stage === 7 && l.order) {
       var o = l.order
       if (!o.handoverAt) { it.k = 'handover'; it.role = 'con'; it.txt = 'Send the handover to projects'; it.sla = 1; it.amt = C.price(l); it.age = (now - (l.gateAt || l.lastTouch || l.created)) / DAY }
@@ -206,8 +222,8 @@
     var wait = C.ITEMS().filter(function (i) { return i.k === 'approve' && !C.canGate(i.gate) && S.me && i.l.owner === S.me.id })
     return { all: all, appr: appr, todo: todo, wait: wait }
   }
-  /* the badge in Chat: customers past their window to be called, qualified, chased or approved. A director sees every overdue customer in the pipeline; everyone else sees their own. */
-  C.overdue = function () { return C.ITEMS().filter(function (i) { return (i.over || i.urgent) && (C.isAdmin() || C.mine(i)) }).length }
+  /* the badge (in Chat, and on the phone's Today tab): MY customers that are overdue, that is, past the follow-up time set for them (or 24 hours after the last contact), or an approval or chase of mine past its window. Not everyone else's. */
+  C.overdue = function () { return C.ITEMS().filter(function (i) { return (i.over || i.urgent) && C.mine(i) }).length }
   C.counts = function () {
     /* "need you" is what I can act on: approvals I give and the follow-ups. What is with the office is counted on its own. */
     var t = C.today(), act = t.appr.concat(t.todo), late = act.filter(function (i) { return i.over || i.urgent }).length

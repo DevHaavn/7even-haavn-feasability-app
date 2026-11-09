@@ -159,7 +159,7 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked', 'preMail', 'homes']
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked', 'preMail', 'homes', 'fu']
 const SERVER_KEYS = ['homes', 'preMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
 function leadOut(row) {
   const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
@@ -586,6 +586,17 @@ async function run(action, a, session, deps) {
           next.act = mergeAct(next.act, changes); next.lastTouch = tNow
         }
       }
+      // The follow-up: the date and time the salesperson will next contact this customer. While it is ahead of them the customer is on time; once it passes, red.
+      // Each stage starts without one (24 hours after the last contact is the default), so a move to a new stage is where the next one is set.
+      if (incoming.fu !== undefined) {
+        const v = Math.round(Number(incoming.fu)) || 0
+        if (v && (v < Date.now() - 5 * 60e3 || v > Date.now() + 400 * 864e5)) throw new SalesError('Pick a follow-up time in the future.')
+        if (v !== (Number(cur.fu) || 0)) {
+          next.fu = v
+          const when = (ms) => new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(ms))
+          next.act = mergeAct(next.act, [{ t: Date.now(), x: v ? `Follow-up set for ${when(v)} by ${w.name}.` : `Follow-up cleared by ${w.name}.`, k: 'sys' }])
+        } else next.fu = Number(cur.fu) || 0
+      } else next.fu = Number(cur.fu) || 0
       if (incoming.owner !== undefined && incoming.owner !== cur.owner) {
         if (internal) { next.owner = incoming.owner; next.companyId = incoming.companyId !== undefined ? incoming.companyId : '' }
         else if (w.manager) { const ag = await db.agents.get(incoming.owner); if (ag && ag.company_id === w.companyId) { next.owner = ag.id; next.companyId = ag.company_id } }
@@ -608,6 +619,7 @@ async function run(action, a, session, deps) {
         } else throw new SalesError(cur.gate ? 'That step needs an approval first. Use Approvals.' : 'A customer moves one stage at a time.', 409)
       }
       next.maxStage = Math.max(cur.maxStage || 0, next.stage)
+      if (next.stage !== cur.stage && incoming.fu === undefined) next.fu = 0   // a new stage starts a new follow-up
       // the home reaching the port opens the final payment, and it is not delivered until that is approved
       if (next.order && cur.stage >= 7) {
         const step = Number(next.order.step) || 0
