@@ -127,14 +127,26 @@
   C.full = function (l) { return (l.first + ' ' + (l.last || '')).trim() }
   /* where the home is in delivery, always a real step: an order record from an older build, or a half-saved one, can have no step or a stray one */
   C.step = function (l) { var s = l && l.order ? Math.floor(Number(l.order.step)) : 0; return s > 0 ? Math.min(s, C.DELIVERY.length - 1) : 0 }
-  C.home = function (l) { return C.PRODUCTS[l.product] ? C.PRODUCTS[l.product].n : 'No preference' }
-  C.isSolum = function (l) { return C.SOLUM.indexOf(l.product) >= 0 }
-  C.price = function (l) { return C.isSolum(l) ? ((S.settings.prices || {})[l.product] || 0) : 0 }
+  /* the order: a customer can buy several dwellings, each line with its own model, number and finishes. A customer with no list has the one home they always had (same rule as api/_utils/salesHomes.js). */
+  C.lines = function (l) { if (l.homes && l.homes.length) return l.homes; return C.SOLUM.indexOf(l.product) >= 0 ? [{ id: 'h0', product: l.product, qty: 1, clad: l.clad || '', pal: l.pal || '', join: l.join || '' }] : [] }
+  C.units = function (l) { return C.lines(l).reduce(function (n, h) { return n + h.qty }, 0) }
+  C.multi = function (l) { var ls = C.lines(l); return ls.length > 1 || (ls.length === 1 && ls[0].qty > 1) }
+  C.lineName = function (h) { return (h.qty > 1 ? h.qty + ' \u00d7 ' : '') + C.PRODUCTS[h.product].n }
+  C.words = function (a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] }
+  C.home = function (l) { var ls = C.lines(l); return ls.length ? C.words(ls.map(C.lineName)) : (C.PRODUCTS[l.product] ? C.PRODUCTS[l.product].n : 'No preference') }
+  C.homeShort = function (l) { var ls = C.lines(l); if (!ls.length) return (C.PRODUCTS[l.product] || C.PRODUCTS.none).s; if (ls.length === 1) return (ls[0].qty > 1 ? ls[0].qty + ' \u00d7 ' : '') + C.PRODUCTS[ls[0].product].s; return ls.map(function (h) { return h.qty + ' ' + C.PRODUCTS[h.product].s }).join(' + ') }
+  C.isSolum = function (l) { return C.lines(l).length > 0 }
+  C.price = function (l) { return C.lines(l).reduce(function (s, h) { return s + h.qty * ((S.settings.prices || {})[h.product] || 0) }, 0) }
   C.pre = function () { return S.settings.preorder || 2000 }
   C.depBal = function (l) { return Math.max(0, Math.round(C.price(l) * 0.1) - C.pre()) }
   C.finalAmt = function (l) { return Math.max(0, C.price(l) - Math.round(C.price(l) * 0.1)) }
   C.gateAmt = function (l, g) { return g === 'pre' ? C.pre() : (g === 'invoice' || g === 'dep') ? C.depBal(l) : g === 'final' ? C.finalAmt(l) : C.price(l) }
-  C.fin = function (l) { return [l.clad, l.pal, l.join].filter(Boolean).join(', ') || 'finishes to be chosen' }
+  C.finOf = function (h) { return [h.clad, h.pal, h.join].filter(Boolean).join(', ') }
+  C.fin = function (l) {
+    var ls = C.lines(l)
+    if (ls.length > 1) { var d = {}; ls.forEach(function (h) { d[C.finOf(h) || '-'] = 1 }); if (Object.keys(d).length > 1) return 'your own finishes for each home' }
+    return C.finOf(ls[0] || l) || 'finishes to be chosen'
+  }
   C.isInternal = function () { return !!(S.me && S.me.kind === 'internal') }
   C.isAdmin = function () { return !!(S.me && S.me.admin) }
   C.canGate = function (g) { return !!(S.me && S.me.gates && S.me.gates.indexOf(g) >= 0) }

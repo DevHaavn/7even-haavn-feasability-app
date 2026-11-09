@@ -126,7 +126,7 @@ try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.conten
 function start(){
   if(on||!C.real()||USERS.indexOf(C.me())<0) return false;
   on=true; build(); watch();
-  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=2'; s.onload=load; D.head.appendChild(s);
+  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=3'; s.onload=load; D.head.appendChild(s);
   return true;
 }
 setTimeout(function(){ if(start()) return; var n=0, iv=setInterval(function(){ n++; if(start()||n>40) clearInterval(iv) },750) },1800);

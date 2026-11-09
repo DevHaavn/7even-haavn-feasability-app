@@ -185,3 +185,27 @@ describe('an order record that is not what the server writes today', () => {
 describe('the shared file is safe to load anywhere', () => {
   it('exports the same object in a browser and in node, and never fetches on load', () => { expect(typeof H.api).toBe('function'); expect(H.ST).toHaveLength(10); expect(Object.keys(H.G)).toEqual(H.ORDER) })
 })
+
+describe('an order of several homes on the phone', () => {
+  const order = (over: any = {}) => lead({ homes: [{ id: 'a', product: 'plus', qty: 3, clad: 'Char', pal: 'Sage', join: '' }, { id: 'b', product: 'max', qty: 4, clad: 'Ivory', pal: '', join: 'Dark Oak' }], ...over })
+  it('values every dwelling, so the money on the phone is the whole order', () => {
+    const l = order()
+    expect(H.units(l)).toBe(7)
+    expect(H.price(l)).toBe(3 * 185000 + 4 * 215000)
+    expect(H.depBal(l)).toBe(141500 - 2000)
+    expect(H.finalAmt(l)).toBe(1415000 - 141500)
+    expect(H.gateAmt(l, 'final')).toBe(1273500)
+  })
+  it('words the order, and knows when finishes differ between homes', () => {
+    const l = order()
+    expect(H.home(l)).toBe('3 × SOLUM Plus and 4 × SOLUM Max')
+    expect(H.multi(l)).toBe(true)
+    expect(H.fin(l)).toBe('your own finishes for each home')
+    expect(H.fin(order({ homes: [{ product: 'plus', qty: 6, clad: 'Char', pal: 'Sage', join: '' }] }))).toBe('Char, Sage')
+  })
+  it('a customer with one home, or no list, reads exactly as before', () => {
+    const l = lead({ product: 'plus', clad: 'Char' })
+    expect(H.multi(l)).toBe(false); expect(H.home(l)).toBe('SOLUM Plus'); expect(H.price(l)).toBe(185000); expect(H.isSolum(l)).toBe(true); expect(H.fin(l)).toBe('Char')
+    expect(H.isSolum(lead({ product: 'octa', concept: true }))).toBe(false)
+  })
+})
