@@ -75,7 +75,7 @@ function address(arg){
   if(typeof arg==='string'&&arg) q='&lead='+encodeURIComponent(arg);
   else if(arg&&arg.find) q='&find='+encodeURIComponent(arg.find)+(arg.contact?'&contact='+encodeURIComponent(arg.contact):'');
   desk=wide&&!q;
-  return desk?'/atrium-sales.html?embed=1&t='+Date.now():'/atrium-sales-mobile.html?embed=chat&sch='+scheme()+'&t='+Date.now()+q;
+  return desk?'/atrium-sales.html?embed=1&sch='+scheme()+'&t='+Date.now():'/atrium-sales-mobile.html?embed=chat&sch='+scheme()+'&t='+Date.now()+q;
 }
 function open(arg){
   if(!on||!fr) return; ov.hidden=false; frReady=false;
@@ -120,7 +120,7 @@ window.addEventListener('message',function(e){ var d=e.data; if(!d||!fr||e.sourc
   else if(d.atriumSales==='scheme'){ try{ if(window.AtriumScheme&&!AtriumScheme.follows()) AtriumScheme.set(d.v==='light'?'light':'dark') }catch(er){} }  /* the Dark / Light button inside Sales changes the whole of Chat with it */
   else if(d.atriumSales==='ready'){ alive=true; clearTimeout(waitT); showWait(false) }
   else if(d.atriumSales==='counts'){ counts={need:+d.need||0,late:+d.late||0,waiting:+d.waiting||0}; draw() } });
-try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.contentWindow&&frReady&&!desk) fr.contentWindow.postMessage({atriumScheme:s},'*') }) }catch(e){}
+try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.contentWindow&&frReady) fr.contentWindow.postMessage({atriumScheme:s},'*') }) }catch(e){}
 
 /* start once Chat knows who is signed in. Only Jamie and Mike ever get past this line. */
 function start(){

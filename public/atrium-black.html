@@ -1352,7 +1352,7 @@ function archiveSupply(id){var p=WS.supplyProjects.find(function(x){return x.id=
 
 /* ===================== Sales pipeline (HAAVN Black) ===================== */
 /* Sales pipeline: the HAAVN BLACK sales app (public/atrium-sales.html, server /api/sales), in the same look, full width. */
-function viewSalesApp(){return '<iframe id="salesFrame" title="HAAVN BLACK Sales pipeline" src="/atrium-sales.html?embed=1&v=20261109st" style="width:100%;height:calc(100vh - 62px);min-height:560px;border:0;display:block;background:transparent"></iframe>';}
+function viewSalesApp(){return '<iframe id="salesFrame" title="HAAVN BLACK Sales pipeline" src="/atrium-sales.html?embed=1&v=20261109th" style="width:100%;height:calc(100vh - 62px);min-height:560px;border:0;display:block;background:transparent"></iframe>';}
 window.addEventListener('message',function(e){var d=e.data&&e.data.hbSales;if(d&&typeof d.open==='number'){window.__hbOpen=d.open;var c=document.getElementById('cBuyers');if(c)c.textContent=d.open;}});
 function viewSales(){
   var cols=BUYER_STAGES.slice(0,6);
