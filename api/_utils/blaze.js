@@ -59,6 +59,7 @@ const EMAILS = {
 }
 
 const files = require('./files')
+const agentChat = require('./agentChat')   // read-only Chat for the agents named in agentChat.READERS (today: Julio, Daniel's agent)
 
 class UserError extends Error {}
 
@@ -493,6 +494,14 @@ async function callTool(name, args, store, ctx = {}) {
     case 'get_file': return files.getFile(args).catch(fileErr)
     case 'get_task': return getTask((await store.read(KEYS.workflow) || {}).value, args)
     case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
+    case 'list_chats': case 'read_chat': {
+      // Read only, and only for an agent allowed in agentChat.READERS; everyone else is told it is not there.
+      if (!agentChat.canRead(by)) throw new UserError(`Unknown tool ${name}`)
+      try {
+        const chat = ctx.chat || require('./chatDb').supa()
+        return name === 'list_chats' ? await agentChat.listChats(chat, by) : await agentChat.readChat(chat, by, args)
+      } catch (e) { if (e instanceof agentChat.ReadError) throw new UserError(e.message); throw e }
+    }
     default: throw new UserError(`Unknown tool ${name}`)
   }
 }
@@ -529,7 +538,7 @@ async function handleRpc(msg, store, ctx = {}) {
   switch (msg.method) {
     case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.3.0' } })
     case 'ping': return ok({})
-    case 'tools/list': return ok({ tools: Object.entries(SCHEMAS).map(([name, s]) => ({ name, ...s })) })
+    case 'tools/list': return ok({ tools: Object.entries({ ...SCHEMAS, ...(agentChat.canRead(ctx.agent) ? agentChat.SCHEMAS : {}) }).map(([name, s]) => ({ name, ...s })) })
     case 'tools/call': {
       const name = msg.params && msg.params.name
       const args = msg.params && msg.params.arguments
